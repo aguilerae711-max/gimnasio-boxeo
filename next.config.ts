@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Genera un servidor autónomo para el contenedor de Cloud Run.
+  output: "standalone",
 };
 
 export default nextConfig;

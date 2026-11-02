@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Comisiones</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 860px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="12">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <div style="font-size: 13px; color: #A3A8B3">Configuración</div>
+    <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Comisiones</h1>
+
+    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px">
+      <section style="flex: 3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #1C1E25; border-radius: 18px; padding: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px">
+          <div style="flex: 1 1 200px">
+            <div style="font-size: 13px; color: #A3A8B3">Comisión general del gimnasio</div>
+            <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 800; line-height: 1; color: #6FE0A2">{{general}}%</div>
+            <div style="margin-top: 4px; font-size: 12px; color: #A3A8B3">De cada pago confirmado · vigente desde 1 nov 2026</div>
+          </div>
+          <button type="button" onClick="{{abrirGeneral}}" style="min-height: 48px; padding: 0 18px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Mover comisión</button>
+        </div>
+
+        <div style="background: #1C1E25; border-radius: 18px; padding: 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Por coach</h2>
+          <div style="font-size: 12px; color: #A3A8B3">Sin excepción, el coach usa la comisión general</div>
+          <sc-for list="{{coaches}}" as="c" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #2A2D36; margin-top: 8px">
+              <span style="width: 12px; height: 12px; border-radius: 4px; background: {{c.color}}"></span>
+              <div style="flex: 1; min-width: 0">
+                <div style="font-size: 15px; font-weight: 600">{{c.n}}</div>
+                <div style="font-size: 12px; color: #A3A8B3">{{c.nota}}</div>
+              </div>
+              <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800">{{c.pct}}%</span>
+              <button type="button" onClick="{{c.abrir}}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 13px Inter, sans-serif">Cambiar</button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="flex: 2 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <sc-if value="{{editando}}" hint-placeholder-val="{{ true }}">
+          <div style="background: #1C1E25; border: 2px solid #D7263D; border-radius: 18px; padding: 18px">
+            <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Mover · {{destino}}</h2>
+            <div style="margin-top: 14px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">NUEVO PORCENTAJE</div>
+            <div style="margin-top: 6px; display: flex; align-items: center; gap: 10px">
+              <button type="button" onClick="{{menos}}" aria-label="Bajar 5%" style="width: 48px; height: 48px; border-radius: 12px; border: 0; background: #2A2D36; color: #F2F3F5; font: 700 22px Inter, sans-serif">−</button>
+              <span style="flex: 1; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 800">{{nuevo}}%</span>
+              <button type="button" onClick="{{mas}}" aria-label="Subir 5%" style="width: 48px; height: 48px; border-radius: 12px; border: 0; background: #2A2D36; color: #F2F3F5; font: 700 22px Inter, sans-serif">+</button>
+            </div>
+            <div style="margin-top: 14px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">APLICA DESDE</div>
+            <div style="margin-top: 6px; min-height: 44px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; background: #23262E; font-size: 14px">1 de diciembre de 2026</div>
+            <div style="margin-top: 14px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">MOTIVO</div>
+            <div style="margin-top: 6px; min-height: 44px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; background: #23262E; font-size: 14px; color: #A3A8B3">Ej. ajuste anual</div>
+            <div style="margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #2A2111; color: #F1D9A8; font-size: 12px; line-height: 1.45">Aplica a pagos confirmados desde esa fecha. Las comisiones ya generadas no cambian.</div>
+            <div style="margin-top: 14px; display: flex; gap: 10px">
+              <button type="button" onClick="{{guardar}}" style="flex: 1; min-height: 48px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Guardar cambio</button>
+              <button type="button" onClick="{{cancelar}}" style="min-height: 48px; padding: 0 16px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 14px Inter, sans-serif">Cancelar</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="background: #1C1E25; border-radius: 18px; padding: 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Historial</h2>
+          <sc-for list="{{historial}}" as="h" hint-placeholder-count="3">
+            <div style="padding: 10px 0; border-top: 1px solid #2A2D36; margin-top: 6px">
+              <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px"><span style="font-weight: 600">{{h.quien}}</span><span style="font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700">{{h.pct}}</span></div>
+              <div style="font-size: 12px; color: #A3A8B3">{{h.detalle}}</div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { destino: 'Comisión general', nuevo: 50, editando: true, programados: [] };
+}
+renderVals() {
+const s = this.state;
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminComisiones.dc.html'],['Clientes','AdminComisiones.dc.html'],['Pagos','AdminComisiones.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminComisiones.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminComisiones.dc.html'],['Configuración','AdminComisiones.dc.html']];
+const active = 'Configuración';
+const abrir = (destino, actual) => () => this.setState({ destino: destino, nuevo: actual, editando: true });
+const base = [
+{ n: 'Coach Iván', color: '#D7263D', nota: 'Usa la general' },
+{ n: 'Coach Mike', color: '#E8B04B', nota: 'Usa la general' },
+{ n: 'Coach Chato', color: '#2F80ED', nota: 'Usa la general' }
+];
+const programado = (n) => s.programados.find((p) => p.destino === n);
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+general: 50,
+abrirGeneral: abrir('Comisión general', 50),
+coaches: base.map((c) => {
+const p = programado(c.n);
+return Object.assign({}, c, { pct: 50, nota: p ? 'Cambia a ' + p.pct + '% el 1 dic' : c.nota, abrir: abrir(c.n, 50) });
+}),
+editando: s.editando,
+destino: s.destino,
+nuevo: s.nuevo,
+menos: () => this.setState({ nuevo: Math.max(0, s.nuevo - 5) }),
+mas: () => this.setState({ nuevo: Math.min(100, s.nuevo + 5) }),
+cancelar: () => this.setState({ editando: false }),
+guardar: () => this.setState({ editando: false, programados: s.programados.filter((p) => p.destino !== s.destino).concat([{ destino: s.destino, pct: s.nuevo }]) }),
+historial: s.programados.map((p) => ({ quien: p.destino, pct: p.pct + '%', detalle: 'Programado desde 1 dic 2026 · por Iván' })).concat([
+{ quien: 'Comisión general', pct: '50%', detalle: 'Desde 1 nov 2026 · Comisión inicial · por Iván' }
+])
+};
+}
+}
+</script>
+</body>
+</html>

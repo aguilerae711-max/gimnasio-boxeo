@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Coach · Clientes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 20px 20px 0">
+    <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 30px; text-transform: uppercase">Mis clientes</div>
+  </div>
+
+  <div style="margin: 12px 20px 0; background: #1C1E25; border-radius: 16px; padding: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; text-align: center">
+    <sc-for list="{{resumen}}" as="r" hint-placeholder-count="4">
+      <div>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; color: {{r.color}}">{{r.v}}</div>
+        <div style="font-size: 11px; color: #A3A8B3">{{r.n}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin: 12px 20px 0; display: flex; gap: 8px">
+    <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: #F2F3F5; color: #121317; font: 700 13px Inter, sans-serif">Todos</button>
+    <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 13px Inter, sans-serif">Por vencer</button>
+    <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 13px Inter, sans-serif">Vencidos</button>
+  </div>
+
+  <div style="margin: 12px 20px 0; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{clientes}}" as="c" hint-placeholder-count="6">
+      <div style="background: #1C1E25; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px">
+        <div style="width: 40px; height: 40px; border-radius: 20px; background: #2A2D36; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; position: relative">{{c.ini}}<span style="position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 6px; border: 2px solid #1C1E25; background: {{c.dot}}"></span></div>
+        <div style="flex: 1; min-width: 0">
+          <div style="font-size: 15px; font-weight: 600">{{c.nombre}}</div>
+          <div style="font-size: 12px; color: #A3A8B3">{{c.estado}}</div>
+        </div>
+        <div style="display: flex; gap: 4px">
+          <sc-for list="{{c.p}}" as="v" hint-placeholder-count="4">
+            <span style="min-width: 28px; padding: 3px 0; border-radius: 6px; background: #23262E; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: {{v.color}}">{{v.v}}</span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin: 8px 20px 0; font-size: 11px; color: #A3A8B3; text-align: right">F · V · R · E = índices por pilar (inicio = 100)</div>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid #23262E; background: #16171C; padding: 8px 6px 14px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="{{n.href}}" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{n.color}}; font-size: 11px; font-weight: 600">
+        <span style="width: 22px; height: 4px; border-radius: 2px; background: {{n.bar}}"></span>{{n.label}}
+      </a>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const on = (l, h) => ({ label: l, href: h, color: '#F2F3F5', bar: '#D7263D' });
+const off = (l, h) => ({ label: l, href: h, color: '#A3A8B3', bar: 'transparent' });
+const pil = (f, v, r, e) => [
+{ v: f, color: '#FF6B76' }, { v: v, color: '#E8B04B' }, { v: r, color: '#4FA3FF' }, { v: e, color: '#6FE0A2' }
+];
+const G = '#3DBE7A', Y = '#E8B04B', R = '#FF5A66';
+return {
+resumen: [
+{ n: 'Activos', v: 12, color: '#6FE0A2' },
+{ n: 'Por vencer', v: 2, color: '#E8B04B' },
+{ n: 'Vencidos', v: 1, color: '#FF6B76' },
+{ n: 'Evaluados', v: '86%', color: '#F2F3F5' }
+],
+clientes: [
+{ ini: 'JP', nombre: 'Juan Pérez', estado: 'Activo · 18 días', dot: G, p: pil(112, 115, 121, 104) },
+{ ini: 'AR', nombre: 'Ana Ruiz', estado: 'Vence en 3 días', dot: Y, p: pil(108, 103, 110, 112) },
+{ ini: 'LG', nombre: 'Luis Gómez', estado: 'Vencido hace 2 días', dot: R, p: pil(101, 99, 104, 100) },
+{ ini: 'MS', nombre: 'María Soto', estado: 'Activo · 25 días', dot: G, p: pil(118, 109, 115, 120) },
+{ ini: 'CN', nombre: 'Carlos Núñez', estado: 'Nuevo · sin evaluación inicial', dot: G, p: pil('—', '—', '—', '—') }
+],
+nav: [off('Hoy', 'CoachHoy.dc.html'), off('Mi plan', 'CoachPlan.dc.html'), on('Clientes', 'CoachClientes.dc.html'), off('Biblioteca', 'CoachBiblioteca.dc.html'), off('Más', 'CoachClientes.dc.html')]
+};
+}
+}
+</script>
+</body>
+</html>

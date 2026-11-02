@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Inicio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 860px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="10">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+      <div>
+        <div style="font-size: 13px; color: #A3A8B3">Viernes 30 de octubre</div>
+        <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Inicio</h1>
+      </div>
+      <a href="AdminEvaluacion.dc.html" style="min-height: 52px; display: inline-flex; align-items: center; gap: 10px; padding: 0 22px; border-radius: 14px; background: #D7263D; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 15px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 018 0v4"></path></svg>
+        Comenzar evaluación
+      </a>
+    </div>
+
+    <div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background: #1C1E25; border-radius: 16px; padding: 18px">
+          <div style="font-size: 13px; color: #A3A8B3; font-weight: 500">{{k.n}}</div>
+          <div style="margin-top: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 42px; font-weight: 800; line-height: 1; color: {{k.color}}">{{k.v}}</div>
+          <div style="margin-top: 6px; font-size: 12px; color: #A3A8B3">{{k.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 16px">
+      <section style="flex: 3 1 420px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 18px">
+        <h2 style="margin: 0 0 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Pendientes</h2>
+        <sc-for list="{{pendientes}}" as="p" hint-placeholder-count="5">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #2A2D36">
+            <span style="padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: {{p.tbg}}; color: {{p.tfg}}">{{p.tipo}}</span>
+            <div style="flex: 1 1 200px; min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">{{p.titulo}}</div>
+              <div style="font-size: 12px; color: #A3A8B3">{{p.detalle}}</div>
+            </div>
+            <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: #F2F3F5; color: #121317; font: 700 13px Inter, sans-serif">{{p.accion}}</button>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="flex: 2 1 300px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 18px">
+        <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Coaches · Octubre</h2>
+        <div style="font-size: 12px; color: #A3A8B3; margin-top: 2px">Índice promedio de sus clientes y cobertura</div>
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 14px">
+          <sc-for list="{{coaches}}" as="c" hint-placeholder-count="4">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">{{c.pos}}. {{c.n}}</span><span style="font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700">{{c.v}}</span></div>
+              <div style="margin-top: 6px; height: 8px; border-radius: 4px; background: #2A2D36; overflow: hidden"><div style="height: 8px; border-radius: 4px; width: {{c.w}}; background: {{c.color}}"></div></div>
+              <div style="margin-top: 4px; font-size: 12px; color: #A3A8B3">{{c.sub}}</div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminInicio.dc.html'],['Clientes','AdminInicio.dc.html'],['Pagos','AdminInicio.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminInicio.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminInicio.dc.html'],['Configuración','AdminInicio.dc.html']];
+const active = 'Inicio';
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+kpis: [
+{ n: 'Clientes activos', v: 84, sub: 'de 93 inscritos', color: '#F2F3F5' },
+{ n: 'Vencen en 7 días', v: 9, sub: 'avisar a sus coaches', color: '#E8B04B' },
+{ n: 'Pagos por confirmar', v: 5, sub: 'reportados por coaches', color: '#FF6B76' },
+{ n: 'Evaluaciones pendientes', v: 31, sub: 'mensual de noviembre', color: '#4FA3FF' }
+],
+pendientes: [
+{ tipo: 'PAGO', tbg: '#3A1A20', tfg: '#FF8F97', titulo: 'Juan Pérez · Mensual', detalle: 'Reportado por Coach Iván · comprobante adjunto', accion: 'Revisar' },
+{ tipo: 'PAGO', tbg: '#3A1A20', tfg: '#FF8F97', titulo: 'Ana Ruiz · Trimestral', detalle: 'Reportado por Coach Mike', accion: 'Revisar' },
+{ tipo: 'COACH', tbg: '#1A2A3D', tfg: '#8CC4FF', titulo: 'Solicitud de registro: Coach nuevo', detalle: 'Esperando aprobación y horario', accion: 'Aprobar' },
+{ tipo: 'CLIENTE', tbg: '#173A28', tfg: '#6FE0A2', titulo: 'Registro propio: Carla M.', detalle: 'Eligió a Coach Iván · documentos firmados', accion: 'Aprobar' },
+{ tipo: 'PLAN', tbg: '#2A2111', tfg: '#F1D9A8', titulo: 'Coach Chato cambió su plan de diciembre', detalle: 'Miércoles 18–20: B → C', accion: 'Ver cambios' }
+],
+coaches: [
+{ pos: 1, n: 'Coach Iván', v: 113, w: '86%', color: '#D7263D', sub: '14 clientes · cobertura 86%' },
+{ pos: 2, n: 'Coach Chato', v: 109, w: '78%', color: '#E8B04B', sub: '9 clientes · cobertura 100%' },
+{ pos: 3, n: 'Coach Mike', v: 106, w: '70%', color: '#4FA3FF', sub: '11 clientes · cobertura 73%' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

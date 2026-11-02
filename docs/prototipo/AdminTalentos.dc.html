@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Talentos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 860px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="11">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; justify-content: space-between">
+      <div>
+        <div style="font-size: 13px; color: #A3A8B3">Solo administración · actualizado con la evaluación de octubre</div>
+        <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Detección de talentos</h1>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{etapas}}" as="e" hint-placeholder-count="5">
+          <span style="padding: 7px 12px; border-radius: 18px; background: #1C1E25; font-size: 13px; color: #C9CCD3"><b style="color: {{e.color}}">{{e.v}}</b> {{e.n}}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section style="flex: 3 1 440px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 8px 18px 14px">
+        <div style="display: grid; grid-template-columns: 34px minmax(0, 1fr) 70px 150px 110px; gap: 10px; padding: 10px 0; font-size: 11px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">
+          <span>#</span><span>CLIENTE</span><span>PROYECC.</span><span>SEÑALES</span><span>ETAPA</span>
+        </div>
+        <sc-for list="{{lista}}" as="c" hint-placeholder-count="6">
+          <div style="display: grid; grid-template-columns: 34px minmax(0, 1fr) 70px 150px 110px; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #2A2D36; background: {{c.rowBg}}">
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #A3A8B3">{{c.pos}}</span>
+            <div style="min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">{{c.nombre}}</div>
+              <div style="font-size: 12px; color: #A3A8B3">{{c.meta}}</div>
+            </div>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: {{c.color}}">{{c.p}}</span>
+            <div style="display: flex; gap: 3px; align-items: flex-end; height: 28px" aria-label="Señales: mejora, nivel, combate, contexto, constancia">
+              <sc-for list="{{c.s}}" as="b" hint-placeholder-count="5">
+                <span style="width: 22px; height: {{b.h}}; border-radius: 3px; background: {{b.color}}"></span>
+              </sc-for>
+            </div>
+            <span style="justify-self: start; padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; background: {{c.ebg}}; color: {{c.efg}}">{{c.etapa}}</span>
+          </div>
+        </sc-for>
+        <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: #A3A8B3">
+          <sc-for list="{{leyenda}}" as="l" hint-placeholder-count="5">
+            <span style="display: inline-flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{l.color}}"></span>{{l.n}}</span>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="flex: 2 1 320px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+          <div>
+            <div style="font-size: 18px; font-weight: 700">María Soto</div>
+            <div style="font-size: 12px; color: #A3A8B3">19 años · 7 meses entrenando · Coach Iván</div>
+          </div>
+          <div style="text-align: right">
+            <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; color: #FF6B76">87</div>
+            <div style="font-size: 11px; color: #A3A8B3">proyección</div>
+          </div>
+        </div>
+        <div style="margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: #1A2A3D; color: #8CC4FF; font-size: 12px">Nominada por Coach Iván · "Lee muy bien la distancia"</div>
+
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{detalle}}" as="d" hint-placeholder-count="5">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span>{{d.n}}</span><span style="color: #C9CCD3">{{d.txt}}</span></div>
+              <div style="margin-top: 5px; height: 8px; border-radius: 4px; background: #2A2D36; overflow: hidden"><div style="height: 8px; width: {{d.w}}; background: {{d.color}}; border-radius: 4px"></div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top: 18px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">ÍNDICE GLOBAL VS. SU COHORTE (7 MESES)</div>
+        <svg width="100%" height="110" viewBox="0 0 320 110" preserveAspectRatio="none" role="img" aria-label="Índice global de María sube de 100 a 121 en seis meses, por encima del promedio de su cohorte que llega a 110">
+          <line x1="0" y1="100" x2="320" y2="100" stroke="#2A2D36" stroke-width="1"></line>
+          <polyline points="10,95 70,88 130,82 190,76 250,72 310,68" fill="none" stroke="#8B909B" stroke-width="2" stroke-dasharray="5 4"></polyline>
+          <polyline points="10,95 70,82 130,66 190,52 250,40 310,28" fill="none" stroke="#FF6B76" stroke-width="3" stroke-linejoin="round"></polyline>
+          <circle cx="310" cy="28" r="4" fill="#FF6B76"></circle>
+        </svg>
+        <div style="display: flex; gap: 16px; font-size: 11px; color: #A3A8B3">
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; border-top: 3px solid #FF6B76"></span>María</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; border-top: 2px dashed #8B909B"></span>Promedio de cohorte</span>
+        </div>
+
+        <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <button type="button" style="min-height: 46px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 14px Inter, sans-serif">Registrar combate</button>
+          <button type="button" style="min-height: 46px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Mover a Plan competitivo</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminTalentos.dc.html'],['Clientes','AdminTalentos.dc.html'],['Pagos','AdminTalentos.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminTalentos.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminTalentos.dc.html'],['Configuración','AdminTalentos.dc.html']];
+const active = 'Talentos';
+const col = ['#FF6B76', '#E8B04B', '#6FE0A2', '#4FA3FF', '#B9A6FF'];
+const bars = (arr) => arr.map((v, i) => ({ h: Math.max(4, Math.round(v * 0.28)) + 'px', color: col[i] }));
+const etapa = {
+obs: { etapa: 'Observación', ebg: '#2A2D36', efg: '#DADCE1' },
+pro: { etapa: 'Prospecto', ebg: '#2A2111', efg: '#F1D9A8' },
+comp: { etapa: 'Plan compet.', ebg: '#3A1A20', efg: '#FF8F97' },
+nueva: { etapa: 'Sin etapa', ebg: 'transparent', efg: '#A3A8B3' }
+};
+const fila = (pos, nombre, meta, p, s, e, sel) => Object.assign({ pos: pos, nombre: nombre, meta: meta, p: p, s: bars(s), color: p >= 80 ? '#FF6B76' : (p >= 65 ? '#E8B04B' : '#F2F3F5'), rowBg: sel ? '#23262E' : 'transparent' }, etapa[e]);
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+etapas: [
+{ n: 'Observación', v: 6, color: '#DADCE1' },
+{ n: 'Prospectos', v: 3, color: '#E8B04B' },
+{ n: 'Plan competitivo', v: 1, color: '#FF6B76' },
+{ n: 'Amateur', v: 0, color: '#6FE0A2' },
+{ n: 'Nominaciones', v: 2, color: '#8CC4FF' }
+],
+lista: [
+fila(1, 'María Soto', '19 años · 7 meses · Coach Iván', 87, [95, 80, 90, 85, 80], 'pro', true),
+fila(2, 'Diego Ramos', '17 años · 4 meses · Coach Chato', 81, [92, 60, 75, 95, 70], 'obs', false),
+fila(3, 'Juan Pérez', '24 años · 3 meses · Coach Iván', 74, [85, 55, 60, 70, 90], 'nueva', false),
+fila(4, 'Sofía León', '21 años · 12 meses · Coach Mike', 72, [60, 85, 70, 55, 95], 'comp', false),
+fila(5, 'Ana Ruiz', '28 años · 9 meses · Coach Mike', 61, [55, 60, 75, 40, 70], 'obs', false),
+fila(6, 'Carlos Núñez', 'Nuevo · 1 evaluación', '—', [0, 0, 0, 0, 0], 'nueva', false)
+],
+leyenda: [
+{ n: 'Ritmo de mejora 30%', color: col[0] },
+{ n: 'Nivel absoluto 25%', color: col[1] },
+{ n: 'Inteligencia de combate 25%', color: col[2] },
+{ n: 'Contexto 10%', color: col[3] },
+{ n: 'Constancia 10%', color: col[4] }
+],
+detalle: [
+{ n: 'Ritmo de mejora', txt: 'percentil 95 de su cohorte', w: '95%', color: col[0] },
+{ n: 'Nivel absoluto', txt: '5 de 8 tests en Avanzado', w: '80%', color: col[1] },
+{ n: 'Inteligencia de combate', txt: 'Táctica 9 · Adaptabilidad 8', w: '90%', color: col[2] },
+{ n: 'Contexto', txt: 'joven y con poco tiempo', w: '85%', color: col[3] },
+{ n: 'Constancia', txt: '7 de 7 meses activa', w: '80%', color: col[4] }
+]
+};
+}
+}
+</script>
+</body>
+</html>

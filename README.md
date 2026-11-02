@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gimnasio de boxeo
 
-## Getting Started
+App de gestión para gimnasios de boxeo (replicable a otras disciplinas): roles, horario, pagos y comisiones,
+evaluación por pilares, biblioteca, novedades y talentos. El plan completo está en
+[docs/Plan_Sistema_Gimnasio.pdf](docs/Plan_Sistema_Gimnasio.pdf) y el prototipo de pantallas en `docs/prototipo/`.
 
-First, run the development server:
+## Arquitectura
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Arquitectura limpia por módulos (contextos del plan). La regla de dependencia la revisa ESLint.
+
+```
+src/
+  shared/
+    domain/          Valores comunes: Fecha, Dinero (centavos), Porcentaje, errores
+    application/     Puertos comunes: Autorizacion, Auditoria, Reloj, GeneradorDeIds
+    infrastructure/  Conexión a Postgres (Neon)
+  modules/<módulo>/
+    domain/          Entidades y reglas, sin dependencias externas
+    application/     Casos de uso y sus puertos
+    infrastructure/  Implementaciones (repositorios)
+  app/               Next.js: pantallas y API (capa de frameworks)
+db/migrations/       SQL versionado, aplicado en orden
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comandos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | App local en http://localhost:3000 |
+| `npm test` | Pruebas (dominio, casos de uso y migraciones con Postgres embebido) |
+| `npm run lint` / `npm run typecheck` | Calidad y tipos |
+| `npm run db:migrate` | Aplica migraciones pendientes a Neon (usa `.env.local`) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` lo genera `neon env pull` y nunca se sube a Git.
 
-## Learn More
+## Infraestructura (etapa de prueba)
 
-To learn more about Next.js, take a look at the following resources:
+- **App:** Google Cloud Run, proyecto `gimnasio-boxeo-1656`, región `us-central1`.
+- **Base de datos:** Neon Postgres, rama `production`. La cadena de conexión vive en Secret Manager (`database-url`).
+- **Archivos y respaldos:** Cloud Storage (`gimnasio-boxeo-1656-archivos`, `gimnasio-boxeo-1656-respaldos`).
+- **Alerta de presupuesto:** 100 MXN al mes.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Publicar una versión nueva:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+gcloud run deploy gimnasio-boxeo --source . --project=gimnasio-boxeo-1656 --region=us-central1
+```

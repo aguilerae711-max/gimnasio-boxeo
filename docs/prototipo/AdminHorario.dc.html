@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Horario</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 860px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="10">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box">
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between">
+      <div>
+        <div style="font-size: 13px; color: #A3A8B3">Vigente desde 1 de noviembre</div>
+        <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Horario</h1>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <sc-for list="{{leyenda}}" as="l" hint-placeholder-count="4">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #C9CCD3"><span style="width: 12px; height: 12px; border-radius: 4px; background: {{l.color}}"></span>{{l.n}}</span>
+        </sc-for>
+        <button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Asignar coach</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; overflow-x: auto; background: #1C1E25; border-radius: 18px; padding: 14px">
+      <div style="min-width: 680px; display: grid; grid-template-columns: 76px repeat(5, minmax(0, 1fr)); gap: 6px">
+        <div></div>
+        <sc-for list="{{dias}}" as="d" hint-placeholder-count="5">
+          <div style="text-align: center; font-size: 12px; font-weight: 700; color: #A3A8B3; padding: 4px 0; letter-spacing: 0.5px">{{d}}</div>
+        </sc-for>
+        <sc-for list="{{celdas}}" as="c" hint-placeholder-count="48">
+          <div style="min-height: 56px; border-radius: 10px; padding: 6px; box-sizing: border-box; background: {{c.bg}}; display: flex; flex-direction: column; gap: 4px; justify-content: center">
+            <sc-if value="{{c.esHora}}" hint-placeholder-val="{{ false }}">
+              <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; color: #DADCE1">{{c.hora}}</span>
+            </sc-if>
+            <sc-for list="{{c.chips}}" as="k" hint-placeholder-count="1">
+              <span style="display: flex; justify-content: space-between; gap: 4px; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{k.color}}; color: {{k.fg}}"><span>{{k.n}}</span><span>{{k.cupo}}</span></span>
+            </sc-for>
+            <sc-if value="{{c.vacia}}" hint-placeholder-val="{{ false }}">
+              <span style="text-align: center; font-size: 18px; color: #4A4E58">+</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="margin-top: 10px; font-size: 12px; color: #A3A8B3">Se muestran solo los días que opera el gimnasio (por defecto lunes a viernes; se cambia en Configuración). Cada etiqueta muestra coach y cupo ocupado / máximo; una franja admite varios coaches.</div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminHorario.dc.html'],['Clientes','AdminHorario.dc.html'],['Pagos','AdminHorario.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminHorario.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminHorario.dc.html'],['Configuración','AdminComisiones.dc.html']];
+const active = 'Horario';
+const C = {
+A: { n: 'Coach Iván', color: '#D7263D', fg: '#FFFFFF' },
+B: { n: 'Coach Mike', color: '#E8B04B', fg: '#1B1407' },
+C: { n: 'Coach Chato', color: '#2F80ED', fg: '#FFFFFF' }
+};
+const horas = ['08–10','10–12','12–14','14–16','16–18','18–20','20–22'];
+const plan = {
+'0': { 0: ['A'], 1: ['A'], 2: ['A'], 3: ['A'], 4: ['A'] },
+'1': { 1: ['C'], 3: ['C'] },
+'4': { 0: ['B'], 2: ['B'], 4: ['B'] },
+'5': { 0: ['A', 'C'], 1: ['B'], 2: ['A', 'C'], 3: ['B'], 4: ['C'] },
+'6': { 0: ['B'], 1: ['C'], 2: ['B'], 3: ['C'], 4: ['B'] }
+};
+const cupos = ['7/10', '5/8', '9/10', '3/8', '6/10'];
+const celdas = [];
+horas.forEach((h, r) => {
+celdas.push({ esHora: true, hora: h, chips: [], vacia: false, bg: 'transparent' });
+for (let d = 0; d < 5; d++) {
+const ids = (plan[String(r)] || {})[d] || [];
+const chips = ids.map((id, i) => ({ n: C[id].n.replace('Coach ', ''), color: C[id].color, fg: C[id].fg, cupo: cupos[(r + d + i) % cupos.length] }));
+celdas.push({ esHora: false, hora: '', chips: chips, vacia: chips.length === 0, bg: '#23262E' });
+}
+});
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+leyenda: Object.values(C),
+dias: ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE'],
+celdas: celdas
+};
+}
+}
+</script>
+</body>
+</html>

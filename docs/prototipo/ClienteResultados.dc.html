@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cliente · Resultados</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 20px 20px 0">
+    <div style="font-size: 13px; color: #A3A8B3">Evaluación de octubre · publicada el 28 oct</div>
+    <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 30px; text-transform: uppercase">Mis resultados</div>
+  </div>
+
+  <div style="margin: 10px 20px 0; background: #1C1E25; border-radius: 22px; padding: 10px 0 6px; display: flex; flex-direction: column; align-items: center">
+    <svg width="340" height="300" viewBox="0 0 340 300" role="img" aria-label="Radar de pilares: Fuerza 112, Velocidad 115, Resistencia 121, Estrategia 104; inicio en 100">
+      <polygon points="170,30 290,150 170,270 50,150" fill="none" stroke="#2A2D36" stroke-width="1"></polygon>
+      <line x1="170" y1="30" x2="170" y2="270" stroke="#2A2D36" stroke-width="1"></line>
+      <line x1="50" y1="150" x2="290" y2="150" stroke="#2A2D36" stroke-width="1"></line>
+      <polygon points="170,90 230,150 170,210 110,150" fill="none" stroke="#8B909B" stroke-width="1.5" stroke-dasharray="5 5"></polygon>
+      <polygon points="170,72 255,150 170,215 96,150" fill="#D7263D" fill-opacity="0.28" stroke="#FF6B76" stroke-width="2.5" stroke-linejoin="round"></polygon>
+      <circle cx="170" cy="72" r="5" fill="#E8B04B"></circle>
+      <circle cx="255" cy="150" r="5" fill="#4FA3FF"></circle>
+      <circle cx="170" cy="215" r="5" fill="#6FE0A2"></circle>
+      <circle cx="96" cy="150" r="5" fill="#FF6B76"></circle>
+      <text x="170" y="20" text-anchor="middle" fill="#DADCE1" font-family="Inter, sans-serif" font-size="13" font-weight="600">Velocidad</text>
+      <text x="170" y="292" text-anchor="middle" fill="#DADCE1" font-family="Inter, sans-serif" font-size="13" font-weight="600">Estrategia</text>
+      <text x="296" y="140" text-anchor="end" fill="#DADCE1" font-family="Inter, sans-serif" font-size="13" font-weight="600">Resistencia</text>
+      <text x="44" y="140" text-anchor="start" fill="#DADCE1" font-family="Inter, sans-serif" font-size="13" font-weight="600">Fuerza</text>
+    </svg>
+    <div style="display: flex; gap: 18px; font-size: 12px; color: #A3A8B3; padding-bottom: 8px">
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; border-top: 2px dashed #8B909B"></span>Mi inicio (100)</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #D7263D"></span>Hoy</span>
+    </div>
+  </div>
+
+  <div style="margin: 12px 20px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+    <sc-for list="{{pilares}}" as="p" hint-placeholder-count="4">
+      <div style="background: #1C1E25; border-radius: 14px; padding: 12px 14px">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #C9CCD3; font-weight: 600"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{p.color}}"></span>{{p.n}}</div>
+        <div style="margin-top: 4px; display: flex; align-items: baseline; gap: 8px">
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 800; line-height: 1">{{p.v}}</span>
+          <span style="font-size: 13px; font-weight: 600; color: #6FE0A2">{{p.d}}</span>
+        </div>
+        <div style="margin-top: 2px; font-size: 12px; color: #A3A8B3">{{p.sub}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #23262E; background: #16171C; padding: 8px 8px 14px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="4">
+      <a href="{{n.href}}" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{n.color}}; font-size: 11px; font-weight: 600">
+        <span style="width: 22px; height: 4px; border-radius: 2px; background: {{n.bar}}"></span>{{n.label}}
+      </a>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const on = (l, h) => ({ label: l, href: h, color: '#F2F3F5', bar: '#D7263D' });
+const off = (l, h) => ({ label: l, href: h, color: '#A3A8B3', bar: 'transparent' });
+return {
+pilares: [
+{ n: 'Fuerza', v: 112, d: '▲ 5', color: '#FF6B76', sub: 'desde tu inicio: +12%' },
+{ n: 'Velocidad', v: 115, d: '▲ 7', color: '#E8B04B', sub: 'desde tu inicio: +15%' },
+{ n: 'Resistencia', v: 121, d: '▲ 9', color: '#4FA3FF', sub: 'desde tu inicio: +21%' },
+{ n: 'Estrategia', v: 104, d: '▲ 2', color: '#6FE0A2', sub: 'Táctica 108 · Adapt. 100' }
+],
+nav: [off('Inicio', 'ClienteInicio.dc.html'), on('Resultados', 'ClienteResultados.dc.html'), off('Novedades', 'ClienteInicio.dc.html'), off('Perfil', 'ClienteInicio.dc.html')]
+};
+}
+}
+</script>
+</body>
+</html>

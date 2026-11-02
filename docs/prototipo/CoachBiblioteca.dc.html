@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Coach · Biblioteca</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 20px 20px 0">
+    <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 30px; text-transform: uppercase">Biblioteca</div>
+  </div>
+
+  <div style="margin: 10px 20px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #1C1E25; border-radius: 12px; padding: 4px">
+    <button type="button" style="min-height: 40px; border: 0; border-radius: 9px; background: #F2F3F5; color: #121317; font: 700 13px Inter, sans-serif">Glosario</button>
+    <button type="button" style="min-height: 40px; border: 0; border-radius: 9px; background: transparent; color: #C9CCD3; font: 600 13px Inter, sans-serif">Mis ejercicios</button>
+    <button type="button" style="min-height: 40px; border: 0; border-radius: 9px; background: transparent; color: #C9CCD3; font: 600 13px Inter, sans-serif">Compartidos</button>
+  </div>
+
+  <div style="margin: 12px 20px 0; display: flex; gap: 8px">
+    <button type="button" onClick="{{verGolpes}}" style="min-height: 40px; padding: 0 16px; border-radius: 20px; font: 700 13px Inter, sans-serif; background: {{tabG.bg}}; color: {{tabG.fg}}; border: 1px solid {{tabG.bd}}">Golpes</button>
+    <button type="button" onClick="{{verBasicos}}" style="min-height: 40px; padding: 0 16px; border-radius: 20px; font: 700 13px Inter, sans-serif; background: {{tabB.bg}}; color: {{tabB.fg}}; border: 1px solid {{tabB.bd}}">Ejercicios básicos</button>
+  </div>
+
+  <sc-if value="{{esGolpes}}" hint-placeholder-val="{{ true }}">
+    <div style="margin: 12px 20px 0; background: #1C1E25; border-radius: 16px; overflow: hidden">
+      <sc-for list="{{golpes}}" as="g" hint-placeholder-count="11">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 3px 12px; border-bottom: 1px solid #23262E">
+          <svg width="44" height="44" viewBox="0 0 80 80" role="img" aria-label="{{g.n}}" style="flex-shrink: 0; background: #16171C; border-radius: 10px">
+            <circle cx="{{g.hx}}" cy="{{g.hy}}" r="{{g.hr}}" fill="none" stroke="#C9CCD3" stroke-width="3"></circle>
+            <path d="{{g.body}}" fill="none" stroke="#C9CCD3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.red}}" fill="none" stroke="#FF6B76" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.gold}}" fill="none" stroke="#E8B04B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.arrow}}" fill="none" stroke="#8B909B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3"></path>
+          </svg>
+          <span style="min-width: 34px; height: 30px; padding: 0 6px; box-sizing: border-box; border-radius: 9px; background: #2A2D36; color: #F2F3F5; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; flex-shrink: 0">{{g.num}}</span>
+          <div style="flex: 1; min-width: 0">
+            <div style="font-size: 15px; font-weight: 600">{{g.n}}</div>
+            <div style="font-size: 12px; color: #A3A8B3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.alias}}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin: 8px 20px 0; display: flex; gap: 14px; font-size: 12px; color: #A3A8B3">
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 4px; border-radius: 2px; background: #FF6B76"></span>Mano de adelante</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 4px; border-radius: 2px; background: #E8B04B"></span>Mano de atrás</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{esBasicos}}" hint-placeholder-val="{{ false }}">
+    <div style="margin: 12px 20px 0; background: #1C1E25; border-radius: 16px; overflow: hidden">
+      <sc-for list="{{basicos}}" as="g" hint-placeholder-count="6">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 5px 12px; border-bottom: 1px solid #23262E">
+          <svg width="62" height="62" viewBox="0 0 80 80" role="img" aria-label="{{g.n}}" style="flex-shrink: 0; background: #16171C; border-radius: 10px">
+            <circle cx="{{g.hx}}" cy="{{g.hy}}" r="{{g.hr}}" fill="none" stroke="#C9CCD3" stroke-width="3"></circle>
+            <path d="{{g.body}}" fill="none" stroke="#C9CCD3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.red}}" fill="none" stroke="#FF6B76" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.gold}}" fill="none" stroke="#E8B04B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{g.arrow}}" fill="none" stroke="#8B909B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3"></path>
+          </svg>
+          <div style="flex: 1; min-width: 0">
+            <div style="font-size: 15px; font-weight: 600">{{g.n}}</div>
+            <div style="font-size: 12px; line-height: 1.35; color: #C9CCD3">{{g.d}}</div>
+            <div style="margin-top: 2px; font-size: 11px; color: #A3A8B3">Ej.: {{g.ej}}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid #23262E; background: #16171C; padding: 8px 6px 14px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="{{n.href}}" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{n.color}}; font-size: 11px; font-weight: 600">
+        <span style="width: 22px; height: 4px; border-radius: 2px; background: {{n.bar}}"></span>{{n.label}}
+      </a>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'golpes' };
+}
+renderVals() {
+const on = (l, h) => ({ label: l, href: h, color: '#F2F3F5', bar: '#D7263D' });
+const off = (l, h) => ({ label: l, href: h, color: '#A3A8B3', bar: 'transparent' });
+const NADA = 'M0 0';
+const fist = (x, y) => ' M' + (x - 3) + ' ' + y + ' a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0';
+const BASE = 'M34 25 L33 50 M33 50 L25 72 M33 50 L45 72';
+const guardiaAdelante = ' M34 30 L41 36 L42 24';
+const guardiaAtras = ' M33 32 L40 38 L42 27';
+const rectoAd = 'M34 30 L51 27 L64 26' + fist(67, 26);
+const rectoAt = 'M33 32 L50 30 L63 29' + fist(66, 29);
+const ganchoAd = 'M34 30 L47 21 L57 28' + fist(59, 30);
+const ganchoAt = 'M33 32 L46 23 L56 30' + fist(58, 32);
+const upperAd = 'M34 31 L42 42 L49 27' + fist(50, 24);
+const upperAt = 'M33 33 L41 44 L48 29' + fist(49, 26);
+const fRecta = 'M46 14 L70 14 M66 11 L70 14 L66 17';
+const fGancho = 'M44 10 Q66 8 66 22 M62 19 L66 23 L69 18';
+const fUpper = 'M62 46 L62 22 M59 26 L62 22 L65 26';
+const fig = { hx: 34, hy: 17, hr: 7 };
+const figBajo = { hx: 37, hy: 24, hr: 7 };
+const BAJO = 'M36 31 L34 54 M34 54 L23 72 M34 54 L47 72';
+const adelante = (num, n, alias, punch, arrow) => Object.assign({ num: num, n: n, alias: alias, body: BASE + guardiaAtras, red: punch, gold: NADA, arrow: arrow }, fig);
+const atras = (num, n, alias, punch, arrow) => Object.assign({ num: num, n: n, alias: alias, body: BASE + guardiaAdelante, red: NADA, gold: punch, arrow: arrow }, fig);
+const golpes = [
+adelante('1', 'Jab', 'Directo de adelante, recto', rectoAd, fRecta),
+atras('2', 'Recto de atrás', 'Cross, directo de atrás', rectoAt, fRecta),
+Object.assign({ num: '1-2', n: 'Uno-dos', alias: 'Jab-cross · combinación básica', body: BASE, red: rectoAd, gold: 'M33 34 L49 35 L62 36' + fist(65, 36), arrow: fRecta }, fig),
+adelante('3', 'Gancho de adelante', 'Hook de adelante', ganchoAd, fGancho),
+atras('4', 'Gancho de atrás', 'Hook de atrás', ganchoAt, fGancho),
+adelante('5', 'Uppercut de adelante', 'Gancho ascendente, upper', upperAd, fUpper),
+atras('6', 'Uppercut de atrás', 'Gancho ascendente de atrás', upperAt, fUpper),
+Object.assign({ num: '1c', n: 'Jab al cuerpo', alias: 'Directo al cuerpo, jab abajo', body: BAJO + ' M35 38 L42 43 L44 32', red: 'M36 37 L52 42 L63 46' + fist(66, 46), gold: NADA, arrow: 'M46 62 L70 62 M66 59 L70 62 L66 65' }, figBajo),
+Object.assign({ num: '3c', n: 'Gancho al hígado', alias: 'Gancho de adelante al cuerpo', body: BAJO + ' M35 38 L42 43 L44 32', red: 'M36 37 L49 33 L58 43' + fist(60, 46), gold: NADA, arrow: 'M44 62 Q66 64 67 50 M64 53 L67 49 L70 54' }, figBajo),
+Object.assign({ num: '4c', n: 'Gancho al cuerpo (lado contrario)', alias: 'Gancho de atrás al cuerpo, al bazo', body: BAJO + ' M36 37 L43 42 L44 30', red: NADA, gold: 'M35 39 L48 35 L57 45' + fist(59, 48), arrow: 'M44 62 Q66 64 67 50 M64 53 L67 49 L70 54' }, figBajo),
+atras('V', 'Volado', 'Overhand, golpe en arco por arriba', 'M33 32 L44 13 L59 19' + fist(61, 21), 'M38 6 Q62 0 68 17 M64 14 L68 18 L71 12')
+];
+const sinCabeza = { hx: 0, hy: 0, hr: 0 };
+const basicos = [
+Object.assign({ n: 'Manopleo', d: 'Combinaciones y defensa con el coach usando manoplas', ej: '6 rounds de manopleo grupal', body: BASE + guardiaAtras, red: 'M34 30 L48 27 L58 26' + fist(61, 26), gold: 'M66 16 Q74 16 74 26 Q74 36 66 36 Z', arrow: NADA }, fig),
+Object.assign({ n: 'Gobernadora', d: 'Golpes fuertes contra la colchoneta', ej: '4 rounds de gobernadora en parejas', body: 'M28 25 L27 50 M27 50 L19 72 M27 50 L39 72 M28 30 L35 36 L36 24', red: 'M62 6 L74 6 L74 74 L62 74 Z', gold: 'M27 32 L42 30 L55 30' + fist(58, 30), arrow: 'M40 20 L56 20 M52 17 L56 20 L52 23' }, { hx: 28, hy: 17, hr: 7 }),
+Object.assign({ n: 'Perillas', d: 'Ritmo, coordinación y resistencia de hombros', ej: '3 rounds de perilla', body: 'M16 12 L64 12 M40 12 L40 18', red: 'M40 18 C30 26 31 42 40 46 C49 42 50 26 40 18 Z', gold: NADA, arrow: 'M24 28 Q19 36 24 44 M56 28 Q61 36 56 44' }, sinCabeza),
+Object.assign({ n: 'Costal', d: 'Potencia y volumen de golpeo por rounds', ej: '6 × 3 min de costal', body: 'M40 4 L40 12', red: 'M30 12 L50 12 L50 70 Q40 74 30 70 Z', gold: 'M30 38 L50 38', arrow: NADA }, sinCabeza),
+Object.assign({ n: 'Sombra', d: 'Técnica sin implemento, frente al espejo', ej: '3 rounds de sombra', body: BASE + guardiaAtras, red: rectoAd, gold: 'M74 6 L74 74', arrow: NADA }, fig),
+Object.assign({ n: 'Cuerda', d: 'Ritmo de pies y resistencia', ej: '3 × 3 min de cuerda', body: 'M40 25 L40 50 L36 70 M40 50 L44 70 M40 32 L29 44 M40 32 L51 44', red: 'M29 44 C14 86 66 86 51 44', gold: NADA, arrow: NADA }, { hx: 40, hy: 17, hr: 7 })
+];
+const activo = { bg: '#F2F3F5', fg: '#121317', bd: '#F2F3F5' };
+const inactivo = { bg: 'transparent', fg: '#DADCE1', bd: '#3A3D46' };
+const esGolpes = this.state.tab === 'golpes';
+return {
+esGolpes: esGolpes,
+esBasicos: !esGolpes,
+tabG: esGolpes ? activo : inactivo,
+tabB: esGolpes ? inactivo : activo,
+verGolpes: () => this.setState({ tab: 'golpes' }),
+verBasicos: () => this.setState({ tab: 'basicos' }),
+golpes: golpes,
+basicos: basicos,
+nav: [off('Hoy', 'CoachHoy.dc.html'), off('Mi plan', 'CoachPlan.dc.html'), off('Clientes', 'CoachClientes.dc.html'), on('Biblioteca', 'CoachBiblioteca.dc.html'), off('Más', 'CoachBiblioteca.dc.html')]
+};
+}
+}
+</script>
+</body>
+</html>

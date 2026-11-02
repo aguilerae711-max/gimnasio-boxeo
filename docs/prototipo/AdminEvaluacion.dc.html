@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Evaluación</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="width: 1024px; height: 768px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; padding: 22px 28px">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <a href="AdminInicio.dc.html" aria-label="Salir de la evaluación" style="width: 44px; height: 44px; border-radius: 22px; background: #1C1E25; display: flex; align-items: center; justify-content: center; color: #F2F3F5">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </a>
+      <div>
+        <div style="font-size: 18px; font-weight: 700">Juan Pérez</div>
+        <div style="font-size: 13px; color: #A3A8B3">Coach Iván · Mensual noviembre · Batería núcleo v1</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px" aria-label="Test 1 de 8">
+      <sc-for list="{{pasos}}" as="p" hint-placeholder-count="8">
+        <span style="width: {{p.w}}; height: 8px; border-radius: 4px; background: {{p.color}}"></span>
+      </sc-for>
+      <span style="margin-left: 8px; font-size: 13px; color: #A3A8B3">1 de 8</span>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px; flex: 1; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; min-height: 0">
+    <div style="background: #1C1E25; border-radius: 20px; padding: 22px; display: flex; flex-direction: column">
+      <span style="align-self: flex-start; padding: 5px 10px; border-radius: 8px; background: #2A2111; color: #F1D9A8; font-size: 12px; font-weight: 700; letter-spacing: 1px">VELOCIDAD</span>
+      <div style="margin-top: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 800; line-height: 1.05; text-transform: uppercase">Sprint en costal 6 s</div>
+      <div style="margin-top: 16px; font-size: 13px; font-weight: 700; color: #A3A8B3; letter-spacing: 1px">PROTOCOLO</div>
+      <ol style="margin: 8px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.55; color: #DADCE1">
+        <li>Postura de combate a distancia media del costal.</li>
+        <li>A la señal, rectos alternados 1-2 a potencia completa durante 6 s.</li>
+        <li>Toca el botón cada vez que conecte el cross; la app multiplica ×2.</li>
+        <li>2 intentos con 2 min de recuperación. Cuenta el mejor.</li>
+      </ol>
+      <div style="margin-top: auto; display: flex; gap: 10px; font-size: 13px; color: #A3A8B3">
+        <span>Equipo: costal, guantes, vendas</span>
+      </div>
+    </div>
+
+    <div style="background: #1C1E25; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; align-items: center">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%">
+        <sc-for list="{{intentos}}" as="i" hint-placeholder-count="2">
+          <button type="button" onClick="{{i.pick}}" style="min-height: 64px; border-radius: 14px; border: 2px solid {{i.border}}; background: #23262E; color: #F2F3F5; font: 600 13px Inter, sans-serif; display: flex; align-items: center; justify-content: space-between; padding: 0 16px">
+            <span>Intento {{i.n}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800">{{i.total}}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="margin-top: 18px; font-family: 'Barlow Condensed', sans-serif; font-size: 96px; font-weight: 800; line-height: 1; color: {{timerColor}}">{{tiempo}}</div>
+      <div style="font-size: 13px; color: #A3A8B3">segundos</div>
+
+      <div style="margin-top: 16px; display: flex; gap: 14px; align-items: center">
+        <button type="button" onClick="{{iniciar}}" style="min-height: 56px; padding: 0 26px; border-radius: 14px; border: 0; background: #F2F3F5; color: #121317; font: 700 16px Inter, sans-serif">{{textoIniciar}}</button>
+        <button type="button" onClick="{{reiniciar}}" style="min-height: 56px; padding: 0 20px; border-radius: 14px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 15px Inter, sans-serif">Reiniciar intento</button>
+      </div>
+
+      <button type="button" onClick="{{tocar}}" aria-label="Sumar un cross" style="margin-top: 20px; width: 210px; height: 210px; border-radius: 105px; border: 0; background: #D7263D; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 0 10px #3A1A20">
+        <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 78px; font-weight: 800; line-height: 1">{{toques}}</span>
+        <span style="font-size: 14px; font-weight: 600">cross · toca aquí</span>
+      </button>
+      <div style="margin-top: 12px; font-size: 14px; color: #C9CCD3">Total registrado: <b>{{totalActual}}</b> golpes</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center">
+    <span style="font-size: 13px; color: #A3A8B3">Mejor intento: <b style="color: #F2F3F5">{{mejor}}</b> · inicial de Juan: 30 · índice estimado: <b style="color: #6FE0A2">{{indice}}</b></span>
+    <button type="button" style="min-height: 52px; padding: 0 26px; border-radius: 14px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 16px Inter, sans-serif">Siguiente test</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1024,"height":768}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { activo: 0, toques: [0, 0], restante: 60, corriendo: false };
+}
+componentWillUnmount() {
+if (this.timer) clearInterval(this.timer);
+}
+renderVals() {
+const s = this.state;
+const parar = () => { if (this.timer) { clearInterval(this.timer); this.timer = null; } };
+const iniciar = () => {
+if (s.corriendo || s.restante === 0) return;
+this.setState({ corriendo: true });
+this.timer = setInterval(() => {
+const r = this.state.restante - 1;
+if (r <= 0) { parar(); this.setState({ restante: 0, corriendo: false }); }
+else this.setState({ restante: r });
+}, 100);
+};
+const reiniciar = () => {
+parar();
+const t = s.toques.slice(); t[s.activo] = 0;
+this.setState({ toques: t, restante: 60, corriendo: false });
+};
+const tocar = () => {
+if (!s.corriendo) return;
+const t = s.toques.slice(); t[s.activo] = t[s.activo] + 1;
+this.setState({ toques: t });
+};
+const totales = s.toques.map((x) => x * 2);
+const mejor = Math.max(totales[0], totales[1]);
+const indice = mejor > 0 ? Math.min(150, Math.round(mejor / 30 * 100)) : '—';
+return {
+pasos: [0,1,2,3,4,5,6,7].map((i) => ({ w: i === 0 ? '28px' : '14px', color: i === 0 ? '#D7263D' : '#2A2D36' })),
+intentos: [0, 1].map((i) => ({
+n: i + 1,
+total: totales[i],
+border: i === s.activo ? '#D7263D' : '#2A2D36',
+pick: () => { parar(); this.setState({ activo: i, restante: 60, corriendo: false }); }
+})),
+tiempo: (s.restante / 10).toFixed(1),
+timerColor: s.corriendo ? '#FF6B76' : '#F2F3F5',
+textoIniciar: s.corriendo ? 'En curso…' : 'Iniciar 6 s',
+iniciar: iniciar,
+reiniciar: reiniciar,
+tocar: tocar,
+toques: s.toques[s.activo],
+totalActual: totales[s.activo],
+mejor: mejor,
+indice: indice
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Sistema · Panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E0F13}
+a{color:#8CC4FF}a:hover{color:#B5D9FF}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; background: #0E0F13; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 250px; box-sizing: border-box; background: #14161B; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="padding: 0 8px 18px">
+      <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: 0.5px">SISTEMA</div>
+      <div style="font-size: 12px; color: #A3A8B3">Superadmin</div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="SistemaPanel.dc.html" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <div style="font-size: 13px; color: #A3A8B3">Vista general de solo lectura · octubre 2026</div>
+    <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Panel del sistema</h1>
+
+    <div style="margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background: #1A1C22; border-radius: 16px; padding: 16px 18px">
+          <div style="font-size: 13px; color: #A3A8B3">{{k.n}}</div>
+          <div style="margin-top: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 800; line-height: 1; color: {{k.color}}">{{k.v}}</div>
+          <div style="margin-top: 6px; font-size: 12px; color: #A3A8B3">{{k.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <section style="margin-top: 16px; background: #1A1C22; border-radius: 18px; padding: 16px 18px; overflow-x: auto">
+      <h2 style="margin: 0 0 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Gimnasios</h2>
+      <div style="min-width: 760px">
+        <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) 1fr 1.1fr 0.7fr repeat(4, 0.5fr) 0.8fr; gap: 8px; padding: 8px 0; font-size: 11px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">
+          <span>GIMNASIO</span><span>PLAN</span><span>SUSCRIPCIÓN</span><span>CLIENTES</span><span>F</span><span>V</span><span>R</span><span>E</span><span>COBERTURA</span>
+        </div>
+        <sc-for list="{{gyms}}" as="g" hint-placeholder-count="3">
+          <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) 1fr 1.1fr 0.7fr repeat(4, 0.5fr) 0.8fr; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid #2A2D36; background: {{g.rowBg}}">
+            <div style="min-width: 0"><div style="font-size: 14px; font-weight: 600">{{g.n}}</div><div style="font-size: 12px; color: #A3A8B3">{{g.coaches}} coaches</div></div>
+            <span style="font-size: 13px; color: #C9CCD3">{{g.plan}}</span>
+            <span style="justify-self: start; padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; background: {{g.sbg}}; color: {{g.sfg}}">{{g.sus}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700">{{g.cli}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #FF6B76">{{g.f}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #E8B04B">{{g.v}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #4FA3FF">{{g.r}}</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #6FE0A2">{{g.e}}</span>
+            <span style="font-size: 13px; color: #C9CCD3">{{g.cob}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px">
+      <section style="flex: 3 1 420px; min-width: 0; background: #1A1C22; border-radius: 18px; padding: 16px 18px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Coaches de Gimnasio Centro</h2>
+          <span style="font-size: 12px; color: #A3A8B3">Al abrir un coach: índices por pilar de sus clientes, sin datos personales</span>
+        </div>
+        <sc-for list="{{coaches}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #2A2D36; margin-top: 6px">
+            <div style="flex: 1 1 140px; min-width: 0"><div style="font-size: 14px; font-weight: 600">{{c.n}}</div><div style="font-size: 12px; color: #A3A8B3">{{c.cli}} clientes</div></div>
+            <div style="display: flex; gap: 6px">
+              <sc-for list="{{c.p}}" as="v" hint-placeholder-count="4">
+                <span style="min-width: 38px; padding: 4px 0; border-radius: 7px; background: #23262E; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: {{v.color}}">{{v.v}}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="flex: 2 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #1A1C22; border-radius: 18px; padding: 16px 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Cobros del servicio</h2>
+          <div style="margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #2A2D36">
+            <div style="flex: 1 1 150px; min-width: 0"><div style="font-size: 14px; font-weight: 600">Gimnasio Norte · Plan Básico</div><div style="font-size: 12px; color: #A3A8B3">Pago reportado el 29 oct · comprobante</div></div>
+            <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: #F2F3F5; color: #121317; font: 700 13px Inter, sans-serif">Confirmar</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #2A2D36">
+            <div style="flex: 1; min-width: 0"><div style="font-size: 14px; font-weight: 600">Gimnasio Sur · Plan Pro</div><div style="font-size: 12px; color: #FF8F97">Vencida hace 4 días · 3 días de gracia restantes</div></div>
+          </div>
+        </div>
+        <div style="background: #1A1C22; border-radius: 18px; padding: 16px 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Salud del sistema</h2>
+          <sc-for list="{{salud}}" as="s" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px">
+              <span style="width: 10px; height: 10px; border-radius: 5px; background: {{s.dot}}"></span><span style="flex: 1">{{s.n}}</span><span style="color: #A3A8B3; font-size: 13px">{{s.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const active = 'Panel';
+const pil = (f, v, r, e) => [{ v: f, color: '#FF6B76' }, { v: v, color: '#E8B04B' }, { v: r, color: '#4FA3FF' }, { v: e, color: '#6FE0A2' }];
+const sus = {
+cortesia: { sus: 'Cortesía', sbg: '#2A2D36', sfg: '#DADCE1' },
+dia: { sus: 'Al día', sbg: '#173A28', sfg: '#6FE0A2' },
+revision: { sus: 'Pago en revisión', sbg: '#1A2A3D', sfg: '#8CC4FF' },
+vencida: { sus: 'Vencida', sbg: '#3A1A20', sfg: '#FF8F97' }
+};
+return {
+nav: ['Panel', 'Gimnasios', 'Cobros', 'Métricas', 'Sistema'].map((l) => ({ label: l, bg: l === active ? '#16243A' : 'transparent', color: l === active ? '#8CC4FF' : '#C9CCD3' })),
+kpis: [
+{ n: 'Gimnasios', v: 3, sub: '1 de cortesía', color: '#F2F3F5' },
+{ n: 'Suscripciones al día', v: 1, sub: '1 en revisión · 1 vencida', color: '#6FE0A2' },
+{ n: 'Clientes activos', v: 172, sub: 'en todos los gimnasios', color: '#F2F3F5' },
+{ n: 'Índice promedio global', v: 108, sub: 'promedio de los 4 pilares', color: '#E8B04B' }
+],
+gyms: [
+Object.assign({ n: 'Gimnasio Centro', coaches: 5, plan: 'Propio', cli: 84, f: 110, v: 109, r: 112, e: 103, cob: '86%', rowBg: '#20232A' }, sus.cortesia),
+Object.assign({ n: 'Gimnasio Norte', coaches: 3, plan: 'Básico', cli: 41, f: 106, v: 104, r: 108, e: 101, cob: '78%', rowBg: 'transparent' }, sus.revision),
+Object.assign({ n: 'Gimnasio Sur', coaches: 4, plan: 'Pro', cli: 47, f: 107, v: 106, r: 105, e: 104, cob: '64%', rowBg: 'transparent' }, sus.vencida)
+],
+coaches: [
+{ n: 'Coach Iván', cli: 14, p: pil(112, 115, 118, 106) },
+{ n: 'Coach Chato', cli: 9, p: pil(110, 108, 112, 105) },
+{ n: 'Coach Mike', cli: 11, p: pil(107, 104, 109, 101) }
+],
+salud: [
+{ n: 'Último respaldo nocturno', v: 'hoy 03:00 · correcto', dot: '#3DBE7A' },
+{ n: 'Prueba de restauración', v: '1 oct · correcta', dot: '#3DBE7A' },
+{ n: 'Almacenamiento usado', v: '38% del límite', dot: '#E8B04B' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

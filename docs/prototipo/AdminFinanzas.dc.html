@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Finanzas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="12">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between">
+      <div>
+        <div style="font-size: 13px; color: #A3A8B3">Octubre 2026 · mes abierto</div>
+        <h1 style="margin: 2px 0 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Finanzas · Ingresos</h1>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 14px Inter, sans-serif">Exportar reporte</button>
+        <button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 14px Inter, sans-serif">Cerrar mes</button>
+        <button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Registrar ingreso</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background: #1C1E25; border-radius: 16px; padding: 18px">
+          <div style="font-size: 13px; color: #A3A8B3; font-weight: 500">{{k.n}}</div>
+          <div style="margin-top: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 800; line-height: 1; color: {{k.color}}">{{k.v}}</div>
+          <div style="margin-top: 6px; font-size: 12px; color: #A3A8B3">{{k.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px">
+      <section style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #1C1E25; border-radius: 18px; padding: 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Últimos 6 meses</h2>
+          <div style="margin-top: 14px; height: 120px; display: flex; align-items: flex-end; gap: 10px">
+            <sc-for list="{{meses}}" as="m" hint-placeholder-count="6">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px">
+                <span style="font-size: 11px; color: #C9CCD3">{{m.v}}</span>
+                <div style="width: 100%; height: {{m.h}}; border-radius: 6px 6px 2px 2px; background: {{m.color}}"></div>
+                <span style="font-size: 11px; color: #A3A8B3">{{m.n}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background: #1C1E25; border-radius: 18px; padding: 18px">
+          <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Desglose del mes</h2>
+          <div style="margin-top: 10px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">POR CONCEPTO</div>
+          <sc-for list="{{conceptos}}" as="r" hint-placeholder-count="3">
+            <div style="margin-top: 8px">
+              <div style="display: flex; justify-content: space-between; font-size: 14px"><span>{{r.n}}</span><span style="font-weight: 600">{{r.v}}</span></div>
+              <div style="margin-top: 4px; height: 6px; border-radius: 3px; background: #2A2D36"><div style="height: 6px; border-radius: 3px; width: {{r.w}}; background: #3DBE7A"></div></div>
+            </div>
+          </sc-for>
+          <div style="margin-top: 14px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">POR CUENTA</div>
+          <sc-for list="{{cuentas}}" as="r" hint-placeholder-count="3">
+            <div style="margin-top: 8px">
+              <div style="display: flex; justify-content: space-between; font-size: 14px"><span>{{r.n}}</span><span style="font-weight: 600">{{r.v}}</span></div>
+              <div style="margin-top: 4px; height: 6px; border-radius: 3px; background: #2A2D36"><div style="height: 6px; border-radius: 3px; width: {{r.w}}; background: #4FA3FF"></div></div>
+            </div>
+          </sc-for>
+          <div style="margin-top: 14px; font-size: 12px; font-weight: 700; color: #A3A8B3; letter-spacing: 0.5px">POR COACH (MEMBRESÍAS DE SUS CLIENTES)</div>
+          <sc-for list="{{coaches}}" as="r" hint-placeholder-count="4">
+            <div style="margin-top: 8px">
+              <div style="display: flex; justify-content: space-between; font-size: 14px"><span>{{r.n}}</span><span style="font-weight: 600">{{r.v}}</span></div>
+              <div style="margin-top: 4px; height: 6px; border-radius: 3px; background: #2A2D36"><div style="height: 6px; border-radius: 3px; width: {{r.w}}; background: #E8B04B"></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="flex: 3 1 420px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 18px; align-self: flex-start">
+        <h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase">Relación de ingresos</h2>
+        <sc-for list="{{movs}}" as="m" hint-placeholder-count="8">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #2A2D36; margin-top: 4px">
+            <span style="width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; background: {{m.ibg}}; color: {{m.ifg}}">{{m.signo}}</span>
+            <div style="flex: 1; min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">{{m.concepto}}</div>
+              <div style="font-size: 12px; color: #A3A8B3">{{m.fecha}} · {{m.cuenta}} · {{m.cat}}</div>
+            </div>
+            <span style="padding: 3px 8px; border-radius: 7px; font-size: 11px; font-weight: 700; background: {{m.obg}}; color: {{m.ofg}}">{{m.origen}}</span>
+            <span style="min-width: 76px; text-align: right; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: {{m.color}}">{{m.monto}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+    <div style="margin-top: 10px; font-size: 12px; color: #A3A8B3">Cifras de ejemplo. Solo se registran ingresos: los pagos confirmados entran solos; los demás ingresos se capturan con comprobante.</div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminFinanzas.dc.html'],['Clientes','AdminFinanzas.dc.html'],['Pagos','AdminFinanzas.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminFinanzas.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminFinanzas.dc.html'],['Configuración','AdminFinanzas.dc.html']];
+const active = 'Finanzas';
+const auto = { origen: 'Automático', obg: '#1A2A3D', ofg: '#8CC4FF' };
+const man = { origen: 'Manual', obg: '#2A2D36', ofg: '#DADCE1' };
+const pend = { origen: 'Por confirmar', obg: '#2A2111', ofg: '#F1D9A8' };
+const ok = { signo: '+', ibg: '#173A28', ifg: '#6FE0A2', color: '#6FE0A2' };
+const espera = { signo: '…', ibg: '#2A2111', ifg: '#F1D9A8', color: '#A3A8B3' };
+const mov = (concepto, fecha, cuenta, cat, monto, t, o) => Object.assign({ concepto: concepto, fecha: fecha, cuenta: cuenta, cat: cat, monto: monto }, t, o);
+const serie = [['May', 41.2], ['Jun', 43.8], ['Jul', 45.1], ['Ago', 46.9], ['Sep', 48.5], ['Oct', 52.4]];
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+kpis: [
+{ n: 'Ingresos del mes', v: '$52,400', sub: '86 pagos confirmados', color: '#6FE0A2' },
+{ n: 'Por confirmar', v: '$3,300', sub: '5 pagos reportados', color: '#F1D9A8' },
+{ n: 'Esperado por renovaciones', v: '$9,600', sub: 'vencen en los próximos 30 días', color: '#8CC4FF' },
+{ n: 'Contra el mes anterior', v: '+8%', sub: 'septiembre: $48,500', color: '#F2F3F5' }
+],
+meses: serie.map(([n, v], i) => ({ n: n, v: '$' + v + 'k', h: Math.round(v / 52.4 * 90) + 'px', color: i === serie.length - 1 ? '#3DBE7A' : '#2F5E44' })),
+conceptos: [
+{ n: 'Membresías mensuales', v: '$36,000', w: '69%' },
+{ n: 'Membresías trimestrales', v: '$14,400', w: '27%' },
+{ n: 'Eventos', v: '$2,000', w: '4%' }
+],
+cuentas: [
+{ n: 'Banco', v: '$29,700', w: '57%' },
+{ n: 'Pagos digitales', v: '$12,300', w: '23%' },
+{ n: 'Caja (efectivo)', v: '$10,400', w: '20%' }
+],
+coaches: [
+{ n: 'Coach Iván', v: '$21,000', w: '40%' },
+{ n: 'Coach Mike', v: '$17,400', w: '33%' },
+{ n: 'Coach Chato', v: '$14,000', w: '27%' }
+],
+movs: [
+mov('Membresía mensual · Pedro Díaz', '30 oct', 'Digital', 'Membresías', '$600', espera, pend),
+mov('Membresía mensual · Juan Pérez', '30 oct', 'Banco', 'Membresías', '$600', ok, auto),
+mov('Membresía trimestral · Ana Ruiz', '29 oct', 'Digital', 'Membresías', '$1,650', ok, auto),
+mov('Membresía mensual · María Soto', '28 oct', 'Caja', 'Membresías', '$600', ok, auto),
+mov('Clase abierta · inscripciones', '26 oct', 'Caja', 'Eventos', '$2,000', ok, man),
+mov('Membresía mensual · Luis Gómez', '25 oct', 'Banco', 'Membresías', '$600', ok, auto),
+mov('Membresía trimestral · Sofía León', '24 oct', 'Banco', 'Membresías', '$1,650', ok, auto),
+mov('Membresía mensual · Carlos Núñez', '22 oct', 'Caja', 'Membresías', '$600', ok, auto)
+]
+};
+}
+}
+</script>
+</body>
+</html>

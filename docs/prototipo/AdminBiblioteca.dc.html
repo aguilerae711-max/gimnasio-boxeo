@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Admin · Biblioteca</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121317}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="min-height: 860px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <nav style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; background: #16171C; border-right: 1px solid #23262E; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: #D7263D; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: #FFFFFF">TG</div>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px">[TU GIMNASIO]</span>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="10">
+      <a href="{{n.href}}" style="min-height: 42px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{n.bg}}; color: {{n.color}}">{{n.label}}</a>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 26px 30px; box-sizing: border-box; max-width: 1180px">
+    <h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase">Biblioteca de ejercicios</h1>
+    <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px">
+      <button type="button" style="min-height: 42px; padding: 0 16px; border-radius: 21px; border: 0; background: #F2F3F5; color: #121317; font: 700 14px Inter, sans-serif">Por formalizar · 3</button>
+      <button type="button" style="min-height: 42px; padding: 0 16px; border-radius: 21px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 14px Inter, sans-serif">Catálogo · 64</button>
+      <button type="button" style="min-height: 42px; padding: 0 16px; border-radius: 21px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 14px Inter, sans-serif">Permisos de coaches</button>
+    </div>
+
+    <div style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{propuestas}}" as="p" hint-placeholder-count="3">
+          <div style="background: #1C1E25; border-radius: 14px; padding: 14px; border: 2px solid {{p.border}}">
+            <div style="font-size: 15px; font-weight: 600">{{p.nombre}}</div>
+            <div style="margin-top: 2px; font-size: 12px; color: #A3A8B3">Propuesto por {{p.autor}} · {{p.fecha}}</div>
+            <sc-if value="{{p.similar}}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 8px; font-size: 12px; color: #F1D9A8; background: #2A2111; border-radius: 8px; padding: 6px 8px">Parecido a: {{p.similarA}}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="flex: 2 1 460px; min-width: 0; background: #1C1E25; border-radius: 18px; padding: 22px">
+        <div style="font-size: 12px; color: #A3A8B3">Formalizar propuesta de Coach Iván · "Uno-dos con salida"</div>
+        <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 18px">
+          <div style="flex: 0 0 200px; height: 200px; border-radius: 14px; border: 2px dashed #3A3D46; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #A3A8B3; font-size: 13px; text-align: center">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+            Subir ilustración<br>o video
+          </div>
+          <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #C9CCD3; font-weight: 500">Nombre oficial
+              <input type="text" value="Jab-Cross con salida lateral" style="min-height: 44px; border-radius: 10px; border: 1px solid #2E313A; background: #23262E; color: #F2F3F5; padding: 0 12px; font: 400 15px Inter, sans-serif">
+            </label>
+            <div>
+              <div style="font-size: 13px; color: #C9CCD3; font-weight: 500">Nombres secundarios</div>
+              <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px">
+                <span style="padding: 6px 10px; border-radius: 16px; background: #2A2D36; font-size: 13px">Uno-dos con salida</span>
+                <span style="padding: 6px 10px; border-radius: 16px; background: #2A2D36; font-size: 13px">1-2 y fuera</span>
+                <button type="button" style="min-height: 32px; padding: 0 12px; border-radius: 16px; border: 1px dashed #4A4E58; background: transparent; color: #C9CCD3; font: 600 13px Inter, sans-serif">+ agregar</button>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #C9CCD3; font-weight: 500">Variación de
+                <select style="min-height: 44px; border-radius: 10px; border: 1px solid #2E313A; background: #23262E; color: #F2F3F5; padding: 0 10px; font: 400 14px Inter, sans-serif"><option>Jab-Cross</option></select>
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #C9CCD3; font-weight: 500">Categoría
+                <select style="min-height: 44px; border-radius: 10px; border: 1px solid #2E313A; background: #23262E; color: #F2F3F5; padding: 0 10px; font: 400 14px Inter, sans-serif"><option>Técnica ofensiva</option></select>
+              </label>
+            </div>
+          </div>
+        </div>
+        <label style="margin-top: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #C9CCD3; font-weight: 500">Ejecución
+          <textarea rows="3" style="border-radius: 10px; border: 1px solid #2E313A; background: #23262E; color: #F2F3F5; padding: 10px 12px; font: 400 14px/1.5 Inter, sans-serif; resize: vertical">1. Jab extendido y regreso a guardia. 2. Cross rotando la cadera. 3. Paso diagonal hacia fuera rompiendo la línea central.</textarea>
+        </label>
+        <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+          <span style="font-size: 13px; color: #C9CCD3; font-weight: 500">Visibilidad:</span>
+          <button type="button" style="min-height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 13px Inter, sans-serif">Privado</button>
+          <button type="button" style="min-height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #3A3D46; background: transparent; color: #DADCE1; font: 600 13px Inter, sans-serif">Selección</button>
+          <button type="button" style="min-height: 38px; padding: 0 12px; border-radius: 10px; border: 0; background: #F2F3F5; color: #121317; font: 700 13px Inter, sans-serif">Compartido</button>
+        </div>
+        <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end">
+          <button type="button" style="min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #C9CCD3; font: 600 14px Inter, sans-serif">Archivar</button>
+          <button type="button" style="min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 14px Inter, sans-serif">Fusionar con…</button>
+          <button type="button" style="min-height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: #D7263D; color: #FFFFFF; font: 700 14px Inter, sans-serif">Formalizar</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Inicio','AdminInicio.dc.html'],['Horario','AdminHorario.dc.html'],['Coaches','AdminBiblioteca.dc.html'],['Clientes','AdminBiblioteca.dc.html'],['Pagos','AdminBiblioteca.dc.html'],['Finanzas','AdminFinanzas.dc.html'],['Evaluaciones','AdminEvaluacion.dc.html'],['Talentos','AdminTalentos.dc.html'],['Planes','AdminBiblioteca.dc.html'],['Biblioteca','AdminBiblioteca.dc.html'],['Novedades','AdminBiblioteca.dc.html'],['Configuración','AdminBiblioteca.dc.html']];
+const active = 'Biblioteca';
+return {
+nav: items.map(([l, h]) => ({ label: l, href: h, bg: l === active ? '#2A1418' : 'transparent', color: l === active ? '#FF8F97' : '#C9CCD3' })),
+propuestas: [
+{ nombre: 'Uno-dos con salida', autor: 'Coach Iván', fecha: '29 oct', border: '#D7263D', similar: true, similarA: 'Jab-Cross' },
+{ nombre: 'Escalera de pies lateral', autor: 'Coach Chato', fecha: '27 oct', border: 'transparent', similar: false, similarA: '' },
+{ nombre: 'Rompe-guardia al cuerpo', autor: 'Coach Mike', fecha: '25 oct', border: 'transparent', similar: false, similarA: '' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

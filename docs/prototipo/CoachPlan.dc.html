@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Coach · Mi plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF6B76}a:hover{color:#FF8F97}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #121317; color: #F2F3F5; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 20px 20px 0">
+    <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 30px; text-transform: uppercase">Mi plan · Noviembre</div>
+    <div style="margin-top: 6px; display: flex; gap: 8px">
+      <span style="padding: 5px 10px; border-radius: 20px; background: #173A28; color: #6FE0A2; font-size: 12px; font-weight: 700">Aprobado</span>
+      <span style="padding: 5px 10px; border-radius: 20px; background: #2A2D36; color: #DADCE1; font-size: 12px; font-weight: 600">Plan fijo</span>
+    </div>
+  </div>
+
+  <div style="margin: 16px 20px 0; display: grid; grid-template-columns: 52px repeat(3, minmax(0, 1fr)); gap: 8px; align-items: stretch">
+    <div></div>
+    <div style="text-align: center; font-size: 12px; color: #A3A8B3; font-weight: 600">Lunes</div>
+    <div style="text-align: center; font-size: 12px; color: #A3A8B3; font-weight: 600">Miércoles</div>
+    <div style="text-align: center; font-size: 12px; color: #A3A8B3; font-weight: 600">Viernes</div>
+    <sc-for list="{{celdas}}" as="c" hint-placeholder-count="8">
+      <div style="border-radius: 12px; padding: {{c.pad}}; background: {{c.bg}}; color: {{c.fg}}; min-height: 64px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center">
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-size: {{c.size}}; font-weight: 800; line-height: 1">{{c.t1}}</div>
+        <div style="margin-top: 3px; font-size: 11px; line-height: 1.2">{{c.t2}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin: 16px 20px 0; background: #1C1E25; border-radius: 18px; padding: 16px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <span style="font-size: 16px; font-weight: 700">A · Técnica y saco</span>
+      <span style="font-size: 12px; color: #A3A8B3">120 min</span>
+    </div>
+    <div style="margin-top: 12px; display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px">
+      <sc-for list="{{bloques}}" as="b" hint-placeholder-count="5">
+        <div style="flex: {{b.min}}; background: {{b.color}}"></div>
+      </sc-for>
+    </div>
+    <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{bloques}}" as="b" hint-placeholder-count="5">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px">
+          <span style="width: 10px; height: 10px; border-radius: 3px; background: {{b.color}}; flex-shrink: 0"></span>
+          <span style="flex: 1">{{b.n}}</span>
+          <span style="color: #A3A8B3; font-size: 13px">{{b.min}} min</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin: 14px 20px 0; background: #2A2111; border-radius: 14px; padding: 12px 14px; font-size: 13px; line-height: 1.45; color: #F1D9A8">Diciembre: ¿mantienes este plan? Se renueva aprobado si no cambias nada.</div>
+  <div style="padding: 10px 20px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+    <button type="button" style="min-height: 48px; border: 0; border-radius: 12px; background: #F2F3F5; color: #121317; font: 700 15px Inter, sans-serif">Mantener igual</button>
+    <button type="button" style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3D46; background: transparent; color: #F2F3F5; font: 600 15px Inter, sans-serif">Hacer cambios</button>
+  </div>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid #23262E; background: #16171C; padding: 8px 6px 14px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="{{n.href}}" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: {{n.color}}; font-size: 11px; font-weight: 600">
+        <span style="width: 22px; height: 4px; border-radius: 2px; background: {{n.bar}}"></span>{{n.label}}
+      </a>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const on = (l, h) => ({ label: l, href: h, color: '#F2F3F5', bar: '#D7263D' });
+const off = (l, h) => ({ label: l, href: h, color: '#A3A8B3', bar: 'transparent' });
+const hora = (h) => ({ t1: h, t2: '', bg: 'transparent', fg: '#A3A8B3', size: '16px', pad: '0' });
+const A = { t1: 'A', t2: 'Técnica y saco', bg: '#D7263D', fg: '#FFFFFF', size: '24px', pad: '8px 10px' };
+const B = { t1: 'B', t2: 'Manoplas y acond.', bg: '#E8B04B', fg: '#1B1407', size: '24px', pad: '8px 10px' };
+const C = { t1: 'C', t2: 'Sparring controlado', bg: '#2F80ED', fg: '#FFFFFF', size: '24px', pad: '8px 10px' };
+return {
+celdas: [hora('08–10'), A, B, C, hora('18–20'), A, B, C],
+bloques: [
+{ n: 'Cuerda', min: 15, color: '#8B909B' },
+{ n: 'Sombra técnica', min: 25, color: '#E8B04B' },
+{ n: 'Saco 8 × 3 min', min: 35, color: '#D7263D' },
+{ n: 'Abdomen', min: 25, color: '#4FA3FF' },
+{ n: 'Estiramiento', min: 20, color: '#6FE0A2' }
+],
+nav: [off('Hoy', 'CoachHoy.dc.html'), on('Mi plan', 'CoachPlan.dc.html'), off('Clientes', 'CoachClientes.dc.html'), off('Biblioteca', 'CoachBiblioteca.dc.html'), off('Más', 'CoachPlan.dc.html')]
+};
+}
+}
+</script>
+</body>
+</html>
