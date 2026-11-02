@@ -19,7 +19,7 @@ export const AYUDA: SeccionDeAyuda[] = [
   {
     rol: "cliente",
     nombre: "Clientes",
-    bienvenida: "Aquí ves tu registro, tu coach y, muy pronto, tus días restantes y tus resultados por pilar.",
+    bienvenida: "Aquí ves tu registro, tu coach, tus días y horario de entrenamiento y, muy pronto, tus resultados por pilar.",
     guias: [
       {
         titulo: "Registrarte",
@@ -28,6 +28,14 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Escribe tu nombre, correo, teléfono y una contraseña de al menos 10 caracteres.",
           "Acepta el reglamento y la responsiva. Tu registro queda “por aprobar”.",
           "Cuando la administración lo apruebe, verás tu estado como “activo” en Mi estado.",
+        ],
+      },
+      {
+        titulo: "Completar tu perfil",
+        pasos: [
+          "Entra a Mi perfil.",
+          "Escribe tu fecha de nacimiento y un contacto de emergencia (nombre y teléfono).",
+          "Si tienes alguna lesión o condición, anótala en Notas médicas. Se guardan cifradas y solo las ven tu coach y la administración.",
         ],
       },
       {
@@ -40,12 +48,24 @@ export const AYUDA: SeccionDeAyuda[] = [
   {
     rol: "coach",
     nombre: "Coaches",
-    bienvenida: "Invita a tus clientes y sigue quién está activo. Turnos, plan del mes y pagos llegan en las siguientes fases.",
+    bienvenida: "Ve tus turnos de la semana con sus clientes e invita a nuevos. El plan del mes y los pagos llegan en las siguientes fases.",
     guias: [
+      {
+        titulo: "Ver tus turnos",
+        pasos: [
+          "Entra a Mis turnos: ves cada día y franja que te toca, con los clientes de esa franja. El de hoy está marcado.",
+          "Si un cliente tiene contacto de emergencia o notas médicas, ábrelas en “Emergencia y salud”.",
+          "Los turnos los asigna la administración en el horario.",
+        ],
+      },
+      {
+        titulo: "Tu perfil público",
+        pasos: ["Entra a Mi perfil.", "Escribe tu especialidad y una presentación corta. La especialidad aparece en la página pública."],
+      },
       {
         titulo: "Invitar a un cliente",
         pasos: [
-          "Entra a Mis clientes.",
+          "Entra a Mis turnos.",
           "En Tu invitación, toca WhatsApp (o Copiar) y mándala.",
           "Cuando se registre, aparece en tu lista como “por aprobar” hasta que la administración lo apruebe.",
         ],
@@ -60,7 +80,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       },
     ],
     proximamente: [
-      "Tus turnos de hoy con la rutina que toca",
+      "La rutina que toca en cada turno",
       "Reportar un pago con foto del comprobante",
       "Armar y enviar tu plan del mes",
       "Ver tu comisión del mes",
@@ -86,6 +106,23 @@ export const AYUDA: SeccionDeAyuda[] = [
           "En Registros por aprobar ves nombre, coach y contacto.",
           "Toca Aprobar si ya entregó su responsiva firmada; si no, Rechazar.",
           "Cada decisión queda registrada con tu nombre.",
+        ],
+      },
+      {
+        titulo: "Armar el horario",
+        pasos: [
+          "Entra a Horario y toca una celda (día y franja).",
+          "Elige el coach y toca Agregar al turno. Puede haber varios coaches en el mismo turno; el cupo es opcional.",
+          "Para quitar a alguien, toca Quitar. Queda en el historial.",
+        ],
+      },
+      {
+        titulo: "Cambiar el coach o la franja de un cliente",
+        pasos: [
+          "En Administración → Clientes, toca al cliente.",
+          "En Coach y turno elige coach y franja. Junto a cada franja ves qué coaches dan clase y qué días.",
+          "Escribe el motivo y guarda. El historial guarda cada cambio.",
+          "En la misma ficha puedes ver y corregir su perfil.",
         ],
       },
       {

@@ -1,6 +1,6 @@
 {
   "name": "gimnasio-boxeo",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,7 +13,8 @@
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "acceso:enlace": "node --env-file-if-exists=.env.local scripts/enlace-acceso.mjs",
     "db:local": "node scripts/base-local.mjs",
-    "publicar": "node --env-file-if-exists=.env.local scripts/publicar.mjs"
+    "publicar": "node --env-file-if-exists=.env.local scripts/publicar.mjs",
+    "seguridad:configurar": "node --env-file-if-exists=.env.local scripts/seguridad-configurar.mjs"
   },
   "dependencies": {
     "@neon/config": "^1.10.0",

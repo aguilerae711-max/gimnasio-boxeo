@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { casosDeAcceso, casosDeClientes } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
@@ -80,12 +81,14 @@ export default async function Administracion() {
           ) : (
             <ul className="mt-2 divide-y divide-[#2a2d36]">
               {todos.map((c) => (
-                <li key={c.id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold">{c.nombre}</p>
-                    <p className="text-sm text-texto-suave">Coach {c.coach}</p>
-                  </div>
-                  <Estado valor={c.estado} />
+                <li key={c.id}>
+                  <Link href={`/admin/clientes/${c.id}`} className="flex items-center justify-between gap-3 py-3 text-texto no-underline">
+                    <div className="min-w-0">
+                      <p className="font-semibold">{c.nombre}</p>
+                      <p className="text-sm text-texto-suave">Coach {c.coach}</p>
+                    </div>
+                    <Estado valor={c.estado} />
+                  </Link>
                 </li>
               ))}
             </ul>

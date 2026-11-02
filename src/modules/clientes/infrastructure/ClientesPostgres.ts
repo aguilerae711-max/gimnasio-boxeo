@@ -31,6 +31,10 @@ export class ClientesPostgres implements RepositorioClientes {
       await tx`
         INSERT INTO cliente (id, gimnasio_id, usuario_id, coach_id, reglamento_version, reglamento_aceptado_en)
         VALUES (${n.clienteId}, ${n.gimnasioId}, ${n.usuarioId}, ${n.coachId}, ${n.reglamentoVersion}, ${n.reglamentoAceptadoEn})`;
+      // Primera entrada del historial de coach; la franja la asigna después la administración.
+      await tx`
+        INSERT INTO asignacion_coach_cliente (id, gimnasio_id, cliente_id, coach_id, desde, motivo)
+        VALUES (gen_random_uuid(), ${n.gimnasioId}, ${n.clienteId}, ${n.coachId}, ${n.reglamentoAceptadoEn}, 'Registro con invitación del coach')`;
     });
   }
 

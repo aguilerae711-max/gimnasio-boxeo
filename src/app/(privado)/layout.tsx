@@ -10,9 +10,11 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const tiene = (p: string) => sesion.permisos.includes(p);
   const menu = [
     tiene("cliente.aprobar") && { href: "/admin", texto: "Administración" },
+    tiene("horario.asignar") && { href: "/admin/horario", texto: "Horario" },
     tiene("comision.cambiar") && { href: "/admin/comisiones", texto: "Comisiones" },
-    sesion.roles.includes("coach") && { href: "/coach", texto: "Mis clientes" },
+    sesion.roles.includes("coach") && { href: "/coach", texto: "Mis turnos" },
     sesion.roles.includes("cliente") && { href: "/cliente", texto: "Mi estado" },
+    (sesion.roles.includes("coach") || sesion.roles.includes("cliente")) && { href: "/perfil", texto: "Mi perfil" },
     { href: "/ayuda", texto: "Ayuda" },
   ].filter((x): x is { href: string; texto: string } => Boolean(x));
 

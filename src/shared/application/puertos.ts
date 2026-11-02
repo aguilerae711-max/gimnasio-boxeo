@@ -29,6 +29,12 @@ export interface Reloj {
   ahora(): Date;
 }
 
+/** Cifra datos sensibles (contacto de emergencia, notas médicas) antes de guardarlos. */
+export interface Cifrador {
+  cifrar(texto: string): string;
+  descifrar(cifrado: string): string;
+}
+
 export interface GeneradorDeIds {
   nuevo(): string;
 }

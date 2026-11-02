@@ -17,7 +17,16 @@ import {
   ConsultasComisiones,
   RepositorioAcuerdosComisionPostgres,
 } from "@/modules/membresias/infrastructure/RepositorioAcuerdosComisionPostgres";
+import {
+  ActualizarPerfilCliente,
+  ActualizarPerfilCoach,
+  AsignarCliente,
+  AsignarTurno,
+  QuitarTurno,
+} from "@/modules/operacion/application/Operacion";
+import { ConsultasOperacion, OperacionPostgres } from "@/modules/operacion/infrastructure/OperacionPostgres";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
+import { cifradorDelEntorno } from "@/shared/infrastructure/cifrado";
 import { AuditoriaPostgres, autorizacionConPermisos, idsAleatorios, relojDelSistema } from "@/shared/infrastructure/comunes";
 
 /** Arma los casos de uso con sus implementaciones reales (Postgres en Neon). Único lugar que las conoce. */
@@ -61,6 +70,27 @@ export function casosDeComisiones() {
     consultas: new ConsultasComisiones(sql),
     cambiar: (permisos: readonly string[], zonaHoraria: string) =>
       new CambiarComision(repositorio, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), relojDelSistema, idsAleatorios, zonaHoraria),
+  };
+}
+
+export function casosDeOperacion(permisos: readonly string[], zonaHoraria: string) {
+  const sql = baseDeDatos();
+  const repositorio = new OperacionPostgres(sql);
+  const deps = {
+    repositorio,
+    autorizacion: autorizacionConPermisos(permisos),
+    auditoria: new AuditoriaPostgres(sql),
+    reloj: relojDelSistema,
+    ids: idsAleatorios,
+  };
+  return {
+    repositorio,
+    consultas: new ConsultasOperacion(sql, cifradorDelEntorno),
+    asignarTurno: new AsignarTurno(deps),
+    quitarTurno: new QuitarTurno(deps),
+    asignarCliente: new AsignarCliente(deps),
+    perfilCliente: () => new ActualizarPerfilCliente(deps, cifradorDelEntorno(), zonaHoraria),
+    perfilCoach: new ActualizarPerfilCoach(deps),
   };
 }
 

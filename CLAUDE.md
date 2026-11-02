@@ -13,3 +13,10 @@ Todo cambio que llegue a producción queda versionado. Al terminar un cambio:
 
 Cambios de base de datos: siempre una migración nueva en `db/migrations/` (nunca editar una ya aplicada en Neon).
 Para regresar a una versión anterior: `gcloud run services update-traffic gimnasio-boxeo --to-revisions=gimnasio-boxeo-vX-Y-Z=100`.
+
+## Seguridad
+
+- La app usa el usuario `app_gimnasio` (RLS). Toda consulta a tablas con `gimnasio_id` va dentro de `enGimnasio(...)`.
+- Las pruebas de `db/` corren como `app_gimnasio`: si una consulta olvida fijar el gimnasio, falla ahí.
+- Datos sensibles nuevos: cifrarlos con el puerto `Cifrador`; nunca guardarlos ni auditarlos en claro.
+- Nunca reemplazar ni destruir el secreto `clave-datos`.

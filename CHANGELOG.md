@@ -7,6 +7,26 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.3.0] - 2026-11-02 · Seguridad y Fase 2 (Operación)
+
+### Agregado
+- **Horario**: la administración asigna coaches a cada día y franja; varios coaches por turno, cupo opcional, historial al quitar.
+- **Ficha del cliente**: cambiar su coach y franja con motivo (con ayuda de qué coaches dan cada franja), ver y corregir su perfil, historial de coaches.
+- **Mis turnos** (coach): turnos de la semana con sus clientes, el de hoy marcado, y contacto de emergencia y notas médicas de sus clientes.
+- **Mi estado** (cliente): coach, días y horario de entrenamiento.
+- **Mi perfil**: el cliente registra fecha de nacimiento, contacto de emergencia y notas médicas (cifradas con AES-256-GCM); el coach, su especialidad y presentación.
+- **Portada pública** con el horario real y los coaches.
+- **Respaldo nocturno**: copia completa de la base cada día a las 3:00 a Cloud Storage, conservada 90 días.
+- Guías nuevas en Ayuda para horario, ficha del cliente, turnos y perfil.
+
+### Seguridad
+- La app entra a la base con su propio usuario (`app_gimnasio`), que respeta el aislamiento por gimnasio y no puede borrar la auditoría ni cambiar el esquema. Antes usaba al dueño de la base, que se salta esas reglas.
+- `npm run seguridad:configurar` prepara todo en producción; `npm run publicar` se niega si falta.
+- Después de publicar se comprueba que la app responda con la versión nueva; si no, indica cómo regresar a la anterior.
+
+### Corregido
+- Los clientes nuevos quedan con su primera entrada en el historial de coach.
+
 ## [0.2.1] - 2026-11-02
 
 ### Agregado

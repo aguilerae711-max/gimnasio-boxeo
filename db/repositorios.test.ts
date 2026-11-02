@@ -20,6 +20,7 @@ import {
 } from "@/modules/membresias/infrastructure/RepositorioAcuerdosComisionPostgres";
 import { Dinero } from "@/shared/domain/Dinero";
 import { Fecha } from "@/shared/domain/Fecha";
+import { enGimnasio } from "@/shared/infrastructure/baseDeDatos";
 import { AuditoriaPostgres, autorizacionConPermisos, idsAleatorios } from "@/shared/infrastructure/comunes";
 import { servidorDePrueba } from "./pgliteDePrueba";
 
@@ -140,7 +141,8 @@ describe("repositorios en Postgres", () => {
     expect(politica.calcular(mike.id, pago, Fecha.de("2026-12-01")).comision.esIgualA(Dinero.dePesos(330))).toBe(true);
     expect((await consultas.historial(GIMNASIO))[0]).toMatchObject({ coach: "Mike", porcentaje: 55, creadoPor: "Iván" });
 
-    const [audit] = await sql<{ accion: string; motivo: string }[]>`SELECT accion, motivo FROM auditoria WHERE accion = 'comision.cambiada'`;
+    const [audit] = await enGimnasio(sql, GIMNASIO, (tx) => tx<{ accion: string; motivo: string }[]>`
+      SELECT accion, motivo FROM auditoria WHERE accion = 'comision.cambiada'`);
     expect(audit).toEqual({ accion: "comision.cambiada", motivo: "Grupo avanzado" });
   });
 });

@@ -18,12 +18,16 @@ export async function baseConMigraciones(): Promise<PGlite> {
   return db;
 }
 
-/** Lo mismo, pero expuesto por TCP para usar el mismo cliente (postgres.js) que la app. */
+/**
+ * Lo mismo, pero expuesto por TCP para usar el mismo cliente (postgres.js) que la app,
+ * conectado como app_gimnasio: con RLS y permisos reales, igual que en producción.
+ */
 export async function servidorDePrueba(puerto: number): Promise<{ sql: postgres.Sql; cerrar: () => Promise<void> }> {
   const db = await baseConMigraciones();
   const servidor = new PGLiteSocketServer({ db, port: puerto, host: "127.0.0.1" });
   await servidor.start();
   const sql = postgres({ host: "127.0.0.1", port: puerto, database: "postgres", username: "postgres", max: 1, prepare: false, onnotice: () => {} });
+  await sql`SET ROLE app_gimnasio`;
   return {
     sql,
     cerrar: async () => {

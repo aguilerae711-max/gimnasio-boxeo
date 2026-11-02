@@ -32,9 +32,11 @@ db/migrations/       SQL versionado, aplicado en orden
 | `npm run db:migrate` | Aplica migraciones pendientes a Neon (usa `.env.local`) |
 | `npm run acceso:enlace -- "Iván"` | Enlace de un solo uso (72 h) para activar una cuenta o cambiar la contraseña |
 | `npm run db:local` | Postgres en memoria con las migraciones, para probar sin tocar Neon |
+| `npm run seguridad:configurar` | Una vez: usuario de la app con RLS, clave de cifrado y respaldo nocturno en producción |
+| `npm run publicar` | Publica la versión de `package.json` (ver Versiones) |
 
 Para probar la app completa sin Neon: `npm run db:local` en una terminal y en otra
-`DATABASE_URL=postgres://postgres@127.0.0.1:55433/postgres DATABASE_POOL_MAX=1 npm run dev`.
+`DATABASE_URL=postgres://postgres@127.0.0.1:55433/postgres DATABASE_POOL_MAX=1 CLAVE_DATOS=<32 bytes en base64> npm run dev`.
 
 `.env.local` lo genera `neon env pull` y nunca se sube a Git.
 
@@ -44,6 +46,23 @@ Para probar la app completa sin Neon: `npm run db:local` en una terminal y en ot
 - 5 intentos fallidos en 15 minutos frenan el acceso de ese correo.
 - Coaches y administración entran con un **enlace de activación** que genera la administración (o el script, la primera vez).
 - Clientes se registran con la **invitación de su coach** y quedan pendientes hasta que la administración los aprueba.
+
+## Seguridad y respaldos
+
+- **Usuario de la app**: Cloud Run entra como `app_gimnasio` (secreto `database-url-app`), sin permiso para saltarse RLS,
+  borrar la auditoría ni cambiar el esquema. Las migraciones usan al dueño desde `.env.local`.
+- **Datos sensibles** (contacto de emergencia y notas médicas) se cifran en la app con AES-256-GCM. La clave está en
+  Secret Manager (`clave-datos`, versión 1). **No la borres ni la reemplaces**: sin ella esos datos no se pueden leer.
+- **Respaldo nocturno**: Cloud Run Job `respaldo-nocturno`, cada día a las 3:00 (Ciudad de México), guarda
+  `gs://gimnasio-boxeo-1656-respaldos/neon/gimnasio_AAAA-MM-DD_HHMM.sql.gz` por 90 días (más 30 de borrado suave).
+  Neon además permite volver la base a cualquier momento reciente (restauración instantánea).
+
+Restaurar un respaldo en una rama nueva de Neon (nunca directo sobre producción):
+
+```bash
+gcloud storage cp gs://gimnasio-boxeo-1656-respaldos/neon/<archivo>.sql.gz .
+gunzip -c <archivo>.sql.gz | psql "<cadena de conexión de la rama nueva>"
+```
 
 ## Infraestructura (etapa de prueba)
 

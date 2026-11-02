@@ -59,4 +59,45 @@ describe("migraciones", () => {
       ),
     ).rejects.toThrow();
   });
+
+  describe("usuario de la app (app_gimnasio)", () => {
+    const comoApp = async <T>(trabajo: () => Promise<T>, gimnasio?: string): Promise<T> => {
+      await db.exec("BEGIN; SET LOCAL ROLE app_gimnasio;");
+      try {
+        if (gimnasio) await db.query("SELECT set_config('app.gimnasio_id', $1, true)", [gimnasio]);
+        return await trabajo();
+      } finally {
+        await db.exec("ROLLBACK;");
+      }
+    };
+
+    it("no ve datos de ningún gimnasio si no fija cuál", async () => {
+      const r = await comoApp(() => db.query<{ n: number }>("SELECT count(*)::int AS n FROM coach"));
+      expect(r.rows[0].n).toBe(0);
+    });
+
+    it("ve solo los de su gimnasio", async () => {
+      const propio = await comoApp(() => db.query<{ n: number }>("SELECT count(*)::int AS n FROM coach"), GIMNASIO);
+      const otro = await comoApp(
+        () => db.query<{ n: number }>("SELECT count(*)::int AS n FROM coach"),
+        "00000000-0000-4000-8000-000000000999",
+      );
+      expect(propio.rows[0].n).toBe(3);
+      expect(otro.rows[0].n).toBe(0);
+    });
+
+    it("no puede escribir en otro gimnasio", async () => {
+      await expect(
+        comoApp(
+          () => db.query("INSERT INTO dia_operacion (gimnasio_id, dia_semana) VALUES ($1, 6)", [GIMNASIO]),
+          "00000000-0000-4000-8000-000000000999",
+        ),
+      ).rejects.toThrow(/row-level security/);
+    });
+
+    it("no puede borrar la auditoría ni cambiar el esquema", async () => {
+      await expect(comoApp(() => db.query("DELETE FROM auditoria"), GIMNASIO)).rejects.toThrow(/permission denied/);
+      await expect(comoApp(() => db.query("DROP TABLE cliente"))).rejects.toThrow(/must be owner/);
+    });
+  });
 });
