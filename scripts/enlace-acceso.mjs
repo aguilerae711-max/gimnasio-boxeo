@@ -19,7 +19,11 @@ if (!url) {
 
 const sql = postgres(url, { max: 1, onnotice: () => {} });
 try {
-  const usuarios = await sql`SELECT id, nombre, hash_clave FROM usuario WHERE nombre = ${nombre} AND eliminado_en IS NULL`;
+  // Sin distinguir acentos ni mayúsculas: "ivan" encuentra a "Iván".
+  const sinAcentos = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const usuarios = (await sql`SELECT id, nombre, hash_clave FROM usuario WHERE eliminado_en IS NULL`).filter(
+    (u) => sinAcentos(u.nombre) === sinAcentos(nombre),
+  );
   if (usuarios.length !== 1) {
     console.error(usuarios.length === 0 ? `No hay nadie llamado "${nombre}".` : `Hay varias personas llamadas "${nombre}".`);
     process.exit(1);
