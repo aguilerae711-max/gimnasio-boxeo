@@ -1,22 +1,14 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { PGlite } from "@electric-sql/pglite";
-import { citext } from "@electric-sql/pglite/contrib/citext";
+import type { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
+import { baseConMigraciones } from "./pgliteDePrueba";
 
-const carpeta = join(__dirname, "migrations");
 const GIMNASIO = "00000000-0000-4000-8000-000000000101";
 
 describe("migraciones", () => {
   let db: PGlite;
 
   beforeAll(async () => {
-    db = new PGlite({ extensions: { citext } });
-    for (const nombre of readdirSync(carpeta).filter((n) => n.endsWith(".sql")).sort()) {
-      await db.transaction(async (tx) => {
-        await tx.exec(readFileSync(join(carpeta, nombre), "utf8"));
-      });
-    }
+    db = await baseConMigraciones();
   }, 60_000);
 
   it("arma el horario de lunes a viernes, 7 franjas de 8:00 a 22:00", async () => {

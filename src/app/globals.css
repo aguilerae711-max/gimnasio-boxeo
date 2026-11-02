@@ -23,3 +23,9 @@ body {
   color: var(--texto);
   font-family: var(--font-texto), system-ui, sans-serif;
 }
+
+@layer base {
+  a {
+    color: #ff6b76;
+  }
+}

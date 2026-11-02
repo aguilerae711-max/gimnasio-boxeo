@@ -8,14 +8,18 @@ export function baseDeDatos(): postgres.Sql {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("Falta DATABASE_URL.");
     // prepare: false porque el pooler de Neon (PgBouncer en modo transacción) no guarda sentencias preparadas.
-    globalConPool.__sql = postgres(url, { max: 5, prepare: false, idle_timeout: 20 });
+    globalConPool.__sql = postgres(url, { max: Number(process.env.DATABASE_POOL_MAX ?? 5), prepare: false, idle_timeout: 20 });
   }
   return globalConPool.__sql;
 }
 
 /** Ejecuta en una transacción con el gimnasio fijado para las políticas RLS. */
-export function enGimnasio<T>(gimnasioId: string, trabajo: (tx: postgres.TransactionSql) => Promise<T>): Promise<T> {
-  return baseDeDatos().begin(async (tx) => {
+export function enGimnasio<T>(
+  sql: postgres.Sql,
+  gimnasioId: string,
+  trabajo: (tx: postgres.TransactionSql) => Promise<T>,
+): Promise<T> {
+  return sql.begin(async (tx) => {
     await tx`SELECT set_config('app.gimnasio_id', ${gimnasioId}, true)`;
     return trabajo(tx);
   }) as Promise<T>;

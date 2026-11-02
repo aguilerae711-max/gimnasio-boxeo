@@ -1,0 +1,67 @@
+import "server-only";
+import { GenerarEnlaceDeAcceso, UsarEnlaceDeAcceso } from "@/modules/acceso/application/EnlacesDeAcceso";
+import { CerrarSesion, IniciarSesion } from "@/modules/acceso/application/IniciarSesion";
+import {
+  argon2id,
+  ConsultasEquipo,
+  CuentasPostgres,
+  EnlacesPostgres,
+  IntentosPostgres,
+  SesionesPostgres,
+  tokensAleatorios,
+} from "@/modules/acceso/infrastructure/AccesoPostgres";
+import { RegistrarCliente, RevisarRegistroCliente } from "@/modules/clientes/application/RegistroDeClientes";
+import { ClientesPostgres, ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
+import { CambiarComision } from "@/modules/membresias/application/CambiarComision";
+import {
+  ConsultasComisiones,
+  RepositorioAcuerdosComisionPostgres,
+} from "@/modules/membresias/infrastructure/RepositorioAcuerdosComisionPostgres";
+import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
+import { AuditoriaPostgres, autorizacionConPermisos, idsAleatorios, relojDelSistema } from "@/shared/infrastructure/comunes";
+
+/** Arma los casos de uso con sus implementaciones reales (Postgres en Neon). Único lugar que las conoce. */
+
+let hashDeRelleno: Promise<string> | undefined;
+
+export async function casosDeAcceso() {
+  const sql = baseDeDatos();
+  hashDeRelleno ??= argon2id.hash("clave de relleno para igualar tiempos");
+  const cuentas = new CuentasPostgres(sql);
+  const sesiones = new SesionesPostgres(sql);
+  const enlaces = new EnlacesPostgres(sql);
+  return {
+    sesiones,
+    iniciarSesion: new IniciarSesion(cuentas, sesiones, new IntentosPostgres(sql), argon2id, tokensAleatorios, relojDelSistema, await hashDeRelleno),
+    cerrarSesion: new CerrarSesion(sesiones, tokensAleatorios),
+    usarEnlace: new UsarEnlaceDeAcceso(cuentas, enlaces, sesiones, argon2id, tokensAleatorios, relojDelSistema),
+    generarEnlace: (permisos: readonly string[]) =>
+      new GenerarEnlaceDeAcceso(cuentas, enlaces, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), tokensAleatorios, relojDelSistema),
+    equipo: new ConsultasEquipo(sql),
+  };
+}
+
+export function casosDeClientes() {
+  const sql = baseDeDatos();
+  const repositorio = new ClientesPostgres(sql);
+  return {
+    repositorio,
+    consultas: new ConsultasClientes(sql),
+    registrar: new RegistrarCliente(repositorio, argon2id, idsAleatorios, relojDelSistema),
+    revisar: (permisos: readonly string[]) =>
+      new RevisarRegistroCliente(repositorio, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), relojDelSistema),
+  };
+}
+
+export function casosDeComisiones() {
+  const sql = baseDeDatos();
+  const repositorio = new RepositorioAcuerdosComisionPostgres(sql);
+  return {
+    repositorio,
+    consultas: new ConsultasComisiones(sql),
+    cambiar: (permisos: readonly string[], zonaHoraria: string) =>
+      new CambiarComision(repositorio, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), relojDelSistema, idsAleatorios, zonaHoraria),
+  };
+}
+
+export const huellaDe = (token: string) => tokensAleatorios.huella(token);

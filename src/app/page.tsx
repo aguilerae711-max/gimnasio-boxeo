@@ -1,4 +1,6 @@
-// Vista pública. Las franjas vendrán de la base de datos (franja_horaria) al conectar Neon.
+import Link from "next/link";
+
+// Vista pública. Las franjas vendrán de la base de datos (franja_horaria) cuando se puedan editar.
 const FRANJAS = ["08–10", "10–12", "12–14", "14–16", "16–18", "18–20", "20–22"];
 
 export default function Inicio() {
@@ -34,6 +36,15 @@ export default function Inicio() {
         </ul>
         <p className="mt-2 text-xs text-texto-suave">Franjas de 2 horas · 8:00 a 22:00</p>
       </section>
+
+      <div className="mt-8 flex gap-3">
+        <Link href="/registro" className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-acento font-semibold text-white no-underline">
+          Registrarme
+        </Link>
+        <Link href="/entrar" className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#3a3d46] font-semibold text-texto no-underline">
+          Entrar
+        </Link>
+      </div>
 
       <p className="mt-auto pt-10 text-center text-xs text-texto-suave">Versión en construcción</p>
     </main>

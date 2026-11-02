@@ -30,8 +30,20 @@ db/migrations/       SQL versionado, aplicado en orden
 | `npm test` | Pruebas (dominio, casos de uso y migraciones con Postgres embebido) |
 | `npm run lint` / `npm run typecheck` | Calidad y tipos |
 | `npm run db:migrate` | Aplica migraciones pendientes a Neon (usa `.env.local`) |
+| `npm run acceso:enlace -- "Iván"` | Enlace de un solo uso (72 h) para activar una cuenta o cambiar la contraseña |
+| `npm run db:local` | Postgres en memoria con las migraciones, para probar sin tocar Neon |
+
+Para probar la app completa sin Neon: `npm run db:local` en una terminal y en otra
+`DATABASE_URL=postgres://postgres@127.0.0.1:55433/postgres DATABASE_POOL_MAX=1 npm run dev`.
 
 `.env.local` lo genera `neon env pull` y nunca se sube a Git.
+
+## Acceso
+
+- Contraseñas con Argon2id; sesiones en cookie `httpOnly` (30 días) guardadas como huella SHA-256.
+- 5 intentos fallidos en 15 minutos frenan el acceso de ese correo.
+- Coaches y administración entran con un **enlace de activación** que genera la administración (o el script, la primera vez).
+- Clientes se registran con la **invitación de su coach** y quedan pendientes hasta que la administración los aprueba.
 
 ## Infraestructura (etapa de prueba)
 
