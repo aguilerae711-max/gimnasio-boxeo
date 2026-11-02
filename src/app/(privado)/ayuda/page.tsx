@@ -2,6 +2,7 @@ import Link from "next/link";
 import { casosDeAcceso } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Tarjeta, Titulo } from "../../_ui/piezas";
+import { versionVisible } from "../../version";
 import { AYUDA } from "./guias";
 
 export default async function Ayuda({ searchParams }: { searchParams: Promise<{ bienvenida?: string }> }) {
@@ -48,7 +49,7 @@ export default async function Ayuda({ searchParams }: { searchParams: Promise<{ 
           Empezar
         </Link>
       )}
-      <p className="text-center text-xs text-texto-suave">Puedes volver a esta guía cuando quieras desde Ayuda.</p>
+      <p className="text-center text-xs text-texto-suave">Puedes volver a esta guía cuando quieras desde Ayuda. · {versionVisible()}</p>
     </>
   );
 }

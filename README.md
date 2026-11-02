@@ -52,8 +52,18 @@ Para probar la app completa sin Neon: `npm run db:local` en una terminal y en ot
 - **Archivos y respaldos:** Cloud Storage (`gimnasio-boxeo-1656-archivos`, `gimnasio-boxeo-1656-respaldos`).
 - **Alerta de presupuesto:** 100 MXN al mes.
 
-Publicar una versión nueva:
+## Versiones
+
+Cada cambio publicado tiene número (`package.json`), entrada en [CHANGELOG.md](CHANGELOG.md), etiqueta `vX.Y.Z`
+en Git y revisión `gimnasio-boxeo-vX-Y-Z` en Cloud Run. Para publicar:
 
 ```bash
-gcloud run deploy gimnasio-boxeo --source . --project=gimnasio-boxeo-1656 --region=us-central1
+npm run publicar
+```
+
+El script se niega si hay cambios sin commit, si falta la entrada del CHANGELOG o la etiqueta, o si fallan las pruebas.
+Para volver a una versión anterior basta mover el tráfico a su revisión (sin reconstruir):
+
+```bash
+gcloud run services update-traffic gimnasio-boxeo --to-revisions=gimnasio-boxeo-v0-2-1=100 --project=gimnasio-boxeo-1656 --region=us-central1
 ```

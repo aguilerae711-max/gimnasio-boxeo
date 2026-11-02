@@ -1,4 +1,5 @@
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
+import { COMMIT, VERSION } from "../../version";
 
 export const dynamic = "force-dynamic";
 
@@ -6,8 +7,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const [fila] = await baseDeDatos()`SELECT count(*)::int AS migraciones FROM schema_migraciones`;
-    return Response.json({ estado: "ok", baseDeDatos: "ok", migraciones: fila.migraciones });
+    return Response.json({ estado: "ok", version: VERSION, commit: COMMIT, baseDeDatos: "ok", migraciones: fila.migraciones });
   } catch {
-    return Response.json({ estado: "degradado", baseDeDatos: "sin conexión" }, { status: 503 });
+    return Response.json({ estado: "degradado", version: VERSION, baseDeDatos: "sin conexión" }, { status: 503 });
   }
 }

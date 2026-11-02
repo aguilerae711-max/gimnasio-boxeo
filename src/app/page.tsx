@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { versionVisible } from "./version";
 
 // Vista pública. Las franjas vendrán de la base de datos (franja_horaria) cuando se puedan editar.
 const FRANJAS = ["08–10", "10–12", "12–14", "14–16", "16–18", "18–20", "20–22"];
@@ -46,7 +47,7 @@ export default function Inicio() {
         </Link>
       </div>
 
-      <p className="mt-auto pt-10 text-center text-xs text-texto-suave">Versión en construcción</p>
+      <p className="mt-auto pt-10 text-center text-xs text-texto-suave">Versión en construcción · {versionVisible()}</p>
     </main>
   );
 }
