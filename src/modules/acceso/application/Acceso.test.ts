@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Actor, EntradaAuditoria } from "@/shared/application/puertos";
 import { CuentasEnMemoria, EnlacesEnMemoria, IntentosEnMemoria, SesionesEnMemoria } from "../infrastructure/AccesoEnMemoria";
 import { GenerarEnlaceDeAcceso, UsarEnlaceDeAcceso } from "./EnlacesDeAcceso";
+import { AgregarMiembro, CambiarMiUsuario } from "./Equipo";
 import { CerrarSesion, IniciarSesion } from "./IniciarSesion";
 import type { HashDeClaves, Tokens } from "./puertos";
 
@@ -32,9 +33,9 @@ describe("acceso", () => {
     const tokens: Tokens = { nuevo: () => `t${++n}`, huella: (t) => `#${t}` };
     cuentas = new CuentasEnMemoria(
       [
-        { id: "ivan", nombre: "Iván", correo: "ivan@gym.mx", hashClave: `h:${CLAVE}`, estado: "activo" },
-        { id: "mike", nombre: "Mike", correo: null, hashClave: null, estado: "pendiente" },
-        { id: "otro", nombre: "Otro", correo: null, hashClave: null, estado: "pendiente" },
+        { id: "ivan", nombre: "Iván", correo: "ivan@gym.mx", usuario: null, hashClave: `h:${CLAVE}`, estado: "activo" },
+        { id: "mike", nombre: "Mike", correo: null, usuario: null, hashClave: null, estado: "pendiente" },
+        { id: "otro", nombre: "Otro", correo: null, usuario: null, hashClave: null, estado: "pendiente" },
       ],
       [
         { usuarioId: "ivan", gimnasioId: "g1" },
@@ -66,8 +67,8 @@ describe("acceso", () => {
     });
 
     it("da el mismo mensaje si el correo no existe o la contraseña está mal", async () => {
-      await expect(entrar.ejecutar("nadie@gym.mx", CLAVE)).rejects.toThrow("Correo o contraseña incorrectos.");
-      await expect(entrar.ejecutar("ivan@gym.mx", "otra clave larga")).rejects.toThrow("Correo o contraseña incorrectos.");
+      await expect(entrar.ejecutar("nadie@gym.mx", CLAVE)).rejects.toThrow("Usuario o contraseña incorrectos.");
+      await expect(entrar.ejecutar("ivan@gym.mx", "otra clave larga")).rejects.toThrow("Usuario o contraseña incorrectos.");
     });
 
     it("frena después de 5 fallos en 15 minutos, aun con la contraseña correcta", async () => {
@@ -132,6 +133,44 @@ describe("acceso", () => {
     it("solo la administración genera enlaces, y solo de su gimnasio", async () => {
       await expect(generar.ejecutar({ usuarioId: "mike", gimnasioId: "g1" }, "ivan")).rejects.toThrow(/permiso/);
       await expect(generar.ejecutar(admin, "otro")).rejects.toThrow(/No existe/);
+    });
+  });
+
+  describe("usuario corto por persona", () => {
+    it("una nueva administradora entra con su usuario (sin correo) y otra persona no puede tomar el mismo", async () => {
+      const agregar = new AgregarMiembro({
+        cuentas,
+        autorizacion: { tienePermiso: async (a) => a.usuarioId === "ivan" },
+        auditoria: { registrar: async (e) => void bitacora.push(e) },
+        ids: { nuevo: () => "laura" },
+      });
+      await expect(agregar.ejecutar({ usuarioId: "mike", gimnasioId: "g1" }, { nombre: "Laura", usuario: "admin2", rol: "admin" })).rejects.toThrow(/permiso/);
+      await agregar.ejecutar(admin, { nombre: "Laura Pérez", usuario: "Admin2", rol: "admin" });
+      const { token } = await generar.ejecutar(admin, "laura");
+      await usar.ejecutar(token, { correo: "", usuario: "admin2", clave: "contraseña de laura" });
+      await expect(entrar.ejecutar("admin2", "contraseña de laura")).resolves.toMatchObject({ usuarioId: "laura" });
+      await expect(entrar.ejecutar("ADMIN2", "otra cosa larga")).rejects.toThrow("Usuario o contraseña incorrectos.");
+
+      const { token: deMike } = await generar.ejecutar(admin, "mike");
+      await expect(usar.ejecutar(deMike, { correo: "", usuario: "admin2", clave: "jab cruzado gancho" })).rejects.toThrow(/ocupado/);
+      await expect(usar.ejecutar(deMike, { correo: "", usuario: "", clave: "jab cruzado gancho" })).rejects.toThrow(/correo o un usuario/);
+    });
+
+    it("el usuario lleva de 3 a 30 letras o números, sin espacios ni acentos", async () => {
+      const cambiar = new CambiarMiUsuario({ cuentas, auditoria: { registrar: async () => {} } });
+      await expect(cambiar.ejecutar(admin, "iván")).rejects.toThrow(/sin espacios ni acentos/);
+      await expect(cambiar.ejecutar(admin, "ab")).rejects.toThrow(/de 3 a 30/);
+      expect(await cambiar.ejecutar(admin, " Ivan.B ")).toBe("ivan.b");
+      await expect(entrar.ejecutar("ivan.b", CLAVE)).resolves.toMatchObject({ usuarioId: "ivan" });
+      // Con el correo sigue entrando igual.
+      await expect(entrar.ejecutar("ivan@gym.mx", CLAVE)).resolves.toBeDefined();
+    });
+
+    it("el freno de intentos es por cuenta: fallar con un usuario no bloquea a otro", async () => {
+      await new CambiarMiUsuario({ cuentas, auditoria: { registrar: async () => {} } }).ejecutar(admin, "ivan");
+      for (let i = 0; i < 5; i++) await entrar.ejecutar("admin9", "mal").catch(() => {});
+      await expect(entrar.ejecutar("admin9", "mal")).rejects.toThrow(/Demasiados intentos/);
+      await expect(entrar.ejecutar("ivan", CLAVE)).resolves.toBeDefined();
     });
   });
 });

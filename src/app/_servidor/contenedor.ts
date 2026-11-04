@@ -1,5 +1,6 @@
 import "server-only";
 import { GenerarEnlaceDeAcceso, UsarEnlaceDeAcceso } from "@/modules/acceso/application/EnlacesDeAcceso";
+import { AgregarMiembro, CambiarMiUsuario } from "@/modules/acceso/application/Equipo";
 import { CerrarSesion, IniciarSesion } from "@/modules/acceso/application/IniciarSesion";
 import {
   argon2id,
@@ -75,6 +76,10 @@ export async function casosDeAcceso() {
     generarEnlace: (permisos: readonly string[]) =>
       new GenerarEnlaceDeAcceso(cuentas, enlaces, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), tokensAleatorios, relojDelSistema),
     equipo: new ConsultasEquipo(sql),
+    agregarMiembro: (permisos: readonly string[]) =>
+      new AgregarMiembro({ cuentas, autorizacion: autorizacionConPermisos(permisos), auditoria: new AuditoriaPostgres(sql), ids: idsAleatorios }),
+    cambiarUsuario: new CambiarMiUsuario({ cuentas, auditoria: new AuditoriaPostgres(sql) }),
+    cuenta: (usuarioId: string) => cuentas.porId(usuarioId),
   };
 }
 

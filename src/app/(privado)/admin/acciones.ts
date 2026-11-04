@@ -29,6 +29,25 @@ export async function generarEnlace(_: EstadoEnlace, datos: FormData): Promise<E
   }
 }
 
+/** Alta de alguien de administración o coach, y de una vez su enlace de activación para mandárselo. */
+export async function agregarAlEquipo(_: EstadoEnlace, datos: FormData): Promise<EstadoEnlace> {
+  const sesion = await requerirSesion("equipo.agregar");
+  const nombre = texto(datos, "nombre");
+  try {
+    const acceso = await casosDeAcceso();
+    const id = await acceso.agregarMiembro(sesion.permisos).ejecutar(actor(sesion), {
+      nombre,
+      usuario: texto(datos, "usuario"),
+      rol: texto(datos, "rol") === "coach" ? "coach" : "admin",
+    });
+    const { token } = await acceso.generarEnlace(sesion.permisos).ejecutar(actor(sesion), id);
+    revalidatePath("/admin");
+    return { enlace: `${await direccionPublica()}/activar/${token}`, nombre };
+  } catch (e) {
+    return { error: mensajeDeError(e), valores: { nombre, usuario: texto(datos, "usuario") } };
+  }
+}
+
 export async function cambiarComision(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
   const sesion = await requerirSesion("comision.cambiar");
   const alcance = texto(datos, "alcance");

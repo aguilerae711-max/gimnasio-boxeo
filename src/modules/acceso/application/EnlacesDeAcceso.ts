@@ -1,6 +1,6 @@
 import { ErrorDeDominio, SinPermiso } from "@/shared/domain/ErrorDeDominio";
 import type { Actor, Auditoria, Autorizacion, Reloj } from "@/shared/application/puertos";
-import { normalizarCorreo, validarClaveNueva } from "../domain/Credenciales";
+import { normalizarCorreo, normalizarUsuario, validarClaveNueva } from "../domain/Credenciales";
 import { PoliticaDeAcceso } from "../domain/PoliticaDeAcceso";
 import type { HashDeClaves, PropositoEnlace, RepositorioCuentas, RepositorioEnlaces, RepositorioSesiones, Tokens } from "./puertos";
 
@@ -47,7 +47,7 @@ export class GenerarEnlaceDeAcceso {
   }
 }
 
-/** Quien recibe el enlace define su correo y contraseña. Al restablecer se cierran sus otras sesiones. */
+/** Quien recibe el enlace define su correo y/o usuario corto y su contraseña. Al restablecer se cierran sus otras sesiones. */
 export class UsarEnlaceDeAcceso {
   constructor(
     private readonly cuentas: RepositorioCuentas,
@@ -59,28 +59,34 @@ export class UsarEnlaceDeAcceso {
   ) {}
 
   /** Para mostrar el formulario: a quién pertenece el enlace. */
-  async consultar(token: string): Promise<{ nombre: string; correo: string | null; proposito: PropositoEnlace }> {
+  async consultar(token: string): Promise<{ nombre: string; correo: string | null; usuario: string | null; proposito: PropositoEnlace }> {
     const enlace = await this.enlaces.vigente(this.tokens.huella(token), this.reloj.ahora());
     const cuenta = enlace && (await this.cuentas.porId(enlace.usuarioId));
     if (!enlace || !cuenta) throw ENLACE_INVALIDO;
-    return { nombre: cuenta.nombre, correo: cuenta.correo, proposito: enlace.proposito };
+    return { nombre: cuenta.nombre, correo: cuenta.correo, usuario: cuenta.usuario, proposito: enlace.proposito };
   }
 
-  async ejecutar(token: string, datos: { correo: string; clave: string }): Promise<{ usuarioId: string }> {
-    const correo = normalizarCorreo(datos.correo);
+  async ejecutar(token: string, datos: { correo: string; usuario?: string; clave: string }): Promise<{ usuarioId: string }> {
+    const correo = datos.correo.trim() ? normalizarCorreo(datos.correo) : null;
+    const usuario = datos.usuario?.trim() ? normalizarUsuario(datos.usuario) : null;
+    if (!correo && !usuario) throw new ErrorDeDominio("sin_acceso", "Escribe tu correo o un usuario para entrar.");
     validarClaveNueva(datos.clave);
     const huella = this.tokens.huella(token);
     const ahora = this.reloj.ahora();
     const enlace = await this.enlaces.vigente(huella, ahora);
     if (!enlace) throw ENLACE_INVALIDO;
 
-    const otra = await this.cuentas.porCorreo(correo);
-    if (otra && otra.id !== enlace.usuarioId) {
+    const otraConCorreo = correo ? await this.cuentas.porCorreo(correo) : null;
+    if (otraConCorreo && otraConCorreo.id !== enlace.usuarioId) {
       throw new ErrorDeDominio("correo_en_uso", "Ese correo ya lo usa otra cuenta.");
+    }
+    const otraConUsuario = usuario ? await this.cuentas.porUsuario(usuario) : null;
+    if (otraConUsuario && otraConUsuario.id !== enlace.usuarioId) {
+      throw new ErrorDeDominio("usuario_en_uso", "Ese usuario ya está ocupado. Prueba con otro.");
     }
     if (!(await this.enlaces.consumir(huella, ahora))) throw ENLACE_INVALIDO;
 
-    await this.cuentas.guardarCredenciales(enlace.usuarioId, correo, await this.claves.hash(datos.clave));
+    await this.cuentas.guardarCredenciales(enlace.usuarioId, { correo, usuario }, await this.claves.hash(datos.clave));
     await this.sesiones.revocarTodas(enlace.usuarioId);
     return { usuarioId: enlace.usuarioId };
   }

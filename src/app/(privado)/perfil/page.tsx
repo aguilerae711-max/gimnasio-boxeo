@@ -1,9 +1,9 @@
-import { casosDeEvaluacion, casosDeOperacion } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeEvaluacion, casosDeOperacion } from "../../_servidor/contenedor";
 import { definirPin } from "../admin/evaluacion/acciones";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
 import { Campo, Tarjeta, Titulo } from "../../_ui/piezas";
-import { guardarPerfilCoach } from "./acciones";
+import { cambiarMiUsuario, guardarPerfilCoach } from "./acciones";
 import { FormularioPerfilCliente } from "./FormularioPerfilCliente";
 
 export default async function Perfil() {
@@ -15,11 +15,21 @@ export default async function Perfil() {
   ]);
   const perfilCliente = comoCliente && (await consultas.perfilCliente(sesion.gimnasioId, comoCliente.clienteId));
   const evalua = sesion.permisos.includes("evaluacion.realizar");
+  const cuenta = await (await casosDeAcceso()).cuenta(sesion.usuarioId);
   const tienePin = evalua && (await casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria).consultas.tienePin(sesion.usuarioId));
 
   return (
     <>
       <Titulo antetitulo={sesion.nombre}>Mi perfil</Titulo>
+      <Tarjeta>
+        <h2 className="font-titulos text-2xl font-bold uppercase">Cómo entras</h2>
+        <p className="mb-3 text-sm text-texto-suave">
+          {cuenta?.correo ? `Correo: ${cuenta.correo}. ` : ""}Con un usuario corto entras más rápido (ej. ivan, admin1). Es solo tuyo.
+        </p>
+        <Formulario accion={cambiarMiUsuario} boton="Guardar usuario" variante="secundario" className="grid! items-end gap-2! sm:grid-cols-[1fr_auto]">
+          <Campo etiqueta="Usuario" name="usuario" autoCapitalize="none" spellCheck={false} defaultValue={cuenta?.usuario ?? ""} placeholder="ej. ivan" />
+        </Formulario>
+      </Tarjeta>
       {evalua && (
         <Tarjeta>
           <h2 className="font-titulos text-2xl font-bold uppercase">PIN de evaluación</h2>
@@ -58,7 +68,7 @@ export default async function Perfil() {
           <FormularioPerfilCliente clienteId={comoCliente.clienteId} perfil={perfilCliente} />
         </Tarjeta>
       )}
-      {!comoCoach && !comoCliente && !evalua && <p className="text-sm text-texto-suave">Tu cuenta no tiene perfil de coach ni de cliente.</p>}
+
     </>
   );
 }

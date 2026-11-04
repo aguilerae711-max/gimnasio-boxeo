@@ -1,10 +1,10 @@
 import { ErrorDeDominio } from "@/shared/domain/ErrorDeDominio";
 import type { Reloj } from "@/shared/application/puertos";
-import { normalizarCorreo } from "../domain/Credenciales";
+import { identificar } from "../domain/Credenciales";
 import { PoliticaDeAcceso } from "../domain/PoliticaDeAcceso";
 import type { HashDeClaves, RegistroDeIntentos, RepositorioCuentas, RepositorioSesiones, Tokens } from "./puertos";
 
-const CREDENCIALES_INCORRECTAS = new ErrorDeDominio("credenciales", "Correo o contraseña incorrectos.");
+const CREDENCIALES_INCORRECTAS = new ErrorDeDominio("credenciales", "Usuario o contraseña incorrectos.");
 
 export interface SesionIniciada {
   token: string;
@@ -13,8 +13,8 @@ export interface SesionIniciada {
 }
 
 /**
- * Entra con correo y contraseña. El mensaje de error es el mismo si el correo no existe
- * o la contraseña no coincide, para no revelar qué cuentas hay.
+ * Entra con correo o usuario corto y contraseña. Cada persona tiene su cuenta: así la auditoría sabe quién hizo qué.
+ * El mensaje de error es el mismo si la cuenta no existe o la contraseña no coincide, para no revelar qué cuentas hay.
  */
 export class IniciarSesion {
   constructor(
@@ -28,30 +28,32 @@ export class IniciarSesion {
     private readonly hashDeRelleno: string,
   ) {}
 
-  async ejecutar(correoEscrito: string, clave: string): Promise<SesionIniciada> {
-    let correo: string;
+  async ejecutar(escrito: string, clave: string): Promise<SesionIniciada> {
+    let quien: { tipo: "correo" | "usuario"; valor: string };
     try {
-      correo = normalizarCorreo(correoEscrito);
+      quien = identificar(escrito);
     } catch {
       throw CREDENCIALES_INCORRECTAS;
     }
+    // El freno de intentos es por lo que se escribió para entrar (cada cuenta tiene el suyo).
+    const identificador = quien.valor;
     const ahora = this.reloj.ahora();
-    const fallos = await this.intentos.fallosDesde(correo, new Date(ahora.getTime() - PoliticaDeAcceso.ventanaFallosMs));
+    const fallos = await this.intentos.fallosDesde(identificador, new Date(ahora.getTime() - PoliticaDeAcceso.ventanaFallosMs));
     if (PoliticaDeAcceso.estaBloqueado(fallos)) {
       throw new ErrorDeDominio("demasiados_intentos", "Demasiados intentos. Espera 15 minutos y vuelve a probar.");
     }
 
-    const cuenta = await this.cuentas.porCorreo(correo);
+    const cuenta = quien.tipo === "correo" ? await this.cuentas.porCorreo(quien.valor) : await this.cuentas.porUsuario(quien.valor);
     const coincide = await this.claves.verificar(cuenta?.hashClave ?? this.hashDeRelleno, clave);
     if (!cuenta || !cuenta.hashClave || !coincide || cuenta.estado !== "activo") {
-      await this.intentos.registrar(correo, false);
+      await this.intentos.registrar(identificador, false);
       if (cuenta?.estado === "suspendido" && coincide) {
         throw new ErrorDeDominio("cuenta_suspendida", "Tu cuenta está suspendida. Habla con la administración.");
       }
       throw CREDENCIALES_INCORRECTAS;
     }
 
-    await this.intentos.registrar(correo, true);
+    await this.intentos.registrar(identificador, true);
     const token = this.tokens.nuevo();
     const expiraEn = new Date(ahora.getTime() + PoliticaDeAcceso.duracionSesionMs);
     await this.sesiones.crear(this.tokens.huella(token), cuenta.id, expiraEn);

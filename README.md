@@ -45,6 +45,7 @@ Para probar la app completa sin Neon: `npm run db:local` en una terminal y en ot
 - Contraseñas con Argon2id; sesiones en cookie `httpOnly` (30 días) guardadas como huella SHA-256.
 - 5 intentos fallidos en 15 minutos frenan el acceso de ese correo.
 - Coaches y administración entran con un **enlace de activación** que genera la administración (o el script, la primera vez).
+- Se entra con **correo o usuario corto**; cada persona tiene su cuenta (no hay cuentas compartidas). La administración da de alta al equipo desde Administración → Equipo.
 - Clientes se registran con la **invitación de su coach** y quedan pendientes hasta que la administración los aprueba.
 
 ## Seguridad y respaldos

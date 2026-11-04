@@ -162,6 +162,14 @@ export const AYUDA: SeccionDeAyuda[] = [
     bienvenida: "Apruebas registros, das acceso al equipo y mueves comisiones. Todo lo que cambias queda en la auditoría.",
     guias: [
       {
+        titulo: "Agregar a alguien al equipo",
+        pasos: [
+          "En Administración → Equipo, abajo, escribe el nombre, elige Administración o Coach y, si quieres, un usuario corto (ej. admin2).",
+          "Toca Agregar: aparece su enlace de activación; mándaselo por WhatsApp. Vence en 72 horas.",
+          "Cada persona tiene su propia cuenta y contraseña: así se sabe quién hizo cada cosa y nadie depende de la clave de otro.",
+        ],
+      },
+      {
         titulo: "Dar acceso a un coach",
         pasos: [
           "Entra a Administración → Equipo.",

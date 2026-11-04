@@ -19,15 +19,16 @@ export async function entrar(_: EstadoFormulario, datos: FormData): Promise<Esta
 
 export async function usarEnlace(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
   const correo = texto(datos, "correo");
+  const usuario = texto(datos, "usuario");
   const clave = texto(datos, "clave");
-  if (clave !== texto(datos, "confirmacion")) return { error: "Las contraseñas no coinciden.", valores: { correo } };
+  if (clave !== texto(datos, "confirmacion")) return { error: "Las contraseñas no coinciden.", valores: { correo, usuario } };
   try {
     const acceso = await casosDeAcceso();
-    await acceso.usarEnlace.ejecutar(texto(datos, "token"), { correo, clave });
-    const sesion = await acceso.iniciarSesion.ejecutar(correo, clave);
+    await acceso.usarEnlace.ejecutar(texto(datos, "token"), { correo, usuario, clave });
+    const sesion = await acceso.iniciarSesion.ejecutar(usuario.trim() || correo, clave);
     await guardarSesion(sesion.token, sesion.expiraEn);
   } catch (e) {
-    return { error: mensajeDeError(e), valores: { correo } };
+    return { error: mensajeDeError(e), valores: { correo, usuario } };
   }
   redirect("/panel");
 }

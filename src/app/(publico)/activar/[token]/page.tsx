@@ -27,12 +27,22 @@ export default async function Activar({ params }: { params: Promise<{ token: str
       <Titulo antetitulo={`Hola, ${enlace.nombre}`}>{activar ? "Activa tu cuenta" : "Nueva contraseña"}</Titulo>
       <p className="text-[15px] leading-relaxed text-[#c9ccd3]">
         {activar
-          ? "Con tu correo y una contraseña entrarás a la app desde cualquier celular."
+          ? "Con tu correo o un usuario corto, y una contraseña, entrarás a la app desde cualquier celular."
           : "Al guardarla, se cierran tus sesiones abiertas en otros equipos."}
       </p>
       <Formulario accion={usarEnlace} boton={activar ? "Activar y entrar" : "Guardar y entrar"}>
         <input type="hidden" name="token" value={token} />
-        <Campo etiqueta="Correo" name="correo" type="email" autoComplete="email" defaultValue={enlace.correo ?? ""} required />
+        <Campo etiqueta="Correo" name="correo" type="email" autoComplete="email" defaultValue={enlace.correo ?? ""} ayuda="Opcional si eliges usuario." />
+        <Campo
+          etiqueta="Usuario (opcional)"
+          name="usuario"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          defaultValue={enlace.usuario ?? ""}
+          placeholder="ej. admin2"
+          ayuda="De 3 a 30 letras o números, sin espacios ni acentos. Puedes entrar con él o con tu correo."
+        />
         <Campo
           etiqueta="Contraseña"
           name="clave"

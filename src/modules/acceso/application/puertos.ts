@@ -2,6 +2,8 @@ export interface Cuenta {
   id: string;
   nombre: string;
   correo: string | null;
+  /** Usuario corto para entrar (ej. admin1), opcional. */
+  usuario: string | null;
   hashClave: string | null;
   estado: "pendiente" | "activo" | "suspendido";
 }
@@ -22,10 +24,14 @@ export interface Tokens {
 export interface RepositorioCuentas {
   porId(id: string): Promise<Cuenta | null>;
   porCorreo(correo: string): Promise<Cuenta | null>;
+  porUsuario(usuario: string): Promise<Cuenta | null>;
   /** Si el usuario tiene algún rol en ese gimnasio (coach, cliente, admin). */
   esDelGimnasio(usuarioId: string, gimnasioId: string): Promise<boolean>;
-  /** Fija correo y contraseña y deja la cuenta activa. */
-  guardarCredenciales(usuarioId: string, correo: string, hashClave: string): Promise<void>;
+  /** Fija correo y/o usuario y la contraseña, y deja la cuenta activa. */
+  guardarCredenciales(usuarioId: string, acceso: { correo: string | null; usuario: string | null }, hashClave: string): Promise<void>;
+  cambiarUsuario(usuarioId: string, usuario: string | null): Promise<void>;
+  /** Alta de alguien del equipo (administración o coach), sin contraseña: la define con su enlace. */
+  crearMiembro(gimnasioId: string, m: { id: string; nombre: string; usuario: string | null; rol: "admin" | "coach" }): Promise<void>;
 }
 
 export interface RepositorioSesiones {

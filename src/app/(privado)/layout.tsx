@@ -27,7 +27,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
     tiene("biblioteca.proponer") && { href: "/biblioteca", texto: "Biblioteca" },
     sesion.roles.includes("cliente") && { href: "/cliente", texto: "Mi estado" },
     sesion.roles.includes("cliente") && { href: "/cliente/resultados", texto: "Mis resultados" },
-    (sesion.roles.includes("coach") || sesion.roles.includes("cliente") || tiene("evaluacion.realizar")) && { href: "/perfil", texto: "Mi perfil" },
+    { href: "/perfil", texto: "Mi perfil" },
     { href: "/ayuda", texto: "Ayuda" },
   ];
   const enlaces = menu.filter((x): x is { href: string; texto: string; aviso?: number } => Boolean(x));

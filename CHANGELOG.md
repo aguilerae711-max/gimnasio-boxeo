@@ -7,6 +7,17 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.8.0] - 2026-11-03 · Usuarios cortos y alta de equipo
+
+### Agregado
+- **Entrar con correo o usuario corto** (ej. ivan, admin2). Cada persona tiene su propia cuenta y contraseña, en lugar de una cuenta general compartida: así la auditoría sabe quién hizo cada cosa y el freno de intentos es por persona.
+- Al activar la cuenta (o cambiar la contraseña) se puede elegir usuario; el correo pasa a ser opcional si hay usuario.
+- **Agregar al equipo** (Administración → Equipo): alta de administración o coach con su usuario; aparece de una vez su enlace de activación para mandarlo por WhatsApp. Un coach nuevo queda aprobado con su enlace de invitación para clientes.
+- **Mi perfil → Cómo entras**: cada quien puede ponerse o cambiar su usuario. Mi perfil ahora está en el menú de todos.
+
+### Cambiado
+- El mensaje al fallar la entrada dice “Usuario o contraseña incorrectos.”
+
 ## [0.7.0] - 2026-11-03 · Fase 6 (Novedades)
 
 ### Agregado

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { casosDeOperacion } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeOperacion } from "../../_servidor/contenedor";
 import { mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
@@ -24,6 +24,17 @@ export async function guardarPerfilCliente(_: EstadoFormulario, datos: FormData)
   revalidatePath("/perfil");
   revalidatePath("/admin/clientes/[id]", "page");
   return { ok: "Perfil guardado." };
+}
+
+export async function cambiarMiUsuario(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const sesion = await requerirSesion();
+  try {
+    const usuario = await (await casosDeAcceso()).cambiarUsuario.ejecutar(sesion, texto(datos, "usuario"));
+    revalidatePath("/perfil");
+    return { ok: usuario ? `Listo: ya puedes entrar como ${usuario}.` : "Quitaste tu usuario; entras con tu correo." };
+  } catch (e) {
+    return { error: mensajeDeError(e) };
+  }
 }
 
 export async function guardarPerfilCoach(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {

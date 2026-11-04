@@ -13,7 +13,7 @@ export default async function Entrar() {
     <PaginaCorta>
       <Titulo antetitulo="Bienvenido de vuelta">Entrar</Titulo>
       <Formulario accion={entrar} boton="Entrar">
-        <Campo etiqueta="Correo" name="correo" type="email" autoComplete="email" inputMode="email" required />
+        <Campo etiqueta="Correo o usuario" name="correo" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
         <Campo etiqueta="Contraseña" name="clave" type="password" autoComplete="current-password" required />
       </Formulario>
       <p className="text-sm text-texto-suave">

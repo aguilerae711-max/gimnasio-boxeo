@@ -13,6 +13,22 @@ export function normalizarCorreo(correo: string): string {
   return limpio;
 }
 
+const FORMATO_USUARIO = /^[a-z0-9][a-z0-9._-]{2,29}$/;
+
+/** Usuario corto para entrar (ej. admin1, ivan): minúsculas, números y . _ -, de 3 a 30. */
+export function normalizarUsuario(usuario: string): string {
+  const limpio = usuario.trim().toLowerCase();
+  if (!FORMATO_USUARIO.test(limpio)) {
+    throw new ErrorDeDominio("usuario_invalido", "El usuario lleva de 3 a 30 letras o números, sin espacios ni acentos (puede llevar . _ -).");
+  }
+  return limpio;
+}
+
+/** Lo que se escribe para entrar: si lleva @ es correo; si no, usuario corto. */
+export function identificar(texto: string): { tipo: "correo" | "usuario"; valor: string } {
+  return texto.includes("@") ? { tipo: "correo", valor: normalizarCorreo(texto) } : { tipo: "usuario", valor: normalizarUsuario(texto) };
+}
+
 /** Longitud antes que reglas raras: una frase fácil de recordar es más segura que "P@ss1". */
 export function validarClaveNueva(clave: string): void {
   if (clave.length < CLAVE_MINIMA) {

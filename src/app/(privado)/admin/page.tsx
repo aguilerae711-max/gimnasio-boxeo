@@ -3,6 +3,7 @@ import { casosDeAcceso, casosDeClientes } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
 import { revisarCliente } from "./acciones";
+import { AgregarAlEquipo } from "./AgregarAlEquipo";
 import { GenerarEnlace } from "./GenerarEnlace";
 
 const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "Coach", superadmin: "Superadmin" };
@@ -62,7 +63,10 @@ export default async function Administracion() {
                   <p className="font-semibold">
                     {m.nombre} <Estado valor={m.estado} texto={m.estado === "activo" ? "cuenta activa" : "sin activar"} />
                   </p>
-                  <p className="text-sm text-texto-suave">{m.roles.map((r) => NOMBRE_ROL[r] ?? r).join(" · ")}</p>
+                  <p className="text-sm text-texto-suave">
+                    {m.roles.map((r) => NOMBRE_ROL[r] ?? r).join(" · ")}
+                    {m.usuario && <> · entra como <b className="text-texto">{m.usuario}</b></>}
+                  </p>
                 </div>
                 {puedeEnlazar && m.usuarioId !== sesion.usuarioId && (
                   <div className="w-full sm:w-auto">
@@ -72,6 +76,7 @@ export default async function Administracion() {
               </li>
             ))}
           </ul>
+          {sesion.permisos.includes("equipo.agregar") && <AgregarAlEquipo />}
         </Tarjeta>
 
         <Tarjeta>

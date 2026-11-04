@@ -24,22 +24,46 @@ export const tokensAleatorios: Tokens = {
   huella: (token) => createHash("sha256").update(token).digest("hex"),
 };
 
-type FilaCuenta = { id: string; nombre: string; correo: string | null; hash_clave: string | null; estado: Cuenta["estado"] };
-const aCuenta = (f: FilaCuenta): Cuenta => ({ id: f.id, nombre: f.nombre, correo: f.correo, hashClave: f.hash_clave, estado: f.estado });
+type FilaCuenta = { id: string; nombre: string; correo: string | null; usuario: string | null; hash_clave: string | null; estado: Cuenta["estado"] };
+const aCuenta = (f: FilaCuenta): Cuenta => ({ id: f.id, nombre: f.nombre, correo: f.correo, usuario: f.usuario, hashClave: f.hash_clave, estado: f.estado });
 
 export class CuentasPostgres implements RepositorioCuentas {
   constructor(private readonly sql: postgres.Sql) {}
 
   async porId(id: string) {
     const [f] = await this.sql<FilaCuenta[]>`
-      SELECT id, nombre, correo, hash_clave, estado FROM usuario WHERE id = ${id} AND eliminado_en IS NULL`;
+      SELECT id, nombre, correo, usuario, hash_clave, estado FROM usuario WHERE id = ${id} AND eliminado_en IS NULL`;
     return f ? aCuenta(f) : null;
   }
 
   async porCorreo(correo: string) {
     const [f] = await this.sql<FilaCuenta[]>`
-      SELECT id, nombre, correo, hash_clave, estado FROM usuario WHERE correo = ${correo} AND eliminado_en IS NULL`;
+      SELECT id, nombre, correo, usuario, hash_clave, estado FROM usuario WHERE correo = ${correo} AND eliminado_en IS NULL`;
     return f ? aCuenta(f) : null;
+  }
+
+  async porUsuario(usuario: string) {
+    const [f] = await this.sql<FilaCuenta[]>`
+      SELECT id, nombre, correo, usuario, hash_clave, estado FROM usuario WHERE usuario = ${usuario} AND eliminado_en IS NULL`;
+    return f ? aCuenta(f) : null;
+  }
+
+  async cambiarUsuario(usuarioId: string, usuario: string | null) {
+    await this.sql`UPDATE usuario SET usuario = ${usuario} WHERE id = ${usuarioId}`;
+  }
+
+  async crearMiembro(gimnasioId: string, m: { id: string; nombre: string; usuario: string | null; rol: "admin" | "coach" }) {
+    await enGimnasio(this.sql, gimnasioId, async (tx) => {
+      await tx`INSERT INTO usuario (id, nombre, usuario, estado) VALUES (${m.id}, ${m.nombre}, ${m.usuario}, 'pendiente')`;
+      await tx`INSERT INTO usuario_rol (usuario_id, rol_codigo, gimnasio_id) VALUES (${m.id}, ${m.rol}, ${gimnasioId})`;
+      if (m.rol === "coach") {
+        // Código de invitación sin acentos, como los demás coaches.
+        await tx`
+          INSERT INTO coach (gimnasio_id, usuario_id, apodo, estado, codigo_invitacion)
+          VALUES (${gimnasioId}, ${m.id}, ${m.nombre.split(" ")[0]}, 'aprobado',
+                  translate(lower(${m.nombre.split(" ")[0]}), 'áéíóúüñ', 'aeiouun') || '-' || substr(md5(${m.id}), 1, 4))`;
+      }
+    });
   }
 
   async esDelGimnasio(usuarioId: string, gimnasioId: string) {
@@ -48,9 +72,9 @@ export class CuentasPostgres implements RepositorioCuentas {
     return Boolean(f);
   }
 
-  async guardarCredenciales(usuarioId: string, correo: string, hashClave: string) {
+  async guardarCredenciales(usuarioId: string, acceso: { correo: string | null; usuario: string | null }, hashClave: string) {
     await this.sql`
-      UPDATE usuario SET correo = ${correo}, hash_clave = ${hashClave}, estado = 'activo'
+      UPDATE usuario SET correo = ${acceso.correo}, usuario = ${acceso.usuario}, hash_clave = ${hashClave}, estado = 'activo'
       WHERE id = ${usuarioId} AND estado <> 'suspendido'`;
   }
 }
@@ -117,6 +141,7 @@ export interface MiembroDelEquipo {
   usuarioId: string;
   nombre: string;
   correo: string | null;
+  usuario: string | null;
   estado: Cuenta["estado"];
   roles: string[];
 }
@@ -127,7 +152,7 @@ export class ConsultasEquipo {
 
   async delGimnasio(gimnasioId: string): Promise<MiembroDelEquipo[]> {
     return this.sql<MiembroDelEquipo[]>`
-      SELECT u.id AS "usuarioId", u.nombre, u.correo, u.estado, array_agg(ur.rol_codigo ORDER BY ur.rol_codigo) AS roles
+      SELECT u.id AS "usuarioId", u.nombre, u.correo, u.usuario, u.estado, array_agg(ur.rol_codigo ORDER BY ur.rol_codigo) AS roles
       FROM usuario u JOIN usuario_rol ur ON ur.usuario_id = u.id
       WHERE ur.gimnasio_id = ${gimnasioId} AND ur.hasta IS NULL AND ur.rol_codigo <> 'cliente' AND u.eliminado_en IS NULL
       GROUP BY u.id ORDER BY u.nombre`;

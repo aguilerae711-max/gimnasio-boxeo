@@ -26,13 +26,26 @@ export class CuentasEnMemoria implements RepositorioCuentas {
     return [...this.cuentas.values()].find((c) => c.correo === correo) ?? null;
   }
 
+  async porUsuario(usuario: string) {
+    return [...this.cuentas.values()].find((c) => c.usuario === usuario) ?? null;
+  }
+
+  async cambiarUsuario(usuarioId: string, usuario: string | null) {
+    this.cuentas.set(usuarioId, { ...this.cuentas.get(usuarioId)!, usuario });
+  }
+
+  async crearMiembro(gimnasioId: string, m: { id: string; nombre: string; usuario: string | null }) {
+    this.cuentas.set(m.id, { id: m.id, nombre: m.nombre, correo: null, usuario: m.usuario, hashClave: null, estado: "pendiente" });
+    this.membresias.push({ usuarioId: m.id, gimnasioId });
+  }
+
   async esDelGimnasio(usuarioId: string, gimnasioId: string) {
     return this.membresias.some((m) => m.usuarioId === usuarioId && m.gimnasioId === gimnasioId);
   }
 
-  async guardarCredenciales(usuarioId: string, correo: string, hashClave: string) {
+  async guardarCredenciales(usuarioId: string, acceso: { correo: string | null; usuario: string | null }, hashClave: string) {
     const c = this.cuentas.get(usuarioId)!;
-    this.cuentas.set(usuarioId, { ...c, correo, hashClave, estado: "activo" });
+    this.cuentas.set(usuarioId, { ...c, ...acceso, hashClave, estado: "activo" });
   }
 }
 
