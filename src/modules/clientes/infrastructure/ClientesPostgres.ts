@@ -1,9 +1,9 @@
 import type postgres from "postgres";
 import { enGimnasio } from "@/shared/infrastructure/baseDeDatos";
 import type { EstadoCliente } from "../domain/SolicitudCliente";
-import type { CoachParaRegistro, NuevoCliente, RepositorioClientes } from "../application/puertos";
+import type { CoachParaRegistro, InscripcionDeUsuario, NuevoCliente, RepositorioClientes, RepositorioInscripciones } from "../application/puertos";
 
-export class ClientesPostgres implements RepositorioClientes {
+export class ClientesPostgres implements RepositorioClientes, RepositorioInscripciones {
   constructor(private readonly sql: postgres.Sql) {}
 
   /** Coaches a los que un cliente nuevo se puede registrar (vista pública). */
@@ -49,6 +49,35 @@ export class ClientesPostgres implements RepositorioClientes {
     });
   }
 
+  async esCliente(gimnasioId: string, usuarioId: string) {
+    const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx`SELECT 1 FROM cliente WHERE gimnasio_id = ${gimnasioId} AND usuario_id = ${usuarioId}`);
+    return Boolean(f);
+  }
+
+  async coachAprobado(gimnasioId: string, coachId: string) {
+    const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx`SELECT 1 FROM coach WHERE id = ${coachId} AND gimnasio_id = ${gimnasioId} AND estado = 'aprobado'`);
+    return Boolean(f);
+  }
+
+  async inscribirUsuario(i: InscripcionDeUsuario) {
+    const revisor = i.estado === "activo" ? i.usuarioId : null;
+    await enGimnasio(this.sql, i.gimnasioId, async (tx) => {
+      await tx`
+        INSERT INTO usuario_rol (usuario_id, rol_codigo, gimnasio_id)
+        SELECT ${i.usuarioId}, 'cliente', ${i.gimnasioId}
+        WHERE NOT EXISTS (SELECT 1 FROM usuario_rol WHERE usuario_id = ${i.usuarioId} AND rol_codigo = 'cliente' AND gimnasio_id = ${i.gimnasioId} AND hasta IS NULL)`;
+      await tx`
+        INSERT INTO cliente (id, gimnasio_id, usuario_id, coach_id, estado, reglamento_version, reglamento_aceptado_en, revisado_por, revisado_en)
+        VALUES (${i.clienteId}, ${i.gimnasioId}, ${i.usuarioId}, ${i.coachId}, ${i.estado}, ${i.reglamentoVersion}, ${i.en}, ${revisor}, ${revisor ? i.en : null})`;
+      await tx`
+        INSERT INTO asignacion_coach_cliente (id, gimnasio_id, cliente_id, coach_id, desde, motivo)
+        VALUES (gen_random_uuid(), ${i.gimnasioId}, ${i.clienteId}, ${i.coachId}, ${i.en}, 'Inscripción con su propia cuenta')`;
+      await tx`
+        INSERT INTO perfil_cliente (cliente_id, gimnasio_id, sexo, actualizado_por)
+        VALUES (${i.clienteId}, ${i.gimnasioId}, ${i.sexo}, ${i.usuarioId})`;
+    });
+  }
+
   async porId(gimnasioId: string, clienteId: string) {
     const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx<{ id: string; estado: EstadoCliente }[]>`
       SELECT id, estado FROM cliente WHERE id = ${clienteId} AND gimnasio_id = ${gimnasioId}`);
@@ -90,6 +119,14 @@ export class ConsultasClientes {
       FROM cliente cl JOIN usuario u ON u.id = cl.usuario_id JOIN coach c ON c.id = cl.coach_id
       WHERE cl.gimnasio_id = ${gimnasioId} AND c.usuario_id = ${usuarioCoachId} AND cl.estado IN ('pendiente', 'activo')
       ORDER BY u.nombre`);
+  }
+
+  /** Para "ver como lo ve el cliente": la cuenta detrás de un registro. */
+  async usuarioDe(gimnasioId: string, clienteId: string) {
+    const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx<{ usuarioId: string; nombre: string }[]>`
+      SELECT cl.usuario_id AS "usuarioId", u.nombre FROM cliente cl JOIN usuario u ON u.id = cl.usuario_id
+      WHERE cl.gimnasio_id = ${gimnasioId} AND cl.id = ${clienteId}`);
+    return f ?? null;
   }
 
   async delUsuario(gimnasioId: string, usuarioId: string): Promise<FilaCliente | null> {

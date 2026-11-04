@@ -7,6 +7,17 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.10.0] - 2026-11-04 · Diamante Boxing Club
+
+### Agregado
+- **Marca de cada gimnasio**: nombre, eslogan, frase y logotipo propios en la portada, el encabezado, la pestaña del navegador y las pantallas de entrar y registrarse. El gimnasio piloto queda como **Diamante Boxing Club** · “Forjado bajo presión”.
+- **También entreno aquí** (Mi perfil): quien es de la administración o coach se inscribe como cliente con su mismo usuario y tiene el grupo Cliente en el menú. La administración queda activa de una vez; un coach queda por aprobar.
+- **Ver como lo ve el cliente** (ficha del cliente): muestra su Mi estado tal cual, solo para revisar.
+
+### Cambiado
+- La portada ya no muestra todos los horarios ni el texto genérico: logotipo, eslogan, la clase de prueba, novedades y coaches.
+- El cuadre **Con el sistema** (cuota del servicio) solo lo ve el superadministrador; la administración del gimnasio ve solo el cuadre con sus coaches.
+
 ## [0.9.0] - 2026-11-04 · Rutina de hoy, menú agrupado, reinicio y clase de prueba
 
 ### Agregado

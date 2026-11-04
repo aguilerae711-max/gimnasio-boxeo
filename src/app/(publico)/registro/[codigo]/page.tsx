@@ -2,10 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { casosDeClientes } from "../../../_servidor/contenedor";
 import { Formulario } from "../../../_ui/Formulario";
-import { Campo, PaginaCorta, Titulo } from "../../../_ui/piezas";
+import { Campo, Titulo } from "../../../_ui/piezas";
+import { PaginaCorta } from "../../../_ui/MarcaGimnasio";
 import { registrarCliente } from "../../acciones";
 
-export const metadata = { title: "Registro · Gimnasio de boxeo" };
+export const metadata = { title: "Registro" };
 
 export default async function Registro({ params }: { params: Promise<{ codigo: string }> }) {
   const { codigo } = await params;

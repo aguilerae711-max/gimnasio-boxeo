@@ -4,7 +4,7 @@ import { normalizarCorreo, validarClaveNueva } from "@/modules/acceso/domain/Cre
 import type { HashDeClaves } from "@/modules/acceso/application/puertos";
 import { validarEstatura, validarPeso, type Sexo } from "@/modules/evaluacion/domain/Composicion";
 import { REGLAMENTO_VIGENTE, revisarSolicitud, validarNombre, validarTelefono, type Decision } from "../domain/SolicitudCliente";
-import type { RepositorioClientes } from "./puertos";
+import type { RepositorioClientes, RepositorioInscripciones } from "./puertos";
 
 export const PERMISO_APROBAR_CLIENTE = "cliente.aprobar";
 
@@ -71,6 +71,53 @@ export class RegistrarCliente {
     };
     await this.clientes.registrar(nuevo);
     return { clienteId: nuevo.clienteId, usuarioId: nuevo.usuarioId, correo };
+  }
+}
+
+/**
+ * Quien ya tiene cuenta (administración o coach) se inscribe también como cliente, con su mismo usuario.
+ * Si puede aprobar clientes queda activo de una vez; si no, pendiente como cualquier registro.
+ */
+export class InscribirmeComoCliente {
+  constructor(
+    private readonly d: { inscripciones: RepositorioInscripciones; autorizacion: Autorizacion; auditoria: Auditoria; ids: GeneradorDeIds; reloj: Reloj },
+  ) {}
+
+  async ejecutar(actor: Actor, datos: { coachId: string; sexo: Sexo | ""; aceptaReglamento: boolean }) {
+    if (datos.sexo !== "F" && datos.sexo !== "M") {
+      throw new ErrorDeDominio("sexo", "Indica si compites en la rama femenil o varonil.");
+    }
+    if (!datos.aceptaReglamento) {
+      throw new ErrorDeDominio("reglamento", "Para inscribirte debes aceptar el reglamento y la responsiva.");
+    }
+    if (await this.d.inscripciones.esCliente(actor.gimnasioId, actor.usuarioId)) {
+      throw new ErrorDeDominio("ya_cliente", "Ya estás inscrito como cliente.");
+    }
+    if (!(await this.d.inscripciones.coachAprobado(actor.gimnasioId, datos.coachId))) {
+      throw new ErrorDeDominio("coach", "Elige un coach del gimnasio.");
+    }
+    const estado = (await this.d.autorizacion.tienePermiso(actor, PERMISO_APROBAR_CLIENTE)) ? "activo" : "pendiente";
+    const clienteId = this.d.ids.nuevo();
+    await this.d.inscripciones.inscribirUsuario({
+      clienteId,
+      usuarioId: actor.usuarioId,
+      gimnasioId: actor.gimnasioId,
+      coachId: datos.coachId,
+      estado,
+      reglamentoVersion: REGLAMENTO_VIGENTE,
+      en: this.d.reloj.ahora(),
+      sexo: datos.sexo,
+    });
+    await this.d.auditoria.registrar({
+      gimnasioId: actor.gimnasioId,
+      usuarioId: actor.usuarioId,
+      accion: "cliente.inscrito_con_su_cuenta",
+      entidad: "cliente",
+      entidadId: clienteId,
+      antes: null,
+      despues: { estado, coachId: datos.coachId },
+    });
+    return { clienteId, estado };
   }
 }
 

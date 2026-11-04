@@ -255,6 +255,13 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Ver como lo ve el cliente",
+        pasos: [
+          "En la ficha del cliente toca “Ver como lo ve el cliente”: ves su Mi estado tal cual, sin poder cambiar nada.",
+          "Si tú también entrenas, en Mi perfil → También entreno aquí te inscribes como cliente con tu mismo usuario.",
+        ],
+      },
+      {
         titulo: "Reiniciar el punto de partida",
         pasos: [
           "Si un cliente regresa tras 3 meses o más, o de una lesión, abre su ficha → Reiniciar punto de partida.",

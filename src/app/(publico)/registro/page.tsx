@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { casosDeClientes } from "../../_servidor/contenedor";
-import { PaginaCorta, Titulo } from "../../_ui/piezas";
+import { Titulo } from "../../_ui/piezas";
+import { PaginaCorta } from "../../_ui/MarcaGimnasio";
 
-export const metadata = { title: "Registro · Gimnasio de boxeo" };
+export const metadata = { title: "Registro" };
 export const dynamic = "force-dynamic";
 
 export default async function ElegirCoach() {

@@ -2,10 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sesionActual } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
-import { Campo, PaginaCorta, Titulo } from "../../_ui/piezas";
+import { Campo, Titulo } from "../../_ui/piezas";
+import { PaginaCorta } from "../../_ui/MarcaGimnasio";
 import { entrar } from "../acciones";
 
-export const metadata = { title: "Entrar · Gimnasio de boxeo" };
+export const metadata = { title: "Entrar" };
 
 export default async function Entrar() {
   if ((await sesionActual())?.gimnasioId) redirect("/panel");

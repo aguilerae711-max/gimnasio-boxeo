@@ -1,10 +1,28 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { casosDeAcceso, casosDeOperacion } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeOperacion } from "../../_servidor/contenedor";
 import { mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
+
+export async function inscribirmeComoCliente(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const sesion = await requerirSesion();
+  try {
+    const r = await casosDeClientes()
+      .inscribirme(sesion.permisos)
+      .ejecutar(sesion, { coachId: texto(datos, "coachId"), sexo: texto(datos, "sexo") as "F" | "M" | "", aceptaReglamento: datos.get("reglamento") === "si" });
+    revalidatePath("/", "layout");
+    return {
+      ok:
+        r.estado === "activo"
+          ? "Listo: ya tienes el grupo Cliente en el menú. Asígnate tu horario desde tu ficha en Administración → Clientes."
+          : "Listo: tu inscripción quedó por aprobar en la administración.",
+    };
+  } catch (e) {
+    return { error: mensajeDeError(e) };
+  }
+}
 
 /** Lo usa el cliente para su perfil y la administración desde la ficha del cliente. */
 export async function guardarPerfilCliente(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {

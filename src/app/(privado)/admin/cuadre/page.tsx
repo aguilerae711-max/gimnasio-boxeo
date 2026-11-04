@@ -90,45 +90,46 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
         </ul>
       </Tarjeta>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Con el sistema</h2>
-        <div className="mt-2 grid gap-3 sm:grid-cols-3">
-          <div>
-            <p className="text-sm text-texto-suave">Ingresos del mes</p>
-            <p className="font-titulos text-3xl font-bold">{pesos(ingresos.centavos)}</p>
+      {/* La cuota del sistema es entre el gimnasio y el dueño del sistema: solo la ve el superadministrador. */}
+      {esSuperadmin && (
+        <Tarjeta>
+          <h2 className="font-titulos text-2xl font-bold uppercase">Con el sistema</h2>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            <div>
+              <p className="text-sm text-texto-suave">Ingresos del mes</p>
+              <p className="font-titulos text-3xl font-bold">{pesos(ingresos.centavos)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-texto-suave">Cuota vigente</p>
+              <p className="font-titulos text-3xl font-bold">{sistema.tarifa ? describirTarifa(sistema.tarifa) : "—"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-texto-suave">A pagar al sistema</p>
+              <p className="font-titulos text-3xl font-bold text-[#6fe0a2]">{pesos(sistema.cargo.centavos)}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-texto-suave">Cuota vigente</p>
-            <p className="font-titulos text-3xl font-bold">{sistema.tarifa ? describirTarifa(sistema.tarifa) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-texto-suave">A pagar al sistema</p>
-            <p className="font-titulos text-3xl font-bold text-[#6fe0a2]">{pesos(sistema.cargo.centavos)}</p>
-          </div>
-        </div>
-        <ul className="mt-3 text-xs text-texto-suave">
-          {tarifas.map((t) => (
-            <li key={t.vigenteDesde.valor}>
-              Desde {fechaCorta(t.vigenteDesde.valor)} {t.vigenteDesde.valor.slice(0, 4)}: {describirTarifa(t)}
-            </li>
-          ))}
-        </ul>
-        {esSuperadmin && (
-          <Formulario accion={cambiarTarifa} boton="Programar cuota" variante="secundario" className="mt-4 grid! grid-cols-2 items-end gap-2! sm:grid-cols-[1fr_1fr_1fr_1fr_2fr_auto]">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-semibold text-[#c9ccd3]">Tipo</span>
-              <select name="tipo" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-texto">
-                <option value="porcentaje">Porcentaje</option>
-                <option value="cuota_fija">Cuota fija</option>
-              </select>
-            </label>
-            <Campo etiqueta="%" name="porcentaje" type="number" min={0} max={50} step={0.01} defaultValue={0} />
-            <Campo etiqueta="Cuota ($)" name="cuota" type="number" min={0} step={0.01} defaultValue={0} />
-            <Campo etiqueta="Desde" name="desde" type="month" min={Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes} required />
-            <Campo etiqueta="Motivo" name="motivo" required />
-          </Formulario>
-        )}
-      </Tarjeta>
+          <ul className="mt-3 text-xs text-texto-suave">
+            {tarifas.map((t) => (
+              <li key={t.vigenteDesde.valor}>
+                Desde {fechaCorta(t.vigenteDesde.valor)} {t.vigenteDesde.valor.slice(0, 4)}: {describirTarifa(t)}
+              </li>
+            ))}
+          </ul>
+            <Formulario accion={cambiarTarifa} boton="Programar cuota" variante="secundario" className="mt-4 grid! grid-cols-2 items-end gap-2! sm:grid-cols-[1fr_1fr_1fr_1fr_2fr_auto]">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold text-[#c9ccd3]">Tipo</span>
+                <select name="tipo" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-texto">
+                  <option value="porcentaje">Porcentaje</option>
+                  <option value="cuota_fija">Cuota fija</option>
+                </select>
+              </label>
+              <Campo etiqueta="%" name="porcentaje" type="number" min={0} max={50} step={0.01} defaultValue={0} />
+              <Campo etiqueta="Cuota ($)" name="cuota" type="number" min={0} step={0.01} defaultValue={0} />
+              <Campo etiqueta="Desde" name="desde" type="month" min={Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes} required />
+              <Campo etiqueta="Motivo" name="motivo" required />
+            </Formulario>
+        </Tarjeta>
+      )}
     </>
   );
 }

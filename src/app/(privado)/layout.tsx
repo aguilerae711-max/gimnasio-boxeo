@@ -1,7 +1,8 @@
 import { casosDeNovedades } from "../_servidor/contenedor";
 import { lectorDe, requerirSesion } from "../_servidor/sesion";
 import { Menu, type Grupo } from "../_ui/Menu";
-import { Marca } from "../_ui/piezas";
+import { marcaDe } from "../_servidor/marca";
+import { MarcaGimnasio } from "../_ui/MarcaGimnasio";
 import { salir } from "../(publico)/acciones";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function LayoutPrivado({ children }: { children: React.ReactNode }) {
   const sesion = await requerirSesion();
   const tiene = (p: string) => sesion.permisos.includes(p);
+  const marca = await marcaDe(sesion.gimnasioId);
   const sinVer = await casosDeNovedades(sesion.permisos).consultas.sinVer(sesion.gimnasioId, lectorDe(sesion), sesion.usuarioId);
   const coach = sesion.roles.includes("coach");
   const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
@@ -56,7 +58,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <Marca />
+        <MarcaGimnasio marca={marca} />
         <div className="flex items-center gap-3 text-sm text-texto-suave">
           <span>{sesion.nombre}</span>
           <form action={salir}>

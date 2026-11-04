@@ -58,6 +58,9 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
   return (
     <>
       <Titulo antetitulo="Cliente">{cliente.nombre}</Titulo>
+      <Link href={`/admin/clientes/${id}/como-cliente`} className="-mt-3 w-fit text-sm">
+        Ver como lo ve el cliente →
+      </Link>
       <div className="flex flex-wrap items-center gap-3 text-sm text-texto-suave">
         <Estado valor={cliente.estado} />
         <EstadoMembresia estado={membresia} />

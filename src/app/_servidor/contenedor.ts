@@ -11,7 +11,7 @@ import {
   SesionesPostgres,
   tokensAleatorios,
 } from "@/modules/acceso/infrastructure/AccesoPostgres";
-import { RegistrarCliente, RevisarRegistroCliente } from "@/modules/clientes/application/RegistroDeClientes";
+import { RegistrarCliente, InscribirmeComoCliente, RevisarRegistroCliente } from "@/modules/clientes/application/RegistroDeClientes";
 import { ClientesPostgres, ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
 import { AtenderSolicitud, SolicitarClaseDePrueba } from "@/modules/clientes/application/SolicitudesDePrueba";
 import { SolicitudesPostgres } from "@/modules/clientes/infrastructure/SolicitudesPostgres";
@@ -95,6 +95,14 @@ export function casosDeClientes() {
     registrar: new RegistrarCliente(repositorio, argon2id, idsAleatorios, relojDelSistema),
     revisar: (permisos: readonly string[]) =>
       new RevisarRegistroCliente(repositorio, autorizacionConPermisos(permisos), new AuditoriaPostgres(sql), relojDelSistema),
+    inscribirme: (permisos: readonly string[]) =>
+      new InscribirmeComoCliente({
+        inscripciones: repositorio,
+        autorizacion: autorizacionConPermisos(permisos),
+        auditoria: new AuditoriaPostgres(sql),
+        ids: idsAleatorios,
+        reloj: relojDelSistema,
+      }),
   };
 }
 

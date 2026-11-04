@@ -24,6 +24,25 @@ export interface NuevoCliente {
   medicionId: string | null;
 }
 
+/** Alguien del equipo que ya tiene cuenta se inscribe también como cliente. */
+export interface InscripcionDeUsuario {
+  clienteId: string;
+  usuarioId: string;
+  gimnasioId: string;
+  coachId: string;
+  estado: "pendiente" | "activo";
+  reglamentoVersion: string;
+  en: Date;
+  sexo: "F" | "M";
+}
+
+export interface RepositorioInscripciones {
+  esCliente(gimnasioId: string, usuarioId: string): Promise<boolean>;
+  coachAprobado(gimnasioId: string, coachId: string): Promise<boolean>;
+  /** En una sola transacción: el rol de cliente, el registro, su coach y su perfil. */
+  inscribirUsuario(i: InscripcionDeUsuario): Promise<void>;
+}
+
 export interface RepositorioClientes {
   coachPorCodigo(codigo: string): Promise<CoachParaRegistro | null>;
   correoEnUso(correo: string): Promise<boolean>;

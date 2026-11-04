@@ -1,10 +1,11 @@
 import { casosDeAcceso } from "../../../_servidor/contenedor";
 import { mensajeDeError } from "../../../_servidor/sesion";
 import { Formulario } from "../../../_ui/Formulario";
-import { Campo, PaginaCorta, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Campo, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { PaginaCorta } from "../../../_ui/MarcaGimnasio";
 import { usarEnlace } from "../../acciones";
 
-export const metadata = { title: "Activar cuenta · Gimnasio de boxeo", referrer: "no-referrer" };
+export const metadata = { title: "Activar cuenta", referrer: "no-referrer" };
 
 export default async function Activar({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;

@@ -2,9 +2,10 @@ import Link from "next/link";
 import { NOMBRE_TIPO } from "@/modules/novedades/domain/Novedades";
 import { ConsultasNovedades } from "@/modules/novedades/infrastructure/NovedadesPostgres";
 import { ConsultasOperacion } from "@/modules/operacion/infrastructure/OperacionPostgres";
-import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
 import { casosDeSolicitudes } from "./_servidor/contenedor";
+import { GIMNASIO_PUBLICO as GIMNASIO, marcaDe } from "./_servidor/marca";
+import { Logotipo } from "./_ui/MarcaGimnasio";
 import { versionVisible } from "./version";
 import { solicitarPrueba } from "./(publico)/acciones";
 import { Formulario } from "./_ui/Formulario";
@@ -12,9 +13,6 @@ import { Campo } from "./_ui/piezas";
 
 export const dynamic = "force-dynamic";
 
-// Por ahora hay un solo gimnasio; cuando haya varios, cada uno tendrá su propia dirección.
-const GIMNASIO = process.env.GIMNASIO_PUBLICO ?? "00000000-0000-4000-8000-000000000101";
-const corto = (dia: number) => NOMBRE_DIA[dia].slice(0, 3);
 
 async function horario() {
   try {
@@ -47,26 +45,27 @@ async function novedades() {
 }
 
 export default async function Inicio() {
-  const [datos, avisos, franjas] = await Promise.all([horario(), novedades(), franjasParaPrueba()]);
+  const [datos, avisos, franjas, marca] = await Promise.all([horario(), novedades(), franjasParaPrueba(), marcaDe(GIMNASIO)]);
   const coaches = [...new Map((datos?.turnos ?? []).map((t) => [t.apodo, t])).values()];
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col px-5 py-6">
-      <header className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-acento font-titulos text-lg font-extrabold">GB</span>
-        <span className="font-titulos text-xl font-bold tracking-wide">GIMNASIO DE BOXEO</span>
+      <header className="flex items-center justify-between gap-3">
+        <span className="font-titulos text-xl font-bold uppercase tracking-wide">{marca.nombre}</span>
+        <Link href="/entrar" className="flex min-h-11 items-center rounded-full border border-[#3a3d46] px-4 text-sm font-semibold text-texto no-underline">
+          Entrar
+        </Link>
       </header>
 
-      <section className="mt-6 rounded-2xl bg-tarjeta p-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-texto-suave">Boxeo · Acondicionamiento</p>
-        <h1 className="mt-2 font-titulos text-5xl font-extrabold uppercase leading-none">
-          Entrena con método.
-          <br />
-          Mide tu avance.
-        </h1>
-        <p className="mt-4 text-[15px] leading-relaxed text-[#c9ccd3]">
-          Coaches asignados, evaluación mensual de fuerza, velocidad, resistencia y estrategia.
-        </p>
+      <section className="relative mt-5 overflow-hidden rounded-3xl bg-tarjeta px-6 pb-7 pt-8 text-center">
+        <div className="relative mx-auto w-fit">
+          <Logotipo marca={marca} tamano={184} />
+        </div>
+        <h1 className="relative mt-5 font-titulos text-5xl font-extrabold uppercase leading-[0.95]">{marca.eslogan ?? marca.nombre}</h1>
+        {marca.lema && <p className="relative mx-auto mt-3 max-w-xs text-[15px] leading-relaxed text-[#c9ccd3]">{marca.lema}</p>}
+        <a href="#prueba" className="relative mt-6 flex min-h-13 items-center justify-center rounded-2xl bg-acento text-base font-bold text-white no-underline">
+          Quiero mi clase de prueba
+        </a>
       </section>
 
       {avisos.length > 0 && (
@@ -88,44 +87,6 @@ export default async function Inicio() {
         </section>
       )}
 
-      <section className="mt-6">
-        <h2 className="font-titulos text-xl font-bold uppercase">Horarios</h2>
-        {datos && datos.franjas.length > 0 ? (
-          <>
-            <ul className="mt-3 flex flex-col gap-2">
-              {datos.franjas.map((f) => {
-                const enFranja = datos.turnos.filter((t) => t.inicio === f.inicio);
-                const porCoach = [...new Set(enFranja.map((t) => t.apodo))].map((apodo) => ({
-                  apodo,
-                  color: enFranja.find((t) => t.apodo === apodo)!.color,
-                  dias: enFranja.filter((t) => t.apodo === apodo).map((t) => corto(t.dia)),
-                }));
-                return (
-                  <li key={f.inicio} className="flex items-center gap-3 rounded-xl bg-tarjeta px-4 py-2.5">
-                    <span className="w-14 shrink-0 font-titulos text-lg font-bold">
-                      {f.inicio.slice(0, 2)}–{f.fin.slice(0, 2)}
-                    </span>
-                    <span className="flex flex-wrap gap-1.5 text-xs">
-                      {porCoach.length === 0 && <span className="text-texto-suave">Libre</span>}
-                      {porCoach.map((c) => (
-                        <span key={c.apodo} className="rounded px-1.5 py-0.5 font-semibold text-[#121317]" style={{ background: c.color }}>
-                          {c.apodo} · {c.dias.join(" ")}
-                        </span>
-                      ))}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-2 text-xs text-texto-suave">
-              Franjas de 2 horas · {datos.franjas[0].dias.map(corto).join(", ")} · {datos.franjas[0].inicio} a {datos.franjas.at(-1)!.fin}
-            </p>
-          </>
-        ) : (
-          <p className="mt-2 text-sm text-texto-suave">Lunes a viernes de 8:00 a 22:00.</p>
-        )}
-      </section>
-
       {coaches.length > 0 && (
         <section className="mt-6">
           <h2 className="font-titulos text-xl font-bold uppercase">Coaches</h2>
@@ -142,13 +103,13 @@ export default async function Inicio() {
         </section>
       )}
 
-      <section className="mt-6 rounded-2xl bg-tarjeta p-5">
+      <section id="prueba" className="mt-6 scroll-mt-4 rounded-2xl bg-tarjeta p-5">
         <h2 className="font-titulos text-2xl font-bold uppercase">Clase de prueba gratis</h2>
         <p className="mb-3 text-sm text-[#c9ccd3]">Déjanos tus datos y te escribimos por WhatsApp para agendarte.</p>
         <Formulario accion={solicitarPrueba} boton="Quiero mi clase de prueba">
           <Campo etiqueta="Nombre" name="nombre" autoComplete="name" required />
           <Campo etiqueta="WhatsApp" name="telefono" type="tel" inputMode="tel" autoComplete="tel" placeholder="10 dígitos" required />
-          {datos && datos.franjas.length > 0 && (
+          {franjas.length > 0 && (
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-[#c9ccd3]">Horario que prefieres</span>
               <select name="franjaId" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-base text-texto">
@@ -172,15 +133,12 @@ export default async function Inicio() {
       </section>
 
       <div className="mt-8 flex gap-3">
-        <Link href="/registro" className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-acento font-semibold text-white no-underline">
-          Registrarme
-        </Link>
-        <Link href="/entrar" className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#3a3d46] font-semibold text-texto no-underline">
-          Entrar
+        <Link href="/registro" className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#3a3d46] font-semibold text-texto no-underline">
+          Ya entreno aquí: registrarme
         </Link>
       </div>
 
-      <p className="mt-auto pt-10 text-center text-xs text-texto-suave">Versión en construcción · {versionVisible()}</p>
+      <p className="mt-auto pt-10 text-center text-xs text-texto-suave">{marca.nombre} · {versionVisible()}</p>
     </main>
   );
 }

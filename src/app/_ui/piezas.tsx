@@ -1,14 +1,3 @@
-import Link from "next/link";
-
-export function Marca() {
-  return (
-    <Link href="/" className="flex items-center gap-3 text-texto no-underline">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-acento font-titulos text-lg font-extrabold">GB</span>
-      <span className="font-titulos text-xl font-bold tracking-wide">GIMNASIO DE BOXEO</span>
-    </Link>
-  );
-}
-
 export function Campo({
   etiqueta,
   ayuda,
@@ -55,14 +44,3 @@ export function Estado({ valor, texto }: { valor: string; texto?: string }) {
   );
 }
 
-/** Página centrada y angosta, para entrar, activar y registrarse. */
-export function PaginaCorta({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 px-5 py-6">
-      <header>
-        <Marca />
-      </header>
-      {children}
-    </main>
-  );
-}
