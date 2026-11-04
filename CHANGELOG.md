@@ -7,6 +7,15 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.11.1] - 2026-11-04 · Manuales y textos de ayuda
+
+### Agregado
+- **Manual de uso** por interfaz con su alcance (`docs/Manual_de_uso.pdf`) e **Informe de ingeniería de software** con los fundamentos teóricos (`docs/Informe_de_ingenieria.pdf`).
+
+### Corregido
+- Ayuda de Administración: ya no menciona la cuenta con el sistema en el cuadre (solo la ve el superadministrador).
+- Ayuda y perfil del coach: la especialidad ya no aparece en la portada; la activación de cuenta menciona el usuario corto.
+
 ## [0.11.0] - 2026-11-04 · Portada nueva, quiero ser coach y panel del sistema
 
 ### Agregado

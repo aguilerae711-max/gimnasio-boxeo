@@ -84,7 +84,7 @@ export default async function Perfil() {
       {comoCoach && (
         <Tarjeta>
           <h2 className="font-titulos text-2xl font-bold uppercase">Como coach</h2>
-          <p className="mb-3 text-sm text-texto-suave">Tu especialidad aparece junto a tu nombre en el horario público.</p>
+          <p className="mb-3 text-sm text-texto-suave">Tu especialidad y presentación. Por ahora no se muestran en la portada.</p>
           <Formulario accion={guardarPerfilCoach} boton="Guardar perfil">
             <Campo etiqueta="Especialidad" name="especialidad" maxLength={80} placeholder="Ej. principiantes, técnica" defaultValue={comoCoach.especialidad ?? ""} />
             <label className="flex flex-col gap-1.5">

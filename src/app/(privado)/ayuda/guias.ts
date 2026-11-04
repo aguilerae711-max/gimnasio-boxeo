@@ -141,8 +141,8 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
-        titulo: "Tu perfil público",
-        pasos: ["Entra a Mi perfil.", "Escribe tu especialidad y una presentación corta. La especialidad aparece en la página pública."],
+        titulo: "Tu perfil",
+        pasos: ["Entra a Mi perfil.", "Escribe tu especialidad y una presentación corta. Por ahora no se muestran en la portada."],
       },
       {
         titulo: "Invitar a un cliente",
@@ -156,8 +156,8 @@ export const AYUDA: SeccionDeAyuda[] = [
         titulo: "Activar tu cuenta",
         pasos: [
           "La administración te manda un enlace por WhatsApp; vence en 72 horas.",
-          "Ábrelo, escribe tu correo y una contraseña de al menos 10 caracteres.",
-          "Desde entonces entras con ese correo y contraseña.",
+          "Ábrelo, elige un usuario corto (o escribe tu correo) y una contraseña de al menos 10 caracteres.",
+          "Desde entonces entras con ese usuario o correo y tu contraseña.",
         ],
       },
     ],
@@ -232,7 +232,6 @@ export const AYUDA: SeccionDeAyuda[] = [
           "En Cuadre ves, por coach, su comisión del mes contra el dinero que cobró él.",
           "Si cobró de más, te entrega la diferencia; si no, tú le pagas.",
           "Cuando el mes termina y quedan a mano, toca Marcar cuadrado. Queda registrado y ya no cambia.",
-          "Abajo ves la cuenta con el sistema: hoy 0%.",
         ],
       },
       {
