@@ -46,6 +46,8 @@ import {
 } from "@/modules/biblioteca/application/Biblioteca";
 import { BibliotecaPostgres, ConsultasBiblioteca } from "@/modules/biblioteca/infrastructure/BibliotecaPostgres";
 import { RegistrarPesaje } from "@/modules/evaluacion/application/Pesajes";
+import { Archivar, CancelarInscripcion, Inscribirse, Publicar } from "@/modules/novedades/application/Novedades";
+import { ConsultasNovedades, NovedadesPostgres } from "@/modules/novedades/infrastructure/NovedadesPostgres";
 import { ConsultasEvaluacion, EvaluacionesPostgres } from "@/modules/evaluacion/infrastructure/EvaluacionesPostgres";
 import { ConsultasPesajes, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
 import { CambiarTarifaSistema, CerrarCuadre, GuardarPlan, RegistrarPago, RevisarPago } from "@/modules/membresias/application/Pagos";
@@ -201,6 +203,24 @@ export function casosDeBiblioteca(permisos: readonly string[], zonaHoraria: stri
     guardarPlan: new GuardarPlanDeTrabajo(d),
     mantenerPlan: new MantenerPlan(d),
     revisarPlan: new RevisarPlan(d),
+  };
+}
+
+export function casosDeNovedades(permisos: readonly string[]) {
+  const sql = baseDeDatos();
+  const d = {
+    repositorio: new NovedadesPostgres(sql),
+    autorizacion: autorizacionConPermisos(permisos),
+    auditoria: new AuditoriaPostgres(sql),
+    reloj: relojDelSistema,
+    ids: idsAleatorios,
+  };
+  return {
+    consultas: new ConsultasNovedades(sql),
+    publicar: new Publicar(d),
+    archivar: new Archivar(d),
+    inscribirse: new Inscribirse(d),
+    cancelar: new CancelarInscripcion(d),
   };
 }
 

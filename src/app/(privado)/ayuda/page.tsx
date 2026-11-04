@@ -35,12 +35,16 @@ export default async function Ayuda({ searchParams }: { searchParams: Promise<{ 
               </details>
             ))}
           </div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-texto-suave">Próximamente</p>
-          <ul className="mt-1 list-disc pl-5 text-sm text-texto-suave">
-            {s.proximamente.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
+          {s.proximamente.length > 0 && (
+            <>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-texto-suave">Próximamente</p>
+              <ul className="mt-1 list-disc pl-5 text-sm text-texto-suave">
+                {s.proximamente.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </Tarjeta>
       ))}
 

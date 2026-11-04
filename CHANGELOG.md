@@ -7,6 +7,17 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.7.0] - 2026-11-03 · Fase 6 (Novedades)
+
+### Agregado
+- **Novedades**: anuncios, eventos, sparrings, felicitaciones, peleas, reuniones y días de prueba, para todos, solo coaches, solo clientes o público.
+- **Eventos con fecha, lugar, cupo e inscripción**: el cliente o coach se inscribe mientras haya lugares y puede cancelar antes de que empiece; la administración ve quiénes se inscribieron.
+- **Felicitaciones** mencionando clientes: a quien mencionan le aparece destacada.
+- Fijar arriba, fecha para dejar de mostrarse y archivar; los eventos se ocultan solos cuando terminan.
+- **Aviso en el menú** con el número de novedades sin ver.
+- **Portada**: las novedades públicas aparecen arriba del horario (nunca con datos de clientes).
+- Guías nuevas en Ayuda para publicar y leer novedades.
+
 ## [0.6.0] - 2026-11-03 · Fase 5 (Biblioteca y planes de trabajo)
 
 ### Agregado

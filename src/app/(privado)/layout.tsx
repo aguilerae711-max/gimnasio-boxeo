@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { requerirSesion } from "../_servidor/sesion";
+import { casosDeNovedades } from "../_servidor/contenedor";
+import { lectorDe, requerirSesion } from "../_servidor/sesion";
 import { Marca } from "../_ui/piezas";
 import { salir } from "../(publico)/acciones";
 
@@ -8,7 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function LayoutPrivado({ children }: { children: React.ReactNode }) {
   const sesion = await requerirSesion();
   const tiene = (p: string) => sesion.permisos.includes(p);
-  const menu = [
+  const sinVer = await casosDeNovedades(sesion.permisos).consultas.sinVer(sesion.gimnasioId, lectorDe(sesion), sesion.usuarioId);
+  const menu: ({ href: string; texto: string; aviso?: number } | false)[] = [
+    { href: "/novedades", texto: "Novedades", aviso: sinVer },
     tiene("cliente.aprobar") && { href: "/admin", texto: "Administración" },
     tiene("horario.asignar") && { href: "/admin/horario", texto: "Horario" },
     tiene("pago.confirmar") && { href: "/admin/pagos", texto: "Pagos" },
@@ -26,7 +29,8 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
     sesion.roles.includes("cliente") && { href: "/cliente/resultados", texto: "Mis resultados" },
     (sesion.roles.includes("coach") || sesion.roles.includes("cliente") || tiene("evaluacion.realizar")) && { href: "/perfil", texto: "Mi perfil" },
     { href: "/ayuda", texto: "Ayuda" },
-  ].filter((x): x is { href: string; texto: string } => Boolean(x));
+  ];
+  const enlaces = menu.filter((x): x is { href: string; texto: string; aviso?: number } => Boolean(x));
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5">
@@ -42,13 +46,14 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
         </div>
       </header>
       <nav className="-mx-1 mt-4 flex gap-2 overflow-x-auto pb-1">
-        {menu.map((m) => (
+        {enlaces.map((m) => (
           <Link
             key={m.href}
             href={m.href}
             className="whitespace-nowrap rounded-full bg-tarjeta px-4 py-2 text-sm font-semibold text-[#c9ccd3] no-underline"
           >
             {m.texto}
+            {m.aviso ? <span className="ml-1.5 rounded-full bg-acento px-1.5 py-0.5 text-xs text-white">{m.aviso}</span> : null}
           </Link>
         ))}
       </nav>

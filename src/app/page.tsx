@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { NOMBRE_TIPO } from "@/modules/novedades/domain/Novedades";
+import { ConsultasNovedades } from "@/modules/novedades/infrastructure/NovedadesPostgres";
 import { ConsultasOperacion } from "@/modules/operacion/infrastructure/OperacionPostgres";
 import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
@@ -22,8 +24,17 @@ async function horario() {
   }
 }
 
+async function novedades() {
+  try {
+    return await new ConsultasNovedades(baseDeDatos()).publicas(GIMNASIO);
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
 export default async function Inicio() {
-  const datos = await horario();
+  const [datos, avisos] = await Promise.all([horario(), novedades()]);
   const coaches = [...new Map((datos?.turnos ?? []).map((t) => [t.apodo, t])).values()];
 
   return (
@@ -44,6 +55,25 @@ export default async function Inicio() {
           Coaches asignados, evaluación mensual de fuerza, velocidad, resistencia y estrategia.
         </p>
       </section>
+
+      {avisos.length > 0 && (
+        <section className="mt-6 flex flex-col gap-2">
+          <h2 className="font-titulos text-xl font-bold uppercase">Novedades</h2>
+          {avisos.map((a) => (
+            <article key={a.id} className={`rounded-xl bg-tarjeta px-4 py-3 ${a.fijada ? "border border-acento" : ""}`}>
+              <p className="text-xs font-semibold uppercase tracking-wider text-acento">{NOMBRE_TIPO[a.tipo]}</p>
+              <h3 className="font-titulos text-xl font-bold uppercase">{a.titulo}</h3>
+              {a.inicio && (
+                <p className="text-sm font-semibold">
+                  {new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit", timeZone: "America/Mexico_City" }).format(a.inicio)}
+                  {a.lugar ? ` · ${a.lugar}` : ""}
+                </p>
+              )}
+              {a.cuerpo && <p className="mt-1 text-sm text-[#c9ccd3]">{a.cuerpo}</p>}
+            </article>
+          ))}
+        </section>
+      )}
 
       <section className="mt-6">
         <h2 className="font-titulos text-xl font-bold uppercase">Horarios</h2>

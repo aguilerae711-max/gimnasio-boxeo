@@ -48,6 +48,14 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Novedades",
+        pasos: [
+          "En Novedades ves avisos, eventos, sparrings y felicitaciones del gimnasio; el número junto al menú son las nuevas.",
+          "Si un evento lleva inscripción, toca Inscribirme (mientras haya lugares). Puedes cancelar antes de que empiece.",
+          "Si te felicitan, la publicación aparece destacada en verde.",
+        ],
+      },
+      {
         titulo: "Completar tu perfil",
         pasos: [
           "Entra a Mi perfil.",
@@ -60,7 +68,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         pasos: ["Pide en el gimnasio un enlace para cambiarla.", "Ábrelo, escribe la nueva y listo: entras de inmediato."],
       },
     ],
-    proximamente: ["Novedades del gimnasio: eventos, sparrings e inscripciones"],
+    proximamente: [],
   },
   {
     rol: "coach",
@@ -146,7 +154,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: ["Novedades del gimnasio: eventos, sparrings e inscripciones"],
+    proximamente: [],
   },
   {
     rol: "admin",
@@ -248,6 +256,15 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Publicar novedades",
+        pasos: [
+          "En Novedades, abre Publicar: elige el tipo (anuncio, evento, sparring, felicitación, pelea, reunión o día de prueba) y para quién es.",
+          "Para eventos pon cuándo empieza, el lugar y, si lleva inscripción, el cupo. Ves quiénes se inscribieron.",
+          "Para felicitar, menciona a los clientes. Lo que marques como Público aparece en la portada, sin datos de clientes.",
+          "Fíjala para que quede arriba; archívala cuando ya no sirva.",
+        ],
+      },
+      {
         titulo: "Mover la comisión",
         pasos: [
           "Entra a Comisiones.",
@@ -257,6 +274,6 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: ["Novedades del gimnasio", "Relación de ingresos y reportes"],
+    proximamente: ["Relación de ingresos y reportes", "Detección de talentos"],
   },
 ];

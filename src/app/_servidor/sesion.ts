@@ -25,6 +25,12 @@ export async function requerirSesion(permiso?: string): Promise<Sesion> {
   return sesion as Sesion;
 }
 
+/** Cómo lee las novedades: la administración todo; si no, como coach o como cliente. */
+export function lectorDe(sesion: { permisos: readonly string[]; roles: readonly string[] }): "administracion" | "coach" | "cliente" {
+  if (sesion.permisos.includes("novedades.publicar")) return "administracion";
+  return sesion.roles.includes("coach") ? "coach" : "cliente";
+}
+
 export async function guardarSesion(token: string, expiraEn: Date) {
   (await cookies()).set(COOKIE, token, {
     httpOnly: true,
