@@ -43,3 +43,6 @@ next-env.d.ts
 /.archivos
 
 __pycache__/
+
+# PDF generados (solo locales, no se suben)
+docs/*.pdf
