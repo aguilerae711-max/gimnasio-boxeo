@@ -13,11 +13,14 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
     tiene("horario.asignar") && { href: "/admin/horario", texto: "Horario" },
     tiene("pago.confirmar") && { href: "/admin/pagos", texto: "Pagos" },
     tiene("cuadre.cerrar") && { href: "/admin/cuadre", texto: "Cuadre" },
+    tiene("evaluacion.realizar") && { href: "/admin/evaluacion", texto: "Evaluación" },
     tiene("comision.cambiar") && { href: "/admin/comisiones", texto: "Comisiones" },
     sesion.roles.includes("coach") && { href: "/coach", texto: "Mis turnos" },
     sesion.roles.includes("coach") && { href: "/coach/pagos", texto: "Mis pagos" },
+    sesion.roles.includes("coach") && { href: "/coach/resultados", texto: "Resultados" },
     sesion.roles.includes("cliente") && { href: "/cliente", texto: "Mi estado" },
-    (sesion.roles.includes("coach") || sesion.roles.includes("cliente")) && { href: "/perfil", texto: "Mi perfil" },
+    sesion.roles.includes("cliente") && { href: "/cliente/resultados", texto: "Mis resultados" },
+    (sesion.roles.includes("coach") || sesion.roles.includes("cliente") || tiene("evaluacion.realizar")) && { href: "/perfil", texto: "Mi perfil" },
     { href: "/ayuda", texto: "Ayuda" },
   ].filter((x): x is { href: string; texto: string } => Boolean(x));
 

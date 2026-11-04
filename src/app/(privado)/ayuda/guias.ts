@@ -19,7 +19,7 @@ export const AYUDA: SeccionDeAyuda[] = [
   {
     rol: "cliente",
     nombre: "Clientes",
-    bienvenida: "Aquí ves tus días pagados, tu coach y horario, tu peso y tu división y, muy pronto, tus resultados por pilar.",
+    bienvenida: "Aquí ves tus días pagados, tu coach y horario, tu peso y tu división, y tus resultados por pilar.",
     guias: [
       {
         titulo: "Registrarte",
@@ -40,6 +40,14 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Tus resultados por pilar",
+        pasos: [
+          "Te evaluamos al empezar y una vez al mes: fuerza, velocidad, resistencia y estrategia.",
+          "Tu primera evaluación vale 100 en cada pilar. Arriba de 100 es avance: 115 = 15% mejor que cuando empezaste.",
+          "En Mis resultados ves el radar (la línea punteada es tu inicio), el cambio contra el mes anterior y tu historial con tu peso y división.",
+        ],
+      },
+      {
         titulo: "Completar tu perfil",
         pasos: [
           "Entra a Mi perfil.",
@@ -52,7 +60,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         pasos: ["Pide en el gimnasio un enlace para cambiarla.", "Ábrelo, escribe la nueva y listo: entras de inmediato."],
       },
     ],
-    proximamente: ["Tus resultados por pilar: fuerza, velocidad, resistencia y estrategia"],
+    proximamente: ["Novedades del gimnasio: eventos, sparrings e inscripciones"],
   },
   {
     rol: "coach",
@@ -65,6 +73,14 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Entra a Mis turnos: ves cada día y franja que te toca, con los clientes de esa franja. El de hoy está marcado.",
           "Si un cliente tiene contacto de emergencia o notas médicas, ábrelas en “Emergencia y salud”.",
           "Los turnos los asigna la administración en el horario.",
+        ],
+      },
+      {
+        titulo: "Resultados de tus clientes",
+        pasos: [
+          "En Resultados ves la última evaluación por pilar de cada cliente (100 = su punto de partida) y su división.",
+          "Tu resultado del mes es el promedio por pilar de tus clientes evaluados; la cobertura dice cuántos de tus activos se evaluaron.",
+          "Se mide el avance de cada cliente, no su nivel: un principiante que mejora cuenta igual que un avanzado.",
         ],
       },
       {
@@ -175,6 +191,17 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Aplicar una evaluación",
+        pasos: [
+          "Primero define tu PIN en Mi perfil (una sola vez).",
+          "En Evaluación, junto al cliente escribe tu PIN y toca Comenzar. El coach y si es inicial o mensual se ponen solos.",
+          "Check-in: si tiene lesión o dolor no se evalúa (queda no apto y se reprograma). Pésalo en la misma báscula.",
+          "Sigue los tests en orden, con el cronómetro y el contador en pantalla. Guarda cada uno; deja vacío un intento nulo.",
+          "Estrategia: califica cada conducta 0, 1 o 2 y anota al compañero de sparring. Si no hay compañero, cierra como parcial y complétala otro día del mes.",
+          "Cerrar y publicar calcula los índices; avisa si algún valor cambió más de 40% contra el mes anterior. Para repetirla, anúlala con motivo.",
+        ],
+      },
+      {
         titulo: "Pesar a un cliente",
         pasos: [
           "En la ficha del cliente, en Peso y división, escribe el peso y la fecha.",
@@ -192,6 +219,6 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: ["Evaluación por pilares con PIN", "Aprobar planes de trabajo", "Relación de ingresos y reportes"],
+    proximamente: ["Biblioteca de ejercicios y planes de trabajo", "Relación de ingresos y reportes"],
   },
 ];

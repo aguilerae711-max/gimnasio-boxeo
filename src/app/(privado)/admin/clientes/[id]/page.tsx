@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listaDeDias } from "@/modules/operacion/domain/Horario";
 import { estadoMembresia } from "@/modules/membresias/domain/Cuentas";
 import { Fecha } from "@/shared/domain/Fecha";
-import { casosDeClientes, casosDeOperacion, casosDePagos, casosDePesajes } from "../../../../_servidor/contenedor";
+import { casosDeClientes, casosDeEvaluacion, casosDeOperacion, casosDePagos, casosDePesajes } from "../../../../_servidor/contenedor";
+import { ResultadosPorPilar } from "../../../../_ui/Resultados";
 import { EstadoMembresia, fechaCorta, pesos } from "../../../../_ui/formato";
 import { PanelPeso } from "../../../../_ui/PanelPeso";
 import { FormularioPago } from "../../../pagos/FormularioPago";
@@ -36,6 +38,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
     pagosCasos.repositorio.planes(sesion.gimnasioId),
     pagosCasos.consultas.periodos(sesion.gimnasioId),
   ]);
+  const evaluaciones = await casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria).consultas.historialDeCliente(sesion.gimnasioId, id);
   const hoy = Fecha.hoyEn(sesion.zonaHoraria, new Date());
   const membresia = estadoMembresia(periodos.get(id) ?? [], hoy);
   const franjaActual = asignacion.franjaId ? horario.franja(asignacion.franjaId) : null;
@@ -158,6 +161,19 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
           )}
         </Tarjeta>
       </div>
+
+      <ResultadosPorPilar historial={evaluaciones} titulo="Evaluaciones" />
+      {sesion.permisos.includes("evaluacion.realizar") && evaluaciones.length > 0 && (
+        <p className="-mt-3 text-sm">
+          Detalle (tests y valores):{" "}
+          {evaluaciones.map((e, i) => (
+            <span key={e.sesionId}>
+              {i > 0 && " · "}
+              <Link href={`/admin/evaluacion/${e.sesionId}`}>{e.periodo}</Link>
+            </span>
+          ))}
+        </p>
+      )}
 
       <Tarjeta>
         <h2 className="font-titulos text-2xl font-bold uppercase">Historial de coach</h2>

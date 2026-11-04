@@ -7,6 +7,24 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.5.0] - 2026-11-03 · Fase 4 (Evaluación por pilares)
+
+### Agregado
+- **Batería núcleo v1** del plan: sprint en costal, cuadrantes, salto horizontal, flexiones con despegue, escenarios de estrategia A y B (rúbrica de 10 conductas), drop-off y recuperación cardíaca. Pilares, tests, rúbrica y pesos son configuración en la base, no código.
+- **Modo evaluación** (solo administración, con PIN): check-in (con lesión o dolor no se evalúa y se reprograma), pesaje del día con su división, tests en orden con protocolo, cronómetro y contador táctil, y rúbrica 0-1-2 con el compañero de sparring.
+- **Índices** contra la evaluación inicial de cada cliente (= 100), con tope de 150; Estrategia = Táctica 50% + Adaptabilidad 50%. Alerta si un test cambia más de 40% contra el mes anterior. Si falta un test obligatorio, ese pilar no se publica.
+- **Parcial**: sin compañero de sparring se publican los otros pilares y Estrategia se completa otro día del mes.
+- Una evaluación por cliente y mes; para repetirla se anula con motivo. Los datos crudos siempre se conservan.
+- **Mis resultados** (cliente): radar contra su inicio, índice por pilar con el cambio contra el mes anterior, Táctica y Adaptabilidad, e historial con peso y división de cada evaluación.
+- **Resultados** (coach): último resultado por pilar de cada cliente y su resultado del mes (promedio por pilar y cobertura).
+- Administración: lista del mes, resultado de todos los coaches, referencia de niveles (solo administración) y las evaluaciones en la ficha del cliente.
+- **PIN de evaluación** en Mi perfil (4 a 6 dígitos, se guarda como hash; 5 intentos fallidos lo bloquean 15 minutos).
+- Guías nuevas en Ayuda para aplicar evaluaciones y leer resultados.
+
+### Seguridad
+- El cliente y el coach nunca ven tests, intentos ni valores crudos; solo índices por pilar.
+- La app no puede borrar sesiones de evaluación ni líneas base.
+
 ## [0.4.0] - 2026-11-03 · Fase 3 (Pagos) y peso
 
 ### Agregado

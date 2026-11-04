@@ -25,7 +25,17 @@ import {
   QuitarTurno,
 } from "@/modules/operacion/application/Operacion";
 import { ConsultasOperacion, OperacionPostgres } from "@/modules/operacion/infrastructure/OperacionPostgres";
+import {
+  AnularEvaluacion,
+  CerrarEvaluacion,
+  DefinirPin,
+  GuardarCaptura,
+  GuardarRubrica,
+  IniciarEvaluacion,
+  RegistrarChequeo,
+} from "@/modules/evaluacion/application/Evaluaciones";
 import { RegistrarPesaje } from "@/modules/evaluacion/application/Pesajes";
+import { ConsultasEvaluacion, EvaluacionesPostgres } from "@/modules/evaluacion/infrastructure/EvaluacionesPostgres";
 import { ConsultasPesajes, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
 import { CambiarTarifaSistema, CerrarCuadre, GuardarPlan, RegistrarPago, RevisarPago } from "@/modules/membresias/application/Pagos";
 import { ConsultasPagos, PagosPostgres } from "@/modules/membresias/infrastructure/PagosPostgres";
@@ -131,6 +141,31 @@ export function casosDePesajes(permisos: readonly string[], zonaHoraria: string)
       { repositorio: new PesajesPostgres(sql), autorizacion: autorizacionConPermisos(permisos), auditoria: new AuditoriaPostgres(sql), reloj: relojDelSistema, ids: idsAleatorios },
       zonaHoraria,
     ),
+  };
+}
+
+export function casosDeEvaluacion(permisos: readonly string[], zonaHoraria: string) {
+  const sql = baseDeDatos();
+  const d = {
+    repositorio: new EvaluacionesPostgres(sql),
+    autorizacion: autorizacionConPermisos(permisos),
+    auditoria: new AuditoriaPostgres(sql),
+    reloj: relojDelSistema,
+    ids: idsAleatorios,
+    claves: argon2id,
+    intentos: new IntentosPostgres(sql),
+    zonaHoraria,
+  };
+  return {
+    repositorio: d.repositorio,
+    consultas: new ConsultasEvaluacion(sql),
+    definirPin: new DefinirPin(d),
+    iniciar: new IniciarEvaluacion(d),
+    chequeo: new RegistrarChequeo(d),
+    captura: new GuardarCaptura(d),
+    rubrica: new GuardarRubrica(d),
+    cerrar: new CerrarEvaluacion(d),
+    anular: new AnularEvaluacion(d),
   };
 }
 
