@@ -6,6 +6,7 @@ import { casosDeClientes, casosDeOperacion, casosDePagos, casosDePesajes } from 
 import { requerirSesion } from "../../_servidor/sesion";
 import { fechaCorta } from "../../_ui/formato";
 import { PanelPeso } from "../../_ui/PanelPeso";
+import { RutinaDeHoy } from "../../_ui/RutinaDeHoy";
 import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
 
 const MENSAJE: Record<string, string> = {
@@ -70,6 +71,16 @@ export default async function MiEstado() {
           {franja ? `${listaDeDias(dias)} · ${franja.inicio} a ${franja.fin}` : "La administración te asignará tu horario."}
         </p>
       </Tarjeta>
+      {yo.estado === "activo" && (
+        <RutinaDeHoy
+          gimnasioId={sesion.gimnasioId}
+          zonaHoraria={sesion.zonaHoraria}
+          coachId={asignacion.coachId}
+          franja={franja ?? null}
+          diasDelCliente={dias}
+          permisos={sesion.permisos}
+        />
+      )}
       <PanelPeso {...peso} />
       <Link href="/perfil" className="text-sm">
         Completa tu perfil: fecha de nacimiento y contacto de emergencia →

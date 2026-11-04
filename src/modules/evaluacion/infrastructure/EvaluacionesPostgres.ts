@@ -20,6 +20,10 @@ type FilaTest = {
 /** Las sesiones que cuentan como evaluación hecha. */
 const CERRADAS = ["completa", "parcial"];
 
+/** Desde cuándo cuenta el historial del cliente: su último reinicio del punto de partida (o desde siempre). */
+const desdeReinicio = (tx: postgres.TransactionSql, clienteId: string) =>
+  tx`coalesce((SELECT max(en) FROM reinicio_linea_base WHERE cliente_id = ${clienteId}), '-infinity'::timestamptz)`;
+
 async function leerBateria(tx: postgres.TransactionSql, gimnasioId: string, bateriaId: string): Promise<Bateria> {
   const tests = await tx<FilaTest[]>`
     SELECT t.codigo, t.nombre, t.pilar_codigo AS pilar, t.formula, t.campos, t.intentos, t.mayor_es_mejor,
@@ -127,7 +131,8 @@ export class EvaluacionesPostgres implements RepositorioEvaluaciones {
 
   async tieneEvaluacionPrevia(gimnasioId: string, clienteId: string, exceptoSesionId: string) {
     const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx`
-      SELECT 1 FROM sesion_evaluacion WHERE cliente_id = ${clienteId} AND id <> ${exceptoSesionId} AND estado IN ${tx(CERRADAS)} LIMIT 1`);
+      SELECT 1 FROM sesion_evaluacion WHERE cliente_id = ${clienteId} AND id <> ${exceptoSesionId} AND estado IN ${tx(CERRADAS)}
+        AND iniciada_en > ${desdeReinicio(tx, clienteId)} LIMIT 1`);
     return Boolean(f);
   }
 
@@ -209,7 +214,7 @@ export class EvaluacionesPostgres implements RepositorioEvaluaciones {
     const filas = await enGimnasio(this.sql, gimnasioId, (tx) => tx<{ clave: string; valor: string }[]>`
       SELECT DISTINCT ON (lb.clave) lb.clave, lb.valor
       FROM linea_base lb JOIN sesion_evaluacion s ON s.id = lb.sesion_id
-      WHERE lb.cliente_id = ${clienteId} AND s.estado <> 'anulada'
+      WHERE lb.cliente_id = ${clienteId} AND s.estado <> 'anulada' AND s.iniciada_en > ${desdeReinicio(tx, clienteId)}
       ORDER BY lb.clave, lb.vigente_desde DESC`);
     return new Map(filas.map((f) => [f.clave, Number(f.valor)]));
   }
@@ -220,6 +225,7 @@ export class EvaluacionesPostgres implements RepositorioEvaluaciones {
       WHERE p.valor IS NOT NULL AND p.sesion_id = (
         SELECT id FROM sesion_evaluacion
         WHERE cliente_id = ${clienteId} AND id <> ${sesionId} AND estado IN ${tx(CERRADAS)}
+          AND iniciada_en > ${desdeReinicio(tx, clienteId)}
         ORDER BY iniciada_en DESC LIMIT 1)`);
     return new Map(filas.map((f) => [f.clave, Number(f.valor)]));
   }
@@ -246,6 +252,12 @@ export class EvaluacionesPostgres implements RepositorioEvaluaciones {
       }
       await tx`UPDATE sesion_evaluacion SET estado = ${r.estado}, finalizada_en = ${en} WHERE id = ${sesionId}`;
     });
+  }
+
+  async reiniciar(gimnasioId: string, r: { id: string; clienteId: string; motivo: string; por: string; en: Date }) {
+    await enGimnasio(this.sql, gimnasioId, (tx) => tx`
+      INSERT INTO reinicio_linea_base (id, gimnasio_id, cliente_id, en, motivo, por)
+      VALUES (${r.id}, ${gimnasioId}, ${r.clienteId}, ${r.en}, ${r.motivo}, ${r.por})`);
   }
 
   async anular(gimnasioId: string, sesionId: string, motivo: string, en: Date) {
@@ -406,6 +418,13 @@ export class ConsultasEvaluacion {
         WHERE cliente_id = cl.id AND estado IN ${tx(CERRADAS)} ORDER BY iniciada_en DESC LIMIT 1) s ON true
       WHERE cl.gimnasio_id = ${gimnasioId} AND cl.coach_id = ${coachId} AND cl.estado = 'activo'
       ORDER BY u.nombre`);
+  }
+
+  /** Reinicios del punto de partida de un cliente, del más reciente al más viejo. */
+  reinicios(gimnasioId: string, clienteId: string) {
+    return enGimnasio(this.sql, gimnasioId, (tx) => tx<{ en: Date; motivo: string; por: string }[]>`
+      SELECT r.en, r.motivo, u.nombre AS por FROM reinicio_linea_base r JOIN usuario u ON u.id = r.por
+      WHERE r.cliente_id = ${clienteId} ORDER BY r.en DESC`);
   }
 
   referencias(gimnasioId: string) {

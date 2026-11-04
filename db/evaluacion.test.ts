@@ -10,6 +10,7 @@ import {
   GuardarCaptura,
   GuardarRubrica,
   IniciarEvaluacion,
+  ReiniciarPuntoDePartida,
   RegistrarChequeo,
   type DependenciasEvaluacion,
 } from "@/modules/evaluacion/application/Evaluaciones";
@@ -147,5 +148,26 @@ describe("evaluación por pilares en Postgres", () => {
     expect(continuada).toBe(false);
     const [crudos] = await enGimnasio(sql, GIMNASIO, (tx) => tx<{ n: number }[]>`SELECT count(*)::int AS n FROM resultado_intento WHERE sesion_id = ${diciembre.sesionId}`);
     expect(crudos.n).toBeGreaterThan(0);
+  });
+
+  it("reiniciar el punto de partida: la siguiente es inicial otra vez y vale 100; el historial se conserva", async () => {
+    const repo = new EvaluacionesPostgres(sql);
+    const abierta = await repo.sesionDelMes(GIMNASIO, ana, "2026-12");
+    await expect(new ReiniciarPuntoDePartida(d(["evaluacion.realizar"])).ejecutar(admin, ana, "Regreso tras lesión")).rejects.toThrow(/evaluación abierta/);
+    await new AnularEvaluacion(d(["evaluacion.realizar"])).ejecutar(admin, abierta!.id, "No se terminó");
+    await expect(new ReiniciarPuntoDePartida(d(["evaluacion.realizar"])).ejecutar(admin, ana, " ")).rejects.toThrow(/motivo/);
+    await new ReiniciarPuntoDePartida(d(["evaluacion.realizar"])).ejecutar(admin, ana, "Regreso tras lesión de hombro");
+
+    ahora = new Date("2027-01-12T18:00:00Z");
+    const { sesionId } = await new IniciarEvaluacion(d(["evaluacion.realizar"])).ejecutar(admin, ana, "4826");
+    expect((await repo.sesion(GIMNASIO, sesionId))?.tipo).toBe("inicial");
+    await new RegistrarChequeo(d(["evaluacion.realizar"])).ejecutar(admin, sesionId, { lesionODolor: false, durmioBien: true, comio3h: true, pesoKg: 57, estaturaCm: null });
+    await capturaCompleta(sesionId, 0.8);
+    const r = await new CerrarEvaluacion(d(["evaluacion.realizar"])).ejecutar(admin, sesionId);
+    expect(r.pilares.find((p) => p.pilar === "fuerza")?.indice).toBe(100);
+    expect(r.puntajes.some((p) => p.atipico)).toBe(false);
+    const consultas = new ConsultasEvaluacion(sql);
+    expect((await consultas.historialDeCliente(GIMNASIO, ana)).map((h) => h.periodo)).toEqual(["2026-11", "2027-01"]);
+    expect((await consultas.reinicios(GIMNASIO, ana))[0]).toMatchObject({ motivo: "Regreso tras lesión de hombro" });
   });
 });

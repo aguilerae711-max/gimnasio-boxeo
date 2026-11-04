@@ -115,6 +115,17 @@ export async function cerrarEvaluacion(_: EstadoFormulario, datos: FormData): Pr
   }
 }
 
+export async function reiniciarPuntoDePartida(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const { sesion, casos: c } = await casos();
+  try {
+    await c.reiniciar.ejecutar(sesion, texto(datos, "clienteId"), texto(datos, "motivo"));
+  } catch (e) {
+    return { error: mensajeDeError(e) };
+  }
+  refrescar();
+  return { ok: "Listo: su siguiente evaluación será su nuevo punto de partida (100)." };
+}
+
 export async function anularEvaluacion(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
   const { sesion, casos: c } = await casos();
   const sesionId = texto(datos, "sesionId");

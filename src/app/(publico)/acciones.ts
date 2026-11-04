@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { casosDeAcceso, casosDeClientes } from "../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeSolicitudes } from "../_servidor/contenedor";
 import { borrarSesion, guardarSesion, mensajeDeError, tokenDeSesion, type EstadoFormulario } from "../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
@@ -62,6 +62,25 @@ export async function registrarCliente(_: EstadoFormulario, datos: FormData): Pr
     return { error: mensajeDeError(e), valores };
   }
   redirect("/panel");
+}
+
+// Por ahora hay un solo gimnasio; cuando haya varios, cada uno tendrá su propia dirección.
+const GIMNASIO_PUBLICO = process.env.GIMNASIO_PUBLICO ?? "00000000-0000-4000-8000-000000000101";
+
+/** Clase de prueba desde la portada. El campo "sitio" está oculto: si lo llenan, es un robot y no se guarda nada. */
+export async function solicitarPrueba(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const valores = { nombre: texto(datos, "nombre"), telefono: texto(datos, "telefono"), comentario: texto(datos, "comentario") };
+  if (texto(datos, "sitio")) return { ok: "¡Gracias! Te escribimos por WhatsApp para agendarte." };
+  try {
+    const r = await casosDeSolicitudes().solicitar.ejecutar(GIMNASIO_PUBLICO, {
+      ...valores,
+      franjaId: texto(datos, "franjaId"),
+      aceptaContacto: datos.get("contacto") === "si",
+    });
+    return { ok: r.repetida ? "Ya tenemos tu solicitud; te escribimos pronto por WhatsApp." : "¡Gracias! Te escribimos por WhatsApp para agendarte." };
+  } catch (e) {
+    return { error: mensajeDeError(e), valores };
+  }
 }
 
 export async function salir() {

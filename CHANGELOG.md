@@ -7,6 +7,17 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.9.0] - 2026-11-04 · Rutina de hoy, menú agrupado, reinicio y clase de prueba
+
+### Agregado
+- **Rutina de hoy para el cliente** (Mi estado): los días que entrena ve la rutina que publicó su coach; si hoy no le toca, le dice cuál es su siguiente día.
+- **Clase de prueba desde la portada**: nombre, WhatsApp, horario preferido y un comentario, con permiso explícito para escribirle. Un mismo teléfono no se duplica en 24 horas y hay una trampa contra robots.
+- **Clases de prueba por agendar** (Administración): botón de WhatsApp con el mensaje listo, y “Ya la agendé” o “Descartar”.
+- **Reiniciar punto de partida** (ficha del cliente): para quien regresa tras 3 meses o más, o de una lesión. Pide motivo; su siguiente evaluación vuelve a ser la inicial (vale 100) y las anteriores se conservan.
+
+### Cambiado
+- **Menú agrupado** en Gimnasio, Coach y Cliente: arriba los grupos, abajo las opciones del grupo en el que estás. Quien solo tiene un rol ve su menú de siempre.
+
 ## [0.8.0] - 2026-11-03 · Usuarios cortos y alta de equipo
 
 ### Agregado

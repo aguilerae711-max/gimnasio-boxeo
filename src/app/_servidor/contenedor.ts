@@ -13,6 +13,8 @@ import {
 } from "@/modules/acceso/infrastructure/AccesoPostgres";
 import { RegistrarCliente, RevisarRegistroCliente } from "@/modules/clientes/application/RegistroDeClientes";
 import { ClientesPostgres, ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
+import { AtenderSolicitud, SolicitarClaseDePrueba } from "@/modules/clientes/application/SolicitudesDePrueba";
+import { SolicitudesPostgres } from "@/modules/clientes/infrastructure/SolicitudesPostgres";
 import { CambiarComision } from "@/modules/membresias/application/CambiarComision";
 import {
   ConsultasComisiones,
@@ -34,6 +36,7 @@ import {
   GuardarRubrica,
   IniciarEvaluacion,
   RegistrarChequeo,
+  ReiniciarPuntoDePartida,
 } from "@/modules/evaluacion/application/Evaluaciones";
 import {
   DarAccesoBiblioteca,
@@ -184,6 +187,7 @@ export function casosDeEvaluacion(permisos: readonly string[], zonaHoraria: stri
     rubrica: new GuardarRubrica(d),
     cerrar: new CerrarEvaluacion(d),
     anular: new AnularEvaluacion(d),
+    reiniciar: new ReiniciarPuntoDePartida(d),
   };
 }
 
@@ -226,6 +230,16 @@ export function casosDeNovedades(permisos: readonly string[]) {
     archivar: new Archivar(d),
     inscribirse: new Inscribirse(d),
     cancelar: new CancelarInscripcion(d),
+  };
+}
+
+export function casosDeSolicitudes(permisos: readonly string[] = []) {
+  const sql = baseDeDatos();
+  const repositorio = new SolicitudesPostgres(sql);
+  return {
+    repositorio,
+    solicitar: new SolicitarClaseDePrueba({ repositorio, reloj: relojDelSistema, ids: idsAleatorios }),
+    atender: new AtenderSolicitud({ repositorio, autorizacion: autorizacionConPermisos(permisos), auditoria: new AuditoriaPostgres(sql), reloj: relojDelSistema }),
   };
 }
 

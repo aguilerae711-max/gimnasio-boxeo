@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { casosDeAcceso, casosDeClientes, casosDeComisiones } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeComisiones, casosDeSolicitudes } from "../../_servidor/contenedor";
 import { direccionPublica, mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
@@ -46,6 +46,12 @@ export async function agregarAlEquipo(_: EstadoEnlace, datos: FormData): Promise
   } catch (e) {
     return { error: mensajeDeError(e), valores: { nombre, usuario: texto(datos, "usuario") } };
   }
+}
+
+export async function atenderSolicitud(datos: FormData) {
+  const sesion = await requerirSesion("cliente.aprobar");
+  await casosDeSolicitudes(sesion.permisos).atender.ejecutar(actor(sesion), texto(datos, "id"), texto(datos, "estado") === "descartado" ? "descartado" : "contactado");
+  revalidatePath("/admin");
 }
 
 export async function cambiarComision(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {

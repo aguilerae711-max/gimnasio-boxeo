@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { casosDeNovedades } from "../_servidor/contenedor";
 import { lectorDe, requerirSesion } from "../_servidor/sesion";
+import { Menu, type Grupo } from "../_ui/Menu";
 import { Marca } from "../_ui/piezas";
 import { salir } from "../(publico)/acciones";
 
@@ -10,27 +10,48 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const sesion = await requerirSesion();
   const tiene = (p: string) => sesion.permisos.includes(p);
   const sinVer = await casosDeNovedades(sesion.permisos).consultas.sinVer(sesion.gimnasioId, lectorDe(sesion), sesion.usuarioId);
-  const menu: ({ href: string; texto: string; aviso?: number } | false)[] = [
-    { href: "/novedades", texto: "Novedades", aviso: sinVer },
-    tiene("cliente.aprobar") && { href: "/admin", texto: "Administración" },
-    tiene("horario.asignar") && { href: "/admin/horario", texto: "Horario" },
-    tiene("pago.confirmar") && { href: "/admin/pagos", texto: "Pagos" },
-    tiene("cuadre.cerrar") && { href: "/admin/cuadre", texto: "Cuadre" },
-    tiene("evaluacion.realizar") && { href: "/admin/evaluacion", texto: "Evaluación" },
-    tiene("plan.aprobar") && { href: "/admin/planes", texto: "Planes" },
-    tiene("comision.cambiar") && { href: "/admin/comisiones", texto: "Comisiones" },
-    sesion.roles.includes("coach") && { href: "/coach", texto: "Mis turnos" },
-    sesion.roles.includes("coach") && { href: "/coach/pagos", texto: "Mis pagos" },
-    sesion.roles.includes("coach") && { href: "/coach/resultados", texto: "Resultados" },
-    sesion.roles.includes("coach") && { href: "/coach/plan", texto: "Mi plan" },
-    sesion.roles.includes("coach") && { href: "/coach/rutinas", texto: "Rutinas" },
-    tiene("biblioteca.proponer") && { href: "/biblioteca", texto: "Biblioteca" },
-    sesion.roles.includes("cliente") && { href: "/cliente", texto: "Mi estado" },
-    sesion.roles.includes("cliente") && { href: "/cliente/resultados", texto: "Mis resultados" },
-    { href: "/perfil", texto: "Mi perfil" },
-    { href: "/ayuda", texto: "Ayuda" },
+  const coach = sesion.roles.includes("coach");
+  const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
+  const grupos: Grupo[] = [
+    {
+      titulo: "Gimnasio",
+      enlaces: [
+        ...solo(tiene("cliente.aprobar"), { href: "/admin", texto: "Administración" }),
+        ...solo(tiene("horario.asignar"), { href: "/admin/horario", texto: "Horario" }),
+        ...solo(tiene("pago.confirmar"), { href: "/admin/pagos", texto: "Pagos" }),
+        ...solo(tiene("cuadre.cerrar"), { href: "/admin/cuadre", texto: "Cuadre" }),
+        ...solo(tiene("evaluacion.realizar"), { href: "/admin/evaluacion", texto: "Evaluación" }),
+        ...solo(tiene("plan.aprobar"), { href: "/admin/planes", texto: "Planes" }),
+        ...solo(tiene("comision.cambiar"), { href: "/admin/comisiones", texto: "Comisiones" }),
+        ...solo(tiene("biblioteca.formalizar"), { href: "/biblioteca", texto: "Biblioteca" }),
+      ],
+    },
+    {
+      titulo: "Coach",
+      enlaces: [
+        ...solo(coach, { href: "/coach", texto: "Mis turnos" }),
+        ...solo(coach, { href: "/coach/plan", texto: "Mi plan" }),
+        ...solo(coach, { href: "/coach/rutinas", texto: "Rutinas" }),
+        ...solo(coach && !tiene("biblioteca.formalizar"), { href: "/biblioteca", texto: "Biblioteca" }),
+        ...solo(coach, { href: "/coach/resultados", texto: "Resultados" }),
+        ...solo(coach, { href: "/coach/pagos", texto: "Mis pagos" }),
+      ],
+    },
+    {
+      titulo: "Cliente",
+      enlaces: [
+        ...solo(sesion.roles.includes("cliente"), { href: "/cliente", texto: "Mi estado" }),
+        ...solo(sesion.roles.includes("cliente"), { href: "/cliente/resultados", texto: "Mis resultados" }),
+      ],
+    },
   ];
-  const enlaces = menu.filter((x): x is { href: string; texto: string; aviso?: number } => Boolean(x));
+  const sueltos = {
+    antes: [{ href: "/novedades", texto: "Novedades", aviso: sinVer }],
+    despues: [
+      { href: "/perfil", texto: "Mi perfil" },
+      { href: "/ayuda", texto: "Ayuda" },
+    ],
+  };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5">
@@ -45,18 +66,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
           </form>
         </div>
       </header>
-      <nav className="-mx-1 mt-4 flex gap-2 overflow-x-auto pb-1">
-        {enlaces.map((m) => (
-          <Link
-            key={m.href}
-            href={m.href}
-            className="whitespace-nowrap rounded-full bg-tarjeta px-4 py-2 text-sm font-semibold text-[#c9ccd3] no-underline"
-          >
-            {m.texto}
-            {m.aviso ? <span className="ml-1.5 rounded-full bg-acento px-1.5 py-0.5 text-xs text-white">{m.aviso}</span> : null}
-          </Link>
-        ))}
-      </nav>
+      <Menu grupos={grupos} sueltos={sueltos} />
       <main className="mt-6 flex flex-1 flex-col gap-5">{children}</main>
     </div>
   );

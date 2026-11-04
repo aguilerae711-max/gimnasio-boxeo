@@ -9,6 +9,7 @@ import { EstadoMembresia, fechaCorta, pesos } from "../../../../_ui/formato";
 import { PanelPeso } from "../../../../_ui/PanelPeso";
 import { FormularioPago } from "../../../pagos/FormularioPago";
 import { registrarPesaje } from "../../../pagos/acciones";
+import { reiniciarPuntoDePartida } from "../../evaluacion/acciones";
 import { requerirSesion } from "../../../../_servidor/sesion";
 import { Formulario } from "../../../../_ui/Formulario";
 import { Campo, Estado, Tarjeta, Titulo } from "../../../../_ui/piezas";
@@ -38,7 +39,11 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
     pagosCasos.repositorio.planes(sesion.gimnasioId),
     pagosCasos.consultas.periodos(sesion.gimnasioId),
   ]);
-  const evaluaciones = await casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria).consultas.historialDeCliente(sesion.gimnasioId, id);
+  const consultasEvaluacion = casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria).consultas;
+  const [evaluaciones, reinicios] = await Promise.all([
+    consultasEvaluacion.historialDeCliente(sesion.gimnasioId, id),
+    consultasEvaluacion.reinicios(sesion.gimnasioId, id),
+  ]);
   const hoy = Fecha.hoyEn(sesion.zonaHoraria, new Date());
   const membresia = estadoMembresia(periodos.get(id) ?? [], hoy);
   const franjaActual = asignacion.franjaId ? horario.franja(asignacion.franjaId) : null;
@@ -173,6 +178,29 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
             </span>
           ))}
         </p>
+      )}
+
+      {sesion.permisos.includes("evaluacion.realizar") && evaluaciones.length > 0 && (
+        <details className="rounded-2xl bg-tarjeta p-5">
+          <summary className="cursor-pointer font-semibold">Reiniciar punto de partida</summary>
+          <p className="mt-2 text-sm text-texto-suave">
+            Para quien regresa tras 3 meses o más, o de una lesión: su siguiente evaluación vuelve a ser la inicial y vale 100. Las anteriores se
+            conservan en el historial.
+          </p>
+          {reinicios.length > 0 && (
+            <ul className="mt-2 text-sm text-texto-suave">
+              {reinicios.map((r, i) => (
+                <li key={i}>
+                  {fecha(r.en)} · {r.motivo} · por {r.por}
+                </li>
+              ))}
+            </ul>
+          )}
+          <Formulario accion={reiniciarPuntoDePartida} boton="Reiniciar" variante="secundario" className="mt-3">
+            <input type="hidden" name="clienteId" value={id} />
+            <Campo etiqueta="Motivo" name="motivo" placeholder="Ej. regreso tras lesión de hombro" required />
+          </Formulario>
+        </details>
       )}
 
       <Tarjeta>

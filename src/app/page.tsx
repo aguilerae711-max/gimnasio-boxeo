@@ -4,7 +4,11 @@ import { ConsultasNovedades } from "@/modules/novedades/infrastructure/Novedades
 import { ConsultasOperacion } from "@/modules/operacion/infrastructure/OperacionPostgres";
 import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
+import { casosDeSolicitudes } from "./_servidor/contenedor";
 import { versionVisible } from "./version";
+import { solicitarPrueba } from "./(publico)/acciones";
+import { Formulario } from "./_ui/Formulario";
+import { Campo } from "./_ui/piezas";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +28,15 @@ async function horario() {
   }
 }
 
+async function franjasParaPrueba() {
+  try {
+    return await casosDeSolicitudes().repositorio.franjas(GIMNASIO);
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
 async function novedades() {
   try {
     return await new ConsultasNovedades(baseDeDatos()).publicas(GIMNASIO);
@@ -34,7 +47,7 @@ async function novedades() {
 }
 
 export default async function Inicio() {
-  const [datos, avisos] = await Promise.all([horario(), novedades()]);
+  const [datos, avisos, franjas] = await Promise.all([horario(), novedades(), franjasParaPrueba()]);
   const coaches = [...new Map((datos?.turnos ?? []).map((t) => [t.apodo, t])).values()];
 
   return (
@@ -128,6 +141,35 @@ export default async function Inicio() {
           </ul>
         </section>
       )}
+
+      <section className="mt-6 rounded-2xl bg-tarjeta p-5">
+        <h2 className="font-titulos text-2xl font-bold uppercase">Clase de prueba gratis</h2>
+        <p className="mb-3 text-sm text-[#c9ccd3]">Déjanos tus datos y te escribimos por WhatsApp para agendarte.</p>
+        <Formulario accion={solicitarPrueba} boton="Quiero mi clase de prueba">
+          <Campo etiqueta="Nombre" name="nombre" autoComplete="name" required />
+          <Campo etiqueta="WhatsApp" name="telefono" type="tel" inputMode="tel" autoComplete="tel" placeholder="10 dígitos" required />
+          {datos && datos.franjas.length > 0 && (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-[#c9ccd3]">Horario que prefieres</span>
+              <select name="franjaId" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-base text-texto">
+                <option value="">Cualquiera</option>
+                {franjas.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.inicio} a {f.fin}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <Campo etiqueta="Algo que debamos saber (opcional)" name="comentario" maxLength={300} />
+          {/* Trampa para robots: invisible para personas. */}
+          <input type="text" name="sitio" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+          <label className="flex items-start gap-3 text-sm text-[#c9ccd3]">
+            <input type="checkbox" name="contacto" value="si" required className="mt-1 h-5 w-5 accent-[#d7263d]" />
+            <span>Acepto que el gimnasio me escriba por WhatsApp para agendar mi clase. Solo usamos tus datos para eso.</span>
+          </label>
+        </Formulario>
+      </section>
 
       <div className="mt-8 flex gap-3">
         <Link href="/registro" className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-acento font-semibold text-white no-underline">

@@ -54,6 +54,8 @@ export interface RepositorioEvaluaciones {
   valoresAnteriores(gimnasioId: string, clienteId: string, sesionId: string): Promise<Map<string, number>>;
   guardarResultado(gimnasioId: string, sesionId: string, clienteId: string, r: ResultadoSesion, nuevasBasesIds: string[], en: Date): Promise<void>;
   anular(gimnasioId: string, sesionId: string, motivo: string, en: Date): Promise<void>;
+  /** Desde este momento, la siguiente evaluación del cliente vuelve a ser su punto de partida. */
+  reiniciar(gimnasioId: string, r: { id: string; clienteId: string; motivo: string; por: string; en: Date }): Promise<void>;
 }
 
 export interface DependenciasEvaluacion {
@@ -250,5 +252,37 @@ export class AnularEvaluacion {
     if (s.estado === "anulada") throw new ErrorDeDominio("ya_anulada", "Ya estaba anulada.");
     await this.d.repositorio.anular(actor.gimnasioId, sesionId, motivo.trim(), this.d.reloj.ahora());
     await this.d.auditoria.registrar({ gimnasioId: actor.gimnasioId, usuarioId: actor.usuarioId, accion: "evaluacion.anulada", entidad: "sesion_evaluacion", entidadId: sesionId, antes: { estado: s.estado }, despues: { estado: "anulada" }, motivo: motivo.trim() });
+  }
+}
+
+/**
+ * Reiniciar el punto de partida (regreso tras 3+ meses o una lesión): la siguiente evaluación vuelve a ser la inicial
+ * y vale 100. Las evaluaciones anteriores se conservan en el historial.
+ */
+export class ReiniciarPuntoDePartida {
+  constructor(private readonly d: DependenciasEvaluacion) {}
+
+  async ejecutar(actor: Actor, clienteId: string, motivo: string) {
+    await exigirEvaluador(this.d, actor);
+    if (!motivo.trim()) throw new ErrorDeDominio("motivo_requerido", "Indica el motivo (ej. regreso tras lesión).");
+    const cliente = await this.d.repositorio.clienteParaEvaluar(actor.gimnasioId, clienteId);
+    if (!cliente) throw new ErrorDeDominio("cliente_no_encontrado", "No existe ese cliente.");
+    const periodo = Fecha.hoyEn(this.d.zonaHoraria, this.d.reloj.ahora()).mes;
+    const abierta = await this.d.repositorio.sesionDelMes(actor.gimnasioId, clienteId, periodo);
+    if (abierta && (abierta.estado === "en_curso" || abierta.estado === "parcial")) {
+      throw new ErrorDeDominio("sesion_abierta", "Tiene una evaluación abierta este mes. Ciérrala o anúlala antes de reiniciar.");
+    }
+    const id = this.d.ids.nuevo();
+    await this.d.repositorio.reiniciar(actor.gimnasioId, { id, clienteId, motivo: motivo.trim(), por: actor.usuarioId, en: this.d.reloj.ahora() });
+    await this.d.auditoria.registrar({
+      gimnasioId: actor.gimnasioId,
+      usuarioId: actor.usuarioId,
+      accion: "evaluacion.punto_de_partida_reiniciado",
+      entidad: "cliente",
+      entidadId: clienteId,
+      antes: null,
+      despues: null,
+      motivo: motivo.trim(),
+    });
   }
 }

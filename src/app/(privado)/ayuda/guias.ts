@@ -32,6 +32,13 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Tu rutina de hoy",
+        pasos: [
+          "En Mi estado, los días que entrenas aparece “Hoy en tu turno” con la rutina que preparó tu coach.",
+          "Si hoy no te toca, te dice cuál es tu siguiente día.",
+        ],
+      },
+      {
         titulo: "Tus días y tu peso",
         pasos: [
           "En Mi estado ves cuántos días te quedan pagados y hasta qué fecha.",
@@ -237,6 +244,21 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Sigue los tests en orden, con el cronómetro y el contador en pantalla. Guarda cada uno; deja vacío un intento nulo.",
           "Estrategia: califica cada conducta 0, 1 o 2 y anota al compañero de sparring. Si no hay compañero, cierra como parcial y complétala otro día del mes.",
           "Cerrar y publicar calcula los índices; avisa si algún valor cambió más de 40% contra el mes anterior. Para repetirla, anúlala con motivo.",
+        ],
+      },
+      {
+        titulo: "Clases de prueba",
+        pasos: [
+          "Desde la portada, quien quiera probar deja su nombre, WhatsApp y horario preferido.",
+          "Te aparecen en Administración, en Clases de prueba por agendar: toca WhatsApp para escribirle.",
+          "Cuando la agendes toca Ya la agendé (o Descartar). Un mismo teléfono no se duplica en 24 horas.",
+        ],
+      },
+      {
+        titulo: "Reiniciar el punto de partida",
+        pasos: [
+          "Si un cliente regresa tras 3 meses o más, o de una lesión, abre su ficha → Reiniciar punto de partida.",
+          "Escribe el motivo. Su siguiente evaluación vuelve a ser la inicial (vale 100); las anteriores siguen en su historial.",
         ],
       },
       {

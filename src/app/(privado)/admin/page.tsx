@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { casosDeAcceso, casosDeClientes } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeSolicitudes } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
-import { revisarCliente } from "./acciones";
+import { atenderSolicitud, revisarCliente } from "./acciones";
 import { AgregarAlEquipo } from "./AgregarAlEquipo";
 import { GenerarEnlace } from "./GenerarEnlace";
 
@@ -11,10 +11,11 @@ const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "C
 export default async function Administracion() {
   const sesion = await requerirSesion("cliente.aprobar");
   const clientes = casosDeClientes().consultas;
-  const [pendientes, todos, equipo] = await Promise.all([
+  const [pendientes, todos, equipo, solicitudes] = await Promise.all([
     clientes.delGimnasio(sesion.gimnasioId, "pendiente"),
     clientes.delGimnasio(sesion.gimnasioId),
     (await casosDeAcceso()).equipo.delGimnasio(sesion.gimnasioId),
+    casosDeSolicitudes(sesion.permisos).repositorio.pendientes(sesion.gimnasioId),
   ]);
   const puedeEnlazar = sesion.permisos.includes("usuario.enlace_acceso");
 
@@ -51,6 +52,45 @@ export default async function Administracion() {
           </ul>
         )}
       </Tarjeta>
+
+      {solicitudes.length > 0 && (
+        <Tarjeta className="border-2 border-acento">
+          <h2 className="font-titulos text-2xl font-bold uppercase">Clases de prueba por agendar</h2>
+          <ul className="mt-2 divide-y divide-[#2a2d36]">
+            {solicitudes.map((s) => (
+              <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{s.nombre}</p>
+                  <p className="text-sm text-texto-suave">
+                    {s.telefono}
+                    {s.franja ? ` · prefiere ${s.franja}` : ""}
+                    {s.comentario ? ` · “${s.comentario}”` : ""}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={`https://wa.me/52${s.telefono.slice(-10)}?text=${encodeURIComponent(`Hola ${s.nombre.split(" ")[0]}, te escribimos del gimnasio por tu clase de prueba.`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex min-h-11 items-center rounded-xl bg-[#1f7a4d] px-4 text-sm font-semibold text-white no-underline"
+                  >
+                    WhatsApp
+                  </a>
+                  <form action={atenderSolicitud} className="flex gap-2">
+                    <input type="hidden" name="id" value={s.id} />
+                    <button name="estado" value="contactado" className="min-h-11 rounded-xl border border-[#3a3d46] px-3 text-sm font-semibold">
+                      Ya la agendé
+                    </button>
+                    <button name="estado" value="descartado" className="min-h-11 rounded-xl border border-[#3a3d46] px-3 text-sm font-semibold text-texto-suave">
+                      Descartar
+                    </button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Tarjeta>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2">
         <Tarjeta>
