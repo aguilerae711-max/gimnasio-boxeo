@@ -16,6 +16,7 @@
   --color-acento: var(--acento);
   --font-sans: var(--font-texto);
   --font-titulos: var(--font-titulos);
+  --font-gotica: var(--font-gotica);
 }
 
 body {

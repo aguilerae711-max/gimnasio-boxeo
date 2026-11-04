@@ -21,7 +21,7 @@ export function MarcaGimnasio({ marca }: { marca: MarcaDelGimnasio }) {
   return (
     <Link href="/" className="flex items-center gap-3 text-texto no-underline">
       <Logotipo marca={marca} />
-      <span className="font-titulos text-xl font-bold uppercase tracking-wide">{marca.nombre}</span>
+      <span className="font-gotica text-2xl font-bold leading-none">{marca.nombre}</span>
     </Link>
   );
 }

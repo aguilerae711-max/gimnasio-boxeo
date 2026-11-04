@@ -7,6 +7,18 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.11.0] - 2026-11-04 · Portada nueva, quiero ser coach y panel del sistema
+
+### Agregado
+- **Panel del sistema** (menú Sistema), solo para el superadministrador: gimnasios, clientes activos, coaches, ingresos del mes y cuota del servicio de cada uno.
+- **Quiero ser coach** desde la portada: quien quiere dar clases deja su experiencia y disponibilidad y ve “¡Gracias por aplicar como coach!”. En Administración aparece en **Quieren ser coach**, con WhatsApp, **Aprobar como coach** (lo da de alta y muestra su enlace de activación) o **Descartar**.
+- **Registrarme como cliente** pregunta primero “¿Ya entrenas aquí?”: si sí, elige a su coach; si no, lo lleva a pedir su clase de prueba.
+
+### Cambiado
+- Portada: logotipo más chico, nombre y eslogan del gimnasio en letras góticas, y botones de Entrar, Registrarme como cliente y Quiero ser coach. La clase de prueba es un botón discreto que despliega el formulario.
+- La portada ya no muestra a los coaches.
+- El nombre del gimnasio en el encabezado de la app también va en letras góticas.
+
 ## [0.10.0] - 2026-11-04 · Diamante Boxing Club
 
 ### Agregado

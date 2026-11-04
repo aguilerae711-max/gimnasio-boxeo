@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { casosDeAcceso, casosDeClientes, casosDeSolicitudes } from "../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeSolicitudes, casosDeSolicitudesCoach } from "../_servidor/contenedor";
 import { borrarSesion, guardarSesion, mensajeDeError, tokenDeSesion, type EstadoFormulario } from "../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
@@ -78,6 +78,22 @@ export async function solicitarPrueba(_: EstadoFormulario, datos: FormData): Pro
       aceptaContacto: datos.get("contacto") === "si",
     });
     return { ok: r.repetida ? "Ya tenemos tu solicitud; te escribimos pronto por WhatsApp." : "¡Gracias! Te escribimos por WhatsApp para agendarte." };
+  } catch (e) {
+    return { error: mensajeDeError(e), valores };
+  }
+}
+
+/** Solicitud para ser coach desde la portada. Mismo cuidado que la clase de prueba: trampa para robots y sin duplicados. */
+export async function aplicarComoCoach(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const valores = { nombre: texto(datos, "nombre"), telefono: texto(datos, "telefono"), disponibilidad: texto(datos, "disponibilidad") };
+  if (texto(datos, "sitio")) return { ok: "gracias" };
+  try {
+    await casosDeSolicitudesCoach().aplicar.ejecutar(GIMNASIO_PUBLICO, {
+      ...valores,
+      experiencia: texto(datos, "experiencia"),
+      aceptaContacto: datos.get("contacto") === "si",
+    });
+    return { ok: "gracias" };
   } catch (e) {
     return { error: mensajeDeError(e), valores };
   }

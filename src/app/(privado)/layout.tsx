@@ -16,6 +16,10 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
   const grupos: Grupo[] = [
     {
+      titulo: "Sistema",
+      enlaces: [...solo(tiene("sistema.administrar"), { href: "/sistema", texto: "Panel del sistema" })],
+    },
+    {
       titulo: "Gimnasio",
       enlaces: [
         ...solo(tiene("cliente.aprobar"), { href: "/admin", texto: "Administración" }),

@@ -15,6 +15,8 @@ import { RegistrarCliente, InscribirmeComoCliente, RevisarRegistroCliente } from
 import { ClientesPostgres, ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
 import { AtenderSolicitud, SolicitarClaseDePrueba } from "@/modules/clientes/application/SolicitudesDePrueba";
 import { SolicitudesPostgres } from "@/modules/clientes/infrastructure/SolicitudesPostgres";
+import { AplicarComoCoach, AtenderSolicitudCoach } from "@/modules/acceso/application/SolicitudesDeCoach";
+import { SolicitudesCoachPostgres } from "@/modules/acceso/infrastructure/SolicitudesCoachPostgres";
 import { CambiarComision } from "@/modules/membresias/application/CambiarComision";
 import {
   ConsultasComisiones,
@@ -238,6 +240,24 @@ export function casosDeNovedades(permisos: readonly string[]) {
     archivar: new Archivar(d),
     inscribirse: new Inscribirse(d),
     cancelar: new CancelarInscripcion(d),
+  };
+}
+
+export function casosDeSolicitudesCoach(permisos: readonly string[] = []) {
+  const sql = baseDeDatos();
+  const repositorio = new SolicitudesCoachPostgres(sql);
+  const autorizacion = autorizacionConPermisos(permisos);
+  const auditoria = new AuditoriaPostgres(sql);
+  return {
+    repositorio,
+    aplicar: new AplicarComoCoach({ repositorio, reloj: relojDelSistema, ids: idsAleatorios }),
+    atender: new AtenderSolicitudCoach({
+      repositorio,
+      agregar: new AgregarMiembro({ cuentas: new CuentasPostgres(sql), autorizacion, auditoria, ids: idsAleatorios }),
+      autorizacion,
+      auditoria,
+      reloj: relojDelSistema,
+    }),
   };
 }
 

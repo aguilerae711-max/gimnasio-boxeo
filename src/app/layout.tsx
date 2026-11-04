@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Inter } from "next/font/google";
+import { Barlow_Condensed, Grenze_Gotisch, Inter } from "next/font/google";
 import { marcaDe } from "./_servidor/marca";
 import "./globals.css";
 
@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 const titulos = Barlow_Condensed({ variable: "--font-titulos", subsets: ["latin"], weight: ["700", "800"] });
 const texto = Inter({ variable: "--font-texto", subsets: ["latin"] });
+const gotica = Grenze_Gotisch({ variable: "--font-gotica", subsets: ["latin"], weight: ["500", "700"] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const marca = await marcaDe();
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body className={`${titulos.variable} ${texto.variable} antialiased`}>{children}</body>
+      <body className={`${titulos.variable} ${texto.variable} ${gotica.variable} antialiased`}>{children}</body>
     </html>
   );
 }

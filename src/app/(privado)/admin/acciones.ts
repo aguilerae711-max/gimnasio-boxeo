@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { casosDeAcceso, casosDeClientes, casosDeComisiones, casosDeSolicitudes } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeClientes, casosDeComisiones, casosDeSolicitudes, casosDeSolicitudesCoach } from "../../_servidor/contenedor";
 import { direccionPublica, mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
@@ -46,6 +46,25 @@ export async function agregarAlEquipo(_: EstadoEnlace, datos: FormData): Promise
   } catch (e) {
     return { error: mensajeDeError(e), valores: { nombre, usuario: texto(datos, "usuario") } };
   }
+}
+
+export async function aprobarSolicitudCoach(_: EstadoEnlace, datos: FormData): Promise<EstadoEnlace> {
+  const sesion = await requerirSesion("equipo.agregar");
+  const usuario = texto(datos, "usuario");
+  try {
+    const { usuarioId, nombre } = await casosDeSolicitudesCoach(sesion.permisos).atender.aprobar(actor(sesion), texto(datos, "id"), usuario);
+    const { token } = await (await casosDeAcceso()).generarEnlace(sesion.permisos).ejecutar(actor(sesion), usuarioId);
+    // Sin recargar la página: si se recargara, la solicitud desaparecería de la lista junto con el enlace.
+    return { enlace: `${await direccionPublica()}/activar/${token}`, nombre };
+  } catch (e) {
+    return { error: mensajeDeError(e), valores: { nombre: "", usuario } };
+  }
+}
+
+export async function descartarSolicitudCoach(datos: FormData) {
+  const sesion = await requerirSesion("equipo.agregar");
+  await casosDeSolicitudesCoach(sesion.permisos).atender.descartar(actor(sesion), texto(datos, "id"));
+  revalidatePath("/admin");
 }
 
 export async function atenderSolicitud(datos: FormData) {

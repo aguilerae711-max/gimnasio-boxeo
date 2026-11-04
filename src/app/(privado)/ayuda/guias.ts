@@ -247,6 +247,14 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Quieren ser coach",
+        pasos: [
+          "Desde la portada, quien quiere dar clases toca Quiero ser coach y deja su experiencia y disponibilidad.",
+          "Te aparece en Administración, en Quieren ser coach: escríbele por WhatsApp para conocerlo.",
+          "Si lo apruebas, toca Aprobar como coach (puedes darle un usuario corto) y mándale el enlace que aparece. Si no, Descartar.",
+        ],
+      },
+      {
         titulo: "Clases de prueba",
         pasos: [
           "Desde la portada, quien quiera probar deja su nombre, WhatsApp y horario preferido.",
