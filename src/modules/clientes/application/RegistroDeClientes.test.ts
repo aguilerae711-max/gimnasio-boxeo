@@ -31,6 +31,7 @@ const datos = {
   telefono: "55 1234 5678",
   clave: "mi clave de boxeo",
   aceptaReglamento: true,
+  sexo: "F" as const,
 };
 
 describe("registro de clientes", () => {

@@ -115,7 +115,11 @@ export class ActualizarPerfilCliente {
     private readonly zonaHoraria: string,
   ) {}
 
-  async ejecutar(actor: Actor, clienteId: string, entrada: { fechaNacimiento: string; contactoEmergencia: string; notasMedicas: string }) {
+  async ejecutar(
+    actor: Actor,
+    clienteId: string,
+    entrada: { fechaNacimiento: string; contactoEmergencia: string; notasMedicas: string; sexo?: "F" | "M" | "" },
+  ) {
     const asignacion = await this.d.repositorio.asignacionDeCliente(actor.gimnasioId, clienteId);
     if (!asignacion) throw new ErrorDeDominio("cliente_no_encontrado", "No existe ese cliente.");
     const esElCliente = asignacion.usuarioClienteId === actor.usuarioId;
@@ -129,6 +133,7 @@ export class ActualizarPerfilCliente {
         fechaNacimiento: perfil.fechaNacimiento?.valor ?? null,
         contactoCifrado: perfil.contactoEmergencia && this.cifrador.cifrar(perfil.contactoEmergencia),
         notasCifradas: perfil.notasMedicas && this.cifrador.cifrar(perfil.notasMedicas),
+        sexo: entrada.sexo === "F" || entrada.sexo === "M" ? entrada.sexo : null,
       },
       actor.usuarioId,
     );

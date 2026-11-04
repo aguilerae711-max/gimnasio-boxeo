@@ -17,6 +17,11 @@ export interface NuevoCliente {
   hashClave: string;
   reglamentoVersion: string;
   reglamentoAceptadoEn: Date;
+  sexo: "F" | "M";
+  /** Peso aproximado del registro; se guarda como primer pesaje (aproximado). */
+  pesoKg: number | null;
+  estaturaCm: number | null;
+  medicionId: string | null;
 }
 
 export interface RepositorioClientes {

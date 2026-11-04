@@ -16,6 +16,7 @@ export async function guardarPerfilCliente(_: EstadoFormulario, datos: FormData)
         fechaNacimiento: texto(datos, "fechaNacimiento"),
         contactoEmergencia: texto(datos, "contactoEmergencia"),
         notasMedicas: texto(datos, "notasMedicas"),
+        sexo: texto(datos, "sexo") as "F" | "M" | "",
       });
   } catch (e) {
     return { error: mensajeDeError(e) };

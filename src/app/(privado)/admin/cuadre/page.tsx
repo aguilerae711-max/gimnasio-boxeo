@@ -1,0 +1,134 @@
+import Link from "next/link";
+import { cargoDelSistema, cuadreDelMes, ingresosDelMes } from "@/modules/membresias/domain/Cuentas";
+import { Fecha } from "@/shared/domain/Fecha";
+import { casosDeOperacion, casosDePagos } from "../../../_servidor/contenedor";
+import { requerirSesion } from "../../../_servidor/sesion";
+import { fechaCorta, nombreMes, pesos } from "../../../_ui/formato";
+import { Formulario } from "../../../_ui/Formulario";
+import { Campo, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { cambiarTarifa, cerrarCuadre } from "../../pagos/acciones";
+
+const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija: { centavos: number } }) =>
+  t.tipo === "porcentaje" ? `${t.puntosBase / 100}% de los ingresos` : `${pesos(t.cuotaFija.centavos)} fijos al mes`;
+
+export default async function Cuadre({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
+  const sesion = await requerirSesion("cuadre.cerrar");
+  const hoy = Fecha.hoyEn(sesion.zonaHoraria, new Date());
+  const pedido = (await searchParams).mes ?? "";
+  const mes = /^\d{4}-\d{2}$/.test(pedido) && pedido <= hoy.mes ? pedido : hoy.mes;
+  const inicio = Fecha.de(`${mes}-01`);
+  const [anterior, siguiente] = [inicio.sumarMeses(-1).mes, inicio.sumarMeses(1).mes];
+
+  const casos = casosDePagos(sesion.permisos, sesion.zonaHoraria);
+  const [pagos, cerrados, coaches, tarifas] = await Promise.all([
+    casos.repositorio.confirmadosDelMes(sesion.gimnasioId, mes),
+    casos.consultas.cuadresDelMes(sesion.gimnasioId, mes),
+    casosDeOperacion(sesion.permisos, sesion.zonaHoraria).consultas.coaches(sesion.gimnasioId),
+    casos.repositorio.tarifas(sesion.gimnasioId),
+  ]);
+  const terminado = mes < hoy.mes;
+  const ingresos = ingresosDelMes(pagos, mes);
+  const sistema = cargoDelSistema(tarifas, mes, ingresos);
+  const esSuperadmin = sesion.permisos.includes("sistema.administrar");
+
+  return (
+    <>
+      <Titulo antetitulo="Cuentas">Cuadre mensual</Titulo>
+      <div className="flex items-center gap-3">
+        <Link href={`/admin/cuadre?mes=${anterior}`} className="min-h-10 rounded-lg border border-[#3a3d46] px-3 py-2 text-sm text-texto no-underline">
+          ←
+        </Link>
+        <span className="font-titulos text-2xl font-bold uppercase">{nombreMes(mes)}</span>
+        {mes < hoy.mes && (
+          <Link href={`/admin/cuadre?mes=${siguiente}`} className="min-h-10 rounded-lg border border-[#3a3d46] px-3 py-2 text-sm text-texto no-underline">
+            →
+          </Link>
+        )}
+        {!terminado && <span className="text-sm text-texto-suave">Mes en curso: se cuadra cuando termine.</span>}
+      </div>
+
+      <Tarjeta>
+        <h2 className="font-titulos text-2xl font-bold uppercase">Con cada coach</h2>
+        <p className="text-xs text-texto-suave">
+          Comisión de sus clientes contra el dinero que cobró él. Cuenta lo confirmado en el mes; la carga inicial no entra.
+        </p>
+        <ul className="mt-2 divide-y divide-[#2a2d36]">
+          {coaches.map((c) => {
+            const cuadre = cuadreDelMes(pagos, c.id, mes);
+            const cerrado = cerrados.find((x) => x.coachId === c.id);
+            const saldo = cerrado?.saldoCentavos ?? cuadre.saldoCentavos;
+            return (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 font-semibold">
+                    <span className="h-3 w-3 rounded" style={{ background: c.color }} /> Coach {c.apodo}
+                  </p>
+                  <p className="text-sm text-texto-suave">
+                    Comisión {pesos(cuadre.comisiones.centavos)} · cobró {pesos(cuadre.cobrosEnMano.centavos)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-titulos text-2xl font-bold">{pesos(Math.abs(saldo))}</p>
+                  <p className="text-xs text-texto-suave">
+                    {saldo === 0 ? "Sin saldo" : saldo > 0 ? "La administración le paga" : "Él entrega a la administración"}
+                  </p>
+                </div>
+                <div className="w-full sm:w-auto">
+                  {cerrado ? (
+                    <Estado valor="activo" texto={`cuadrado por ${cerrado.cerradoPor}`} />
+                  ) : terminado ? (
+                    <Formulario accion={cerrarCuadre} boton="Marcar cuadrado" variante="secundario" className="gap-2!">
+                      <input type="hidden" name="coachId" value={c.id} />
+                      <input type="hidden" name="mes" value={mes} />
+                      <input name="nota" placeholder="Nota (opcional)" className="min-h-11 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-sm text-texto" />
+                    </Formulario>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </Tarjeta>
+
+      <Tarjeta>
+        <h2 className="font-titulos text-2xl font-bold uppercase">Con el sistema</h2>
+        <div className="mt-2 grid gap-3 sm:grid-cols-3">
+          <div>
+            <p className="text-sm text-texto-suave">Ingresos del mes</p>
+            <p className="font-titulos text-3xl font-bold">{pesos(ingresos.centavos)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-texto-suave">Cuota vigente</p>
+            <p className="font-titulos text-3xl font-bold">{sistema.tarifa ? describirTarifa(sistema.tarifa) : "—"}</p>
+          </div>
+          <div>
+            <p className="text-sm text-texto-suave">A pagar al sistema</p>
+            <p className="font-titulos text-3xl font-bold text-[#6fe0a2]">{pesos(sistema.cargo.centavos)}</p>
+          </div>
+        </div>
+        <ul className="mt-3 text-xs text-texto-suave">
+          {tarifas.map((t) => (
+            <li key={t.vigenteDesde.valor}>
+              Desde {fechaCorta(t.vigenteDesde.valor)} {t.vigenteDesde.valor.slice(0, 4)}: {describirTarifa(t)}
+            </li>
+          ))}
+        </ul>
+        {esSuperadmin && (
+          <Formulario accion={cambiarTarifa} boton="Programar cuota" variante="secundario" className="mt-4 grid! grid-cols-2 items-end gap-2! sm:grid-cols-[1fr_1fr_1fr_1fr_2fr_auto]">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-[#c9ccd3]">Tipo</span>
+              <select name="tipo" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-texto">
+                <option value="porcentaje">Porcentaje</option>
+                <option value="cuota_fija">Cuota fija</option>
+              </select>
+            </label>
+            <Campo etiqueta="%" name="porcentaje" type="number" min={0} max={50} step={0.01} defaultValue={0} />
+            <Campo etiqueta="Cuota ($)" name="cuota" type="number" min={0} step={0.01} defaultValue={0} />
+            <Campo etiqueta="Desde" name="desde" type="month" min={Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes} required />
+            <Campo etiqueta="Motivo" name="motivo" required />
+          </Formulario>
+        )}
+      </Tarjeta>
+    </>
+  );
+}

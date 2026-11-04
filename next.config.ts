@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Argon2 es un módulo nativo: se carga tal cual, sin empaquetar.
   serverExternalPackages: ["@node-rs/argon2"],
+  // Los comprobantes de pago (fotos de hasta 5 MB) se suben con acciones de servidor.
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   async headers() {
     return [
       {

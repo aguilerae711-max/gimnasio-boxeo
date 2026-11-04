@@ -11,8 +11,11 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const menu = [
     tiene("cliente.aprobar") && { href: "/admin", texto: "Administración" },
     tiene("horario.asignar") && { href: "/admin/horario", texto: "Horario" },
+    tiene("pago.confirmar") && { href: "/admin/pagos", texto: "Pagos" },
+    tiene("cuadre.cerrar") && { href: "/admin/cuadre", texto: "Cuadre" },
     tiene("comision.cambiar") && { href: "/admin/comisiones", texto: "Comisiones" },
     sesion.roles.includes("coach") && { href: "/coach", texto: "Mis turnos" },
+    sesion.roles.includes("coach") && { href: "/coach/pagos", texto: "Mis pagos" },
     sesion.roles.includes("cliente") && { href: "/cliente", texto: "Mi estado" },
     (sesion.roles.includes("coach") || sesion.roles.includes("cliente")) && { href: "/perfil", texto: "Mi perfil" },
     { href: "/ayuda", texto: "Ayuda" },

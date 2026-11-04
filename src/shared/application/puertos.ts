@@ -35,6 +35,12 @@ export interface Cifrador {
   descifrar(cifrado: string): string;
 }
 
+/** Archivos privados (comprobantes de pago). Solo se sirven a través de la app, tras revisar permisos. */
+export interface Almacenamiento {
+  guardar(ruta: string, contenido: Uint8Array, tipo: string): Promise<void>;
+  leer(ruta: string): Promise<{ contenido: Uint8Array; tipo: string } | null>;
+}
+
 export interface GeneradorDeIds {
   nuevo(): string;
 }

@@ -33,6 +33,21 @@ export class Fecha {
     return new Fecha(d.toISOString().slice(0, 10));
   }
 
+  /** Mismo día N meses después; si ese mes es más corto, el último día (31 ene + 1 mes = 28 o 29 feb). */
+  sumarMeses(meses: number): Fecha {
+    const [a, m, d] = this.valor.split("-").map(Number);
+    const total = a * 12 + (m - 1) + meses;
+    const anio = Math.floor(total / 12);
+    const mes = (total % 12) + 1;
+    const ultimo = new Date(Date.UTC(anio, mes, 0)).getUTCDate();
+    return Fecha.de(`${anio}-${String(mes).padStart(2, "0")}-${String(Math.min(d, ultimo)).padStart(2, "0")}`);
+  }
+
+  /** "AAAA-MM": el mes calendario al que pertenece. */
+  get mes(): string {
+    return this.valor.slice(0, 7);
+  }
+
   diasHasta(otra: Fecha): number {
     return Math.round((Fecha.aUtc(otra.valor).getTime() - Fecha.aUtc(this.valor).getTime()) / MS_POR_DIA);
   }

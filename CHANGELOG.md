@@ -7,6 +7,24 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.4.0] - 2026-11-03 · Fase 3 (Pagos) y peso
+
+### Agregado
+- **Planes**: la administración crea y ajusta los planes que vende (ej. Mensualidad, 1 mes, $600).
+- **Dos formas de cobro**: el coach reporta el pago de su cliente con foto del comprobante (queda por confirmar), o la administración lo registra y queda confirmado. Siempre se anota quién tiene el dinero.
+- **Confirmar o rechazar** pagos reportados, viendo el comprobante; el rechazo pide motivo.
+- **Membresía**: corre desde la fecha del pago; si el cliente aún tenía días, sigue al terminar esos. Estados activo, por vencer (5 días), vencido o sin pago, en la lista de clientes, la ficha, la vista del coach y la del cliente (días restantes).
+- **Carga inicial** para dar de alta a los clientes actuales con su pago vigente: los deja activos sin generar comisión ni contar como ingreso.
+- **Cuadre mensual con cada coach**: su comisión del mes contra el dinero que cobró él; dice quién paga a quién y se marca como cuadrado al terminar el mes.
+- **Mis pagos** (coach): reportar, su cuenta del mes y del anterior, el estado de sus clientes y sus pagos recientes.
+- **Cuenta con el sistema**: ingresos del mes y cuota del sistema (hoy 0%); el superadmin puede programarla como porcentaje o cuota fija desde un mes futuro.
+- **Peso y división**: al registrarse se pide la rama (femenil/varonil) y, opcionales y aproximados, peso y estatura. La administración registra pesajes de evaluación periódica o imprevistos. Se muestran peso, IMC, división amateur (World Boxing) según la rama, cambio contra el pesaje anterior y el primero, y el historial. La división se mantiene hasta el siguiente pesaje.
+- Guías nuevas en Ayuda para pagos, carga inicial, cuadre, pesajes y la vista del cliente.
+
+### Seguridad
+- Los comprobantes se guardan en un bucket privado y solo los ven la administración y quien reportó el pago.
+- La app no puede borrar pagos, cuadres ni cuotas del sistema: se rechazan o se corrigen con otro movimiento.
+
 ## [0.3.0] - 2026-11-02 · Seguridad y Fase 2 (Operación)
 
 ### Agregado

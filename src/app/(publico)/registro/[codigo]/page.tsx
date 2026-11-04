@@ -19,6 +19,26 @@ export default async function Registro({ params }: { params: Promise<{ codigo: s
         <Campo etiqueta="Nombre completo" name="nombre" autoComplete="name" required />
         <Campo etiqueta="Correo" name="correo" type="email" autoComplete="email" inputMode="email" required />
         <Campo etiqueta="Teléfono (WhatsApp)" name="telefono" type="tel" autoComplete="tel" inputMode="tel" placeholder="10 dígitos" />
+        <fieldset className="flex flex-col gap-1.5">
+          <legend className="text-sm font-semibold text-[#c9ccd3]">Rama (para tu división de peso)</legend>
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            {[
+              ["F", "Femenil"],
+              ["M", "Varonil"],
+            ].map(([valor, texto]) => (
+              <label key={valor} className="flex min-h-12 items-center gap-2 rounded-xl border border-[#2a2d36] bg-[#23262e] px-4 has-[:checked]:border-acento">
+                <input type="radio" name="sexo" value={valor} required className="h-4 w-4 accent-[#d7263d]" /> {texto}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <div className="grid grid-cols-2 gap-2">
+          <Campo etiqueta="Peso (kg)" name="peso" type="number" step={0.1} min={20} max={250} inputMode="decimal" placeholder="Ej. 72" />
+          <Campo etiqueta="Estatura (cm)" name="estatura" type="number" min={100} max={230} inputMode="numeric" placeholder="Ej. 170" />
+        </div>
+        <p className="-mt-2 text-xs text-texto-suave">
+          Opcionales. Puede ser aproximado o el último que recuerdes: en tu primera evaluación te pesamos y medimos.
+        </p>
         <Campo
           etiqueta="Contraseña"
           name="clave"

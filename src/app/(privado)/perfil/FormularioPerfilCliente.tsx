@@ -8,6 +8,14 @@ export function FormularioPerfilCliente({ clienteId, perfil }: { clienteId: stri
   return (
     <Formulario accion={guardarPerfilCliente} boton="Guardar perfil">
       <input type="hidden" name="clienteId" value={clienteId} />
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-[#c9ccd3]">Rama (para la división de peso)</span>
+        <select name="sexo" defaultValue={perfil.sexo ?? ""} className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-base text-texto">
+          <option value="">Sin indicar</option>
+          <option value="F">Femenil</option>
+          <option value="M">Varonil</option>
+        </select>
+      </label>
       <Campo etiqueta="Fecha de nacimiento" name="fechaNacimiento" type="date" defaultValue={perfil.fechaNacimiento ?? ""} />
       <Campo
         etiqueta="Contacto de emergencia"

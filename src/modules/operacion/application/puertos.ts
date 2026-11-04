@@ -27,7 +27,8 @@ export interface RepositorioOperacion {
   guardarPerfilCliente(
     gimnasioId: string,
     clienteId: string,
-    perfil: { fechaNacimiento: string | null; contactoCifrado: string | null; notasCifradas: string | null },
+    /** sexo null = no se cambia. */
+    perfil: { fechaNacimiento: string | null; contactoCifrado: string | null; notasCifradas: string | null; sexo: "F" | "M" | null },
     actualizadoPor: string,
   ): Promise<void>;
   guardarPerfilCoach(gimnasioId: string, coachId: string, perfil: { bio: string | null; especialidad: string | null }): Promise<void>;

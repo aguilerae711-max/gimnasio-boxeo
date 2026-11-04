@@ -35,6 +35,17 @@ export class ClientesPostgres implements RepositorioClientes {
       await tx`
         INSERT INTO asignacion_coach_cliente (id, gimnasio_id, cliente_id, coach_id, desde, motivo)
         VALUES (gen_random_uuid(), ${n.gimnasioId}, ${n.clienteId}, ${n.coachId}, ${n.reglamentoAceptadoEn}, 'Registro con invitación del coach')`;
+      await tx`
+        INSERT INTO perfil_cliente (cliente_id, gimnasio_id, sexo, actualizado_por)
+        VALUES (${n.clienteId}, ${n.gimnasioId}, ${n.sexo}, ${n.usuarioId})`;
+      if (n.medicionId && n.pesoKg) {
+        await tx`
+          INSERT INTO medicion_corporal (id, gimnasio_id, cliente_id, fecha, peso_kg, estatura_cm, origen, aproximado, registrado_por)
+          SELECT ${n.medicionId}, ${n.gimnasioId}, ${n.clienteId},
+                 (${n.reglamentoAceptadoEn}::timestamptz AT TIME ZONE g.zona_horaria)::date, -- el día en el gimnasio, no en UTC
+                 ${n.pesoKg}, ${n.estaturaCm}, 'registro', true, ${n.usuarioId}
+          FROM gimnasio g WHERE g.id = ${n.gimnasioId}`;
+      }
     });
   }
 

@@ -57,6 +57,9 @@ describe("operación en Postgres", () => {
       telefono: "",
       clave: "mi clave de boxeo",
       aceptaReglamento: true,
+      sexo: "F",
+      pesoKg: 62,
+      estaturaCm: 165,
     }));
   }, 60_000);
 
@@ -115,6 +118,7 @@ describe("operación en Postgres", () => {
       SELECT notas_medicas_cifrado AS notas FROM perfil_cliente WHERE cliente_id = ${clienteId}`);
     expect(crudo.notas).not.toContain("Asma");
     expect(await consultas.perfilCliente(GIMNASIO, clienteId)).toEqual({
+      sexo: "F",
       fechaNacimiento: "1998-05-20",
       contactoEmergencia: "Mamá 5512345678",
       notasMedicas: "Asma leve",

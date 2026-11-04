@@ -106,6 +106,7 @@ describe("repositorios en Postgres", () => {
       telefono: "5512345678",
       clave: "mi clave de boxeo",
       aceptaReglamento: true,
+      sexo: "F",
     });
     const consultas = new ConsultasClientes(sql);
     expect((await consultas.delGimnasio(GIMNASIO, "pendiente")).map((c) => c.nombre)).toEqual(["Ana López"]);

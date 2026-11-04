@@ -2,6 +2,7 @@ import { ErrorDeDominio, SinPermiso } from "@/shared/domain/ErrorDeDominio";
 import type { Actor, Auditoria, Autorizacion, GeneradorDeIds, Reloj } from "@/shared/application/puertos";
 import { normalizarCorreo, validarClaveNueva } from "@/modules/acceso/domain/Credenciales";
 import type { HashDeClaves } from "@/modules/acceso/application/puertos";
+import { validarEstatura, validarPeso, type Sexo } from "@/modules/evaluacion/domain/Composicion";
 import { REGLAMENTO_VIGENTE, revisarSolicitud, validarNombre, validarTelefono, type Decision } from "../domain/SolicitudCliente";
 import type { RepositorioClientes } from "./puertos";
 
@@ -14,6 +15,10 @@ export interface DatosRegistro {
   telefono: string;
   clave: string;
   aceptaReglamento: boolean;
+  /** Para su división de peso. Peso y estatura son opcionales y pueden ser aproximados. */
+  sexo: Sexo | "";
+  pesoKg?: number | null;
+  estaturaCm?: number | null;
 }
 
 /**
@@ -33,6 +38,11 @@ export class RegistrarCliente {
     const correo = normalizarCorreo(datos.correo);
     const telefono = validarTelefono(datos.telefono);
     validarClaveNueva(datos.clave);
+    if (datos.sexo !== "F" && datos.sexo !== "M") {
+      throw new ErrorDeDominio("sexo", "Indica si compites en la rama femenil o varonil.");
+    }
+    const pesoKg = datos.pesoKg ? validarPeso(datos.pesoKg) : null;
+    const estaturaCm = datos.estaturaCm ? validarEstatura(datos.estaturaCm) : null;
     if (!datos.aceptaReglamento) {
       throw new ErrorDeDominio("reglamento", "Para registrarte debes aceptar el reglamento y la responsiva.");
     }
@@ -54,6 +64,10 @@ export class RegistrarCliente {
       hashClave: await this.claves.hash(datos.clave),
       reglamentoVersion: REGLAMENTO_VIGENTE,
       reglamentoAceptadoEn: this.reloj.ahora(),
+      sexo: datos.sexo,
+      pesoKg,
+      estaturaCm,
+      medicionId: pesoKg ? this.ids.nuevo() : null,
     };
     await this.clientes.registrar(nuevo);
     return { clienteId: nuevo.clienteId, usuarioId: nuevo.usuarioId, correo };

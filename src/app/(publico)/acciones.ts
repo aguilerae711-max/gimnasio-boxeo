@@ -33,12 +33,24 @@ export async function usarEnlace(_: EstadoFormulario, datos: FormData): Promise<
 }
 
 export async function registrarCliente(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
-  const valores = { nombre: texto(datos, "nombre"), correo: texto(datos, "correo"), telefono: texto(datos, "telefono") };
+  const valores = {
+    nombre: texto(datos, "nombre"),
+    correo: texto(datos, "correo"),
+    telefono: texto(datos, "telefono"),
+    peso: texto(datos, "peso"),
+    estatura: texto(datos, "estatura"),
+  };
   const clave = texto(datos, "clave");
   if (clave !== texto(datos, "confirmacion")) return { error: "Las contraseñas no coinciden.", valores };
   try {
+    const numero = (v: string) => (v.trim() ? Number(v.replace(",", ".")) : null);
     const { correo } = await casosDeClientes().registrar.ejecutar({
-      ...valores,
+      nombre: valores.nombre,
+      correo: valores.correo,
+      telefono: valores.telefono,
+      sexo: texto(datos, "sexo") as "F" | "M" | "",
+      pesoKg: numero(valores.peso),
+      estaturaCm: numero(valores.estatura),
       codigoCoach: texto(datos, "codigo"),
       clave,
       aceptaReglamento: datos.get("reglamento") === "si",

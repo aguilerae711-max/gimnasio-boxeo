@@ -89,13 +89,14 @@ export class OperacionPostgres implements RepositorioOperacion {
   async guardarPerfilCliente(
     gimnasioId: string,
     clienteId: string,
-    p: { fechaNacimiento: string | null; contactoCifrado: string | null; notasCifradas: string | null },
+    p: { fechaNacimiento: string | null; contactoCifrado: string | null; notasCifradas: string | null; sexo: "F" | "M" | null },
     actualizadoPor: string,
   ) {
     await enGimnasio(this.sql, gimnasioId, (tx) => tx`
-      INSERT INTO perfil_cliente (cliente_id, gimnasio_id, fecha_nacimiento, contacto_emergencia_cifrado, notas_medicas_cifrado, actualizado_por)
-      VALUES (${clienteId}, ${gimnasioId}, ${p.fechaNacimiento}, ${p.contactoCifrado}, ${p.notasCifradas}, ${actualizadoPor})
+      INSERT INTO perfil_cliente (cliente_id, gimnasio_id, fecha_nacimiento, contacto_emergencia_cifrado, notas_medicas_cifrado, sexo, actualizado_por)
+      VALUES (${clienteId}, ${gimnasioId}, ${p.fechaNacimiento}, ${p.contactoCifrado}, ${p.notasCifradas}, ${p.sexo}, ${actualizadoPor})
       ON CONFLICT (cliente_id) DO UPDATE SET
+        sexo = coalesce(EXCLUDED.sexo, perfil_cliente.sexo),
         fecha_nacimiento = EXCLUDED.fecha_nacimiento,
         contacto_emergencia_cifrado = EXCLUDED.contacto_emergencia_cifrado,
         notas_medicas_cifrado = EXCLUDED.notas_medicas_cifrado,
@@ -123,6 +124,7 @@ export interface ClienteEnTurno {
 }
 
 export interface PerfilClienteVisible {
+  sexo: "F" | "M" | null;
   fechaNacimiento: string | null;
   contactoEmergencia: string | null;
   notasMedicas: string | null;
@@ -164,12 +166,13 @@ export class ConsultasOperacion {
 
   async perfilCliente(gimnasioId: string, clienteId: string): Promise<PerfilClienteVisible> {
     const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx<
-      { fecha_nacimiento: string | null; contacto: string | null; notas: string | null }[]
+      { sexo: "F" | "M" | null; fecha_nacimiento: string | null; contacto: string | null; notas: string | null }[]
     >`
-      SELECT fecha_nacimiento::text, contacto_emergencia_cifrado AS contacto, notas_medicas_cifrado AS notas
+      SELECT sexo, fecha_nacimiento::text, contacto_emergencia_cifrado AS contacto, notas_medicas_cifrado AS notas
       FROM perfil_cliente WHERE cliente_id = ${clienteId}`);
     const descifrar = (v: string | null) => (v ? this.cifrador().descifrar(v) : null);
     return {
+      sexo: f?.sexo ?? null,
       fechaNacimiento: f?.fecha_nacimiento ?? null,
       contactoEmergencia: descifrar(f?.contacto ?? null),
       notasMedicas: descifrar(f?.notas ?? null),

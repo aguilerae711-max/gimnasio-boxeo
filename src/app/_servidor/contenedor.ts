@@ -25,6 +25,11 @@ import {
   QuitarTurno,
 } from "@/modules/operacion/application/Operacion";
 import { ConsultasOperacion, OperacionPostgres } from "@/modules/operacion/infrastructure/OperacionPostgres";
+import { RegistrarPesaje } from "@/modules/evaluacion/application/Pesajes";
+import { ConsultasPesajes, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
+import { CambiarTarifaSistema, CerrarCuadre, GuardarPlan, RegistrarPago, RevisarPago } from "@/modules/membresias/application/Pagos";
+import { ConsultasPagos, PagosPostgres } from "@/modules/membresias/infrastructure/PagosPostgres";
+import { almacenamientoDelEntorno } from "@/shared/infrastructure/almacenamiento";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
 import { cifradorDelEntorno } from "@/shared/infrastructure/cifrado";
 import { AuditoriaPostgres, autorizacionConPermisos, idsAleatorios, relojDelSistema } from "@/shared/infrastructure/comunes";
@@ -91,6 +96,41 @@ export function casosDeOperacion(permisos: readonly string[], zonaHoraria: strin
     asignarCliente: new AsignarCliente(deps),
     perfilCliente: () => new ActualizarPerfilCliente(deps, cifradorDelEntorno(), zonaHoraria),
     perfilCoach: new ActualizarPerfilCoach(deps),
+  };
+}
+
+export function casosDePagos(permisos: readonly string[], zonaHoraria: string) {
+  const sql = baseDeDatos();
+  const pagos = new PagosPostgres(sql);
+  const d = {
+    pagos,
+    acuerdos: new RepositorioAcuerdosComisionPostgres(sql),
+    autorizacion: autorizacionConPermisos(permisos),
+    auditoria: new AuditoriaPostgres(sql),
+    reloj: relojDelSistema,
+    ids: idsAleatorios,
+    zonaHoraria,
+  };
+  return {
+    repositorio: pagos,
+    consultas: new ConsultasPagos(sql),
+    archivos: almacenamientoDelEntorno(),
+    guardarPlan: new GuardarPlan(d),
+    registrar: new RegistrarPago(d, almacenamientoDelEntorno()),
+    revisar: new RevisarPago(d),
+    cerrarCuadre: new CerrarCuadre(d),
+    cambiarTarifa: new CambiarTarifaSistema(d),
+  };
+}
+
+export function casosDePesajes(permisos: readonly string[], zonaHoraria: string) {
+  const sql = baseDeDatos();
+  return {
+    consultas: new ConsultasPesajes(sql),
+    registrar: new RegistrarPesaje(
+      { repositorio: new PesajesPostgres(sql), autorizacion: autorizacionConPermisos(permisos), auditoria: new AuditoriaPostgres(sql), reloj: relojDelSistema, ids: idsAleatorios },
+      zonaHoraria,
+    ),
   };
 }
 

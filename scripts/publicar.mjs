@@ -48,7 +48,7 @@ correr("npm run db:migrate");
 const sufijo = etiqueta.replaceAll(".", "-");
 correr(
   `gcloud run deploy ${SERVICIO} --source . --project=${PROYECTO} --region=${REGION} --quiet ` +
-    `--revision-suffix=${sufijo} --update-labels=version=${sufijo} --update-env-vars=APP_COMMIT=${commit} ` +
+    `--revision-suffix=${sufijo} --update-labels=version=${sufijo} --update-env-vars=APP_COMMIT=${commit},BUCKET_ARCHIVOS=gimnasio-boxeo-1656-archivos ` +
     // La app entra como app_gimnasio (respeta RLS), nunca como dueño de la base.
     `--update-secrets=DATABASE_URL=database-url-app:latest,CLAVE_DATOS=clave-datos:1`,
 );

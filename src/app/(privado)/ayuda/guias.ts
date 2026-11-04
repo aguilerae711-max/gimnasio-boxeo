@@ -19,15 +19,24 @@ export const AYUDA: SeccionDeAyuda[] = [
   {
     rol: "cliente",
     nombre: "Clientes",
-    bienvenida: "Aquí ves tu registro, tu coach, tus días y horario de entrenamiento y, muy pronto, tus resultados por pilar.",
+    bienvenida: "Aquí ves tus días pagados, tu coach y horario, tu peso y tu división y, muy pronto, tus resultados por pilar.",
     guias: [
       {
         titulo: "Registrarte",
         pasos: [
           "Abre el enlace que te mandó tu coach, o entra a Registro y elige a tu coach.",
-          "Escribe tu nombre, correo, teléfono y una contraseña de al menos 10 caracteres.",
+          "Escribe tu nombre, correo, teléfono, tu rama (femenil o varonil) y una contraseña de al menos 10 caracteres.",
+          "Peso y estatura son opcionales y pueden ser aproximados: en tu primera evaluación te pesamos y medimos.",
           "Acepta el reglamento y la responsiva. Tu registro queda “por aprobar”.",
           "Cuando la administración lo apruebe, verás tu estado como “activo” en Mi estado.",
+        ],
+      },
+      {
+        titulo: "Tus días y tu peso",
+        pasos: [
+          "En Mi estado ves cuántos días te quedan pagados y hasta qué fecha.",
+          "En Peso y división ves tu peso, tu división (según tu rama), tu IMC y cuánto has subido o bajado.",
+          "Tu división se mantiene hasta el siguiente pesaje. El IMC es solo una referencia.",
         ],
       },
       {
@@ -43,12 +52,12 @@ export const AYUDA: SeccionDeAyuda[] = [
         pasos: ["Pide en el gimnasio un enlace para cambiarla.", "Ábrelo, escribe la nueva y listo: entras de inmediato."],
       },
     ],
-    proximamente: ["Días restantes y vencimiento de tu pago", "Tus resultados por pilar: fuerza, velocidad, resistencia y estrategia"],
+    proximamente: ["Tus resultados por pilar: fuerza, velocidad, resistencia y estrategia"],
   },
   {
     rol: "coach",
     nombre: "Coaches",
-    bienvenida: "Ve tus turnos de la semana con sus clientes e invita a nuevos. El plan del mes y los pagos llegan en las siguientes fases.",
+    bienvenida: "Ve tus turnos con sus clientes, reporta pagos y lleva tu cuenta del mes. El plan del mes llega en una siguiente fase.",
     guias: [
       {
         titulo: "Ver tus turnos",
@@ -56,6 +65,23 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Entra a Mis turnos: ves cada día y franja que te toca, con los clientes de esa franja. El de hoy está marcado.",
           "Si un cliente tiene contacto de emergencia o notas médicas, ábrelas en “Emergencia y salud”.",
           "Los turnos los asigna la administración en el horario.",
+        ],
+      },
+      {
+        titulo: "Reportar un pago",
+        pasos: [
+          "Entra a Mis pagos.",
+          "Elige al cliente y el plan; el monto se llena solo y lo puedes corregir.",
+          "Indica si te pagó a ti o en la administración, y toma foto del comprobante.",
+          "Queda “por confirmar”. Cuando la administración lo confirma, se suma tu comisión.",
+        ],
+      },
+      {
+        titulo: "Tu cuenta del mes",
+        pasos: [
+          "En Mis pagos ves tu comisión del mes y el dinero que cobraste tú.",
+          "Si cobraste más que tu comisión, entregas la diferencia; si no, la administración te paga.",
+          "Al terminar el mes, la administración lo marca como cuadrado.",
         ],
       },
       {
@@ -81,9 +107,7 @@ export const AYUDA: SeccionDeAyuda[] = [
     ],
     proximamente: [
       "La rutina que toca en cada turno",
-      "Reportar un pago con foto del comprobante",
       "Armar y enviar tu plan del mes",
-      "Ver tu comisión del mes",
     ],
   },
   {
@@ -126,6 +150,39 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Pagos",
+        pasos: [
+          "En Pagos, primero ves los reportados por los coaches: revisa el comprobante y toca Confirmar o Rechazar (con motivo).",
+          "Para registrar un pago que recibiste tú, usa Registrar pago: queda confirmado de una vez.",
+          "Si lo cobró un coach, elige qué coach tiene el dinero; se cuadra a fin de mes.",
+          "La membresía corre desde la fecha del pago; si el cliente aún tenía días, sigue al terminar esos.",
+        ],
+      },
+      {
+        titulo: "Alta de clientes actuales (carga inicial)",
+        pasos: [
+          "Registra su pago vigente con su fecha real y marca Carga inicial.",
+          "Queda activo hasta donde cubre ese pago, pero no genera comisión ni cuenta como ingreso del mes.",
+        ],
+      },
+      {
+        titulo: "Cuadre mensual",
+        pasos: [
+          "En Cuadre ves, por coach, su comisión del mes contra el dinero que cobró él.",
+          "Si cobró de más, te entrega la diferencia; si no, tú le pagas.",
+          "Cuando el mes termina y quedan a mano, toca Marcar cuadrado. Queda registrado y ya no cambia.",
+          "Abajo ves la cuenta con el sistema: hoy 0%.",
+        ],
+      },
+      {
+        titulo: "Pesar a un cliente",
+        pasos: [
+          "En la ficha del cliente, en Peso y división, escribe el peso y la fecha.",
+          "Elige si es evaluación periódica o pesaje imprevisto. La estatura, solo si cambió.",
+          "La división se calcula con su rama y se mantiene hasta el siguiente pesaje.",
+        ],
+      },
+      {
         titulo: "Mover la comisión",
         pasos: [
           "Entra a Comisiones.",
@@ -135,6 +192,6 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: ["Confirmar pagos y alta de clientes con su pago vigente", "Evaluación con PIN", "Aprobar planes", "Cerrar el mes"],
+    proximamente: ["Evaluación por pilares con PIN", "Aprobar planes de trabajo", "Relación de ingresos y reportes"],
   },
 ];
