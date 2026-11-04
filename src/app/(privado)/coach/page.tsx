@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import { claveTurno, planVigente } from "@/modules/biblioteca/domain/Planes";
 import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { Fecha } from "@/shared/domain/Fecha";
-import { casosDeAcceso, casosDeOperacion } from "../../_servidor/contenedor";
+import { casosDeAcceso, casosDeBiblioteca, casosDeOperacion } from "../../_servidor/contenedor";
 import { direccionPublica, requerirSesion } from "../../_servidor/sesion";
 import { CopiarEnlace } from "../../_ui/CopiarEnlace";
 import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
@@ -24,6 +25,13 @@ export default async function MisClientes() {
     await Promise.all(clientes.map(async (c) => [c.clienteId, await operacion.consultas.perfilCliente(sesion.gimnasioId, c.clienteId)] as const)),
   );
   const turnos = horario.turnosDe(yo.id);
+  // La rutina de cada turno sale del plan vigente (el aprobado; si el nuevo está en revisión, el anterior).
+  const biblioteca = casosDeBiblioteca(sesion.permisos, sesion.zonaHoraria);
+  const vigente = planVigente(await biblioteca.consultas.planesDelCoach(sesion.gimnasioId, yo.id), Fecha.hoyEn(sesion.zonaHoraria, new Date()).mes);
+  const [plan, nombresRutinas] = await Promise.all([
+    vigente ? biblioteca.repositorio.planPorId(sesion.gimnasioId, vigente.id) : null,
+    biblioteca.consultas.nombresDeRutinas(sesion.gimnasioId, yo.id),
+  ]);
   const hoy = diaDeHoy(sesion.zonaHoraria);
   const activos = clientes.filter((c) => c.estado === "activo").length;
   const sinFranja = clientes.filter((c) => !c.franjaId);
@@ -56,6 +64,11 @@ export default async function MisClientes() {
                       {t.cupoMax ? ` / ${t.cupoMax}` : ""} clientes
                     </span>
                   </div>
+                  {plan?.asignaciones.get(claveTurno(t.diaSemana, t.franjaId)) && (
+                    <p className="mt-1 text-sm">
+                      Rutina: <b>{nombresRutinas.get(plan.asignaciones.get(claveTurno(t.diaSemana, t.franjaId))!)}</b>
+                    </p>
+                  )}
                   {enTurno.length > 0 && <p className="mt-1 text-sm text-texto-suave">{enTurno.map((c) => c.nombre).join(", ")}</p>}
                 </li>
               );

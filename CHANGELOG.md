@@ -7,6 +7,19 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.6.0] - 2026-11-03 · Fase 5 (Biblioteca y planes de trabajo)
+
+### Agregado
+- **Glosario**: los 11 golpes con su número oficial, nombres alternos y mano (incluido el volado), y traductor de combinaciones: “1-2-3c” muestra el nombre de cada golpe.
+- **Biblioteca de ejercicios**: los 6 básicos (manopleo, gobernadora, perillas, costal, sombra, cuerda) con sus nombres alternos; el coach propone ejercicios con nombre y descripción y los usa de inmediato; la app avisa si se parecen a uno existente (también contra el glosario).
+- **Formalizar o fusionar** (administración): nombre oficial, ejecución, errores comunes, nivel, nombres alternos y quién lo ve; al fusionar, el nombre queda como alterno y las rutinas se actualizan solas.
+- **Acceso a la biblioteca compartida** por coach; los básicos y sus propios ejercicios siempre los ve.
+- **Rutinas**: el coach arma lo que hará en un turno de 2 horas, por bloques (calentamiento, técnica, implementos...) con minutos, rounds y ejercicios o combinaciones; no puede pasar de 120 minutos.
+- **Mi plan** (coach): una rutina para cada uno de sus turnos del mes; se envía a la administración. Plan fijo: desde el día 25 se puede mantener para el mes siguiente con un toque y queda aprobado.
+- **Planes** (administración): estado de cada coach; al revisar solo se ven los turnos que cambiaron contra el mes anterior; aprobar o pedir cambios con comentario. Mientras un plan nuevo está en revisión sigue vigente el último aprobado.
+- **Mis turnos** muestra la rutina que toca en cada turno.
+- Guías nuevas en Ayuda para rutinas, plan, biblioteca y revisión de planes.
+
 ## [0.5.0] - 2026-11-03 · Fase 4 (Evaluación por pilares)
 
 ### Agregado

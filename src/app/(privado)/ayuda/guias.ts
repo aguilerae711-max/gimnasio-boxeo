@@ -65,7 +65,7 @@ export const AYUDA: SeccionDeAyuda[] = [
   {
     rol: "coach",
     nombre: "Coaches",
-    bienvenida: "Ve tus turnos con sus clientes, reporta pagos y lleva tu cuenta del mes. El plan del mes llega en una siguiente fase.",
+    bienvenida: "Ve tus turnos con su rutina y sus clientes, arma tu plan del mes, reporta pagos y consulta el glosario.",
     guias: [
       {
         titulo: "Ver tus turnos",
@@ -81,6 +81,31 @@ export const AYUDA: SeccionDeAyuda[] = [
           "En Resultados ves la última evaluación por pilar de cada cliente (100 = su punto de partida) y su división.",
           "Tu resultado del mes es el promedio por pilar de tus clientes evaluados; la cobertura dice cuántos de tus activos se evaluaron.",
           "Se mide el avance de cada cliente, no su nivel: un principiante que mejora cuenta igual que un avanzado.",
+        ],
+      },
+      {
+        titulo: "Armar tus rutinas",
+        pasos: [
+          "En Rutinas arma lo que harás en un turno de 2 horas: bloques (calentamiento, técnica, implementos...) con sus minutos.",
+          "En cada bloque agrega ejercicios de la biblioteca o combinaciones de golpes (1-2-3c).",
+          "La rutina no puede pasar de 120 minutos; la app te dice cuánto llevas.",
+        ],
+      },
+      {
+        titulo: "Tu plan del mes",
+        pasos: [
+          "En Mi plan elige una rutina para cada uno de tus turnos y toca Enviar a la administración.",
+          "Si te piden cambios, verás el comentario; corrige y vuelve a enviar. Mientras tanto sigue vigente tu plan aprobado anterior.",
+          "Si tu plan es fijo, desde el día 25 te preguntamos si lo mantienes: un toque y el mes siguiente queda aprobado.",
+          "En Mis turnos ves qué rutina toca en cada turno.",
+        ],
+      },
+      {
+        titulo: "Glosario y biblioteca",
+        pasos: [
+          "En Biblioteca están los golpes con su número oficial y sus otros nombres; escribe una combinación y ve el nombre de cada golpe.",
+          "Si usas un ejercicio que no está, propónlo con nombre y descripción: lo usas de inmediato y la administración lo formaliza.",
+          "Si la app dice que se parece a otro, revisa que no sea el mismo antes de marcar “Es distinto”.",
         ],
       },
       {
@@ -121,10 +146,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: [
-      "La rutina que toca en cada turno",
-      "Armar y enviar tu plan del mes",
-    ],
+    proximamente: ["Novedades del gimnasio: eventos, sparrings e inscripciones"],
   },
   {
     rol: "admin",
@@ -210,6 +232,22 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
       {
+        titulo: "Revisar planes de trabajo",
+        pasos: [
+          "En Planes ves el estado del plan de cada coach para este mes y el siguiente.",
+          "Al revisar solo ves lo que cambió contra el mes anterior; aprueba o pide cambios diciendo qué.",
+          "Un plan fijo que el coach mantiene sin cambios se aprueba solo.",
+        ],
+      },
+      {
+        titulo: "Biblioteca",
+        pasos: [
+          "Las propuestas de los coaches llegan a Por formalizar: completa nombre oficial, ejecución, errores comunes y nombres alternos.",
+          "Si una propuesta es igual a un ejercicio existente, fusiónala: su nombre queda como alterno y las rutinas se actualizan solas.",
+          "Decide qué coaches ven la biblioteca compartida; los básicos y sus propios ejercicios los ven siempre.",
+        ],
+      },
+      {
         titulo: "Mover la comisión",
         pasos: [
           "Entra a Comisiones.",
@@ -219,6 +257,6 @@ export const AYUDA: SeccionDeAyuda[] = [
         ],
       },
     ],
-    proximamente: ["Biblioteca de ejercicios y planes de trabajo", "Relación de ingresos y reportes"],
+    proximamente: ["Novedades del gimnasio", "Relación de ingresos y reportes"],
   },
 ];

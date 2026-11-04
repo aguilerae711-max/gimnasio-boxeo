@@ -34,6 +34,17 @@ import {
   IniciarEvaluacion,
   RegistrarChequeo,
 } from "@/modules/evaluacion/application/Evaluaciones";
+import {
+  DarAccesoBiblioteca,
+  FormalizarEjercicio,
+  FusionarEjercicio,
+  GuardarPlanDeTrabajo,
+  GuardarRutina,
+  MantenerPlan,
+  ProponerEjercicio,
+  RevisarPlan,
+} from "@/modules/biblioteca/application/Biblioteca";
+import { BibliotecaPostgres, ConsultasBiblioteca } from "@/modules/biblioteca/infrastructure/BibliotecaPostgres";
 import { RegistrarPesaje } from "@/modules/evaluacion/application/Pesajes";
 import { ConsultasEvaluacion, EvaluacionesPostgres } from "@/modules/evaluacion/infrastructure/EvaluacionesPostgres";
 import { ConsultasPesajes, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
@@ -166,6 +177,30 @@ export function casosDeEvaluacion(permisos: readonly string[], zonaHoraria: stri
     rubrica: new GuardarRubrica(d),
     cerrar: new CerrarEvaluacion(d),
     anular: new AnularEvaluacion(d),
+  };
+}
+
+export function casosDeBiblioteca(permisos: readonly string[], zonaHoraria: string) {
+  const sql = baseDeDatos();
+  const d = {
+    repositorio: new BibliotecaPostgres(sql),
+    autorizacion: autorizacionConPermisos(permisos),
+    auditoria: new AuditoriaPostgres(sql),
+    reloj: relojDelSistema,
+    ids: idsAleatorios,
+    zonaHoraria,
+  };
+  return {
+    repositorio: d.repositorio,
+    consultas: new ConsultasBiblioteca(sql),
+    proponer: new ProponerEjercicio(d),
+    formalizar: new FormalizarEjercicio(d),
+    fusionar: new FusionarEjercicio(d),
+    darAcceso: new DarAccesoBiblioteca(d),
+    guardarRutina: new GuardarRutina(d),
+    guardarPlan: new GuardarPlanDeTrabajo(d),
+    mantenerPlan: new MantenerPlan(d),
+    revisarPlan: new RevisarPlan(d),
   };
 }
 

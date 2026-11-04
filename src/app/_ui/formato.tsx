@@ -10,6 +10,24 @@ export const fechaCorta = (valor: string | null) =>
 export const nombreMes = (mes: string) =>
   new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${mes}-01T00:00:00Z`));
 
+/** Estado del plan de trabajo: [color del semáforo, texto]. */
+export const ESTADO_PLAN: Record<string, [string, string]> = {
+  borrador: ["baja", "borrador"],
+  enviado: ["pendiente", "en revisión"],
+  aprobado: ["activo", "aprobado"],
+  requiere_cambios: ["rechazado", "pide cambios"],
+};
+
+export const TIPO_BLOQUE: Record<string, string> = {
+  calentamiento: "calentamiento",
+  tecnica: "técnica",
+  implementos: "implementos",
+  sparring: "sparring",
+  acondicionamiento: "acondicionamiento",
+  enfriamiento: "enfriamiento",
+  otro: "otro",
+};
+
 export const METODO: Record<string, string> = { efectivo: "Efectivo", transferencia: "Transferencia", tarjeta: "Tarjeta" };
 
 /** Semáforo de la membresía: activo, por vencer, vencido o sin pago. */
