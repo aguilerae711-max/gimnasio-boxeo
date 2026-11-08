@@ -8,7 +8,7 @@ import { AYUDA } from "./guias";
 export default async function Ayuda({ searchParams }: { searchParams: Promise<{ bienvenida?: string }> }) {
   const sesion = await requerirSesion();
   const esBienvenida = (await searchParams).bienvenida === "1";
-  if (!sesion.vioBienvenida) await (await casosDeAcceso()).sesiones.marcarBienvenidaVista(sesion.usuarioId);
+  if (!sesion.vioBienvenida && !sesion.vistaComo) await (await casosDeAcceso()).sesiones.marcarBienvenidaVista(sesion.usuarioId);
 
   const esAdmin = sesion.permisos.includes("cliente.aprobar");
   const secciones = AYUDA.filter((s) => (s.rol === "admin" ? esAdmin : sesion.roles.includes(s.rol)));

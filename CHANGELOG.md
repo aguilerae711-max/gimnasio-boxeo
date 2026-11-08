@@ -7,6 +7,17 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.12.0] - 2026-11-07 · Panel del sistema independiente y Ver como
+
+### Agregado
+- **Ver como** (panel del sistema): el superadministrador abre la app exactamente como la ve una persona de administración, un coach o un cliente, para revisar cada interfaz. Es **solo lectura**: nada se guarda, dura 2 horas, se termina con «Terminar vista» y queda en la auditoría del gimnasio.
+- **Entrar al gimnasio** desde el panel del sistema: se ve su administración con su marca, con una franja para regresar al panel.
+- En el panel: **actividad reciente** (auditoría de todos los gimnasios), **salud del sistema** y la lista de **próximos controles**.
+
+### Cambiado
+- El panel del sistema ya no está atado a ningún gimnasio: tiene su propio encabezado y colores neutros, sin el logotipo ni el menú de Diamante. Al entrar con la cuenta de superadministrador se llega ahí directo.
+- Diseño más profesional del panel: indicadores, tabla de gimnasios y secciones con descripción.
+
 ## [0.11.1] - 2026-11-04 · Manuales y textos de ayuda
 
 ### Agregado

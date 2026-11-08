@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { sesionActual } from "../../_servidor/sesion";
+import { esSuperadministrador, sesionActual } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
 import { Campo, Titulo } from "../../_ui/piezas";
 import { PaginaCorta } from "../../_ui/MarcaGimnasio";
@@ -9,7 +9,8 @@ import { entrar } from "../acciones";
 export const metadata = { title: "Entrar" };
 
 export default async function Entrar() {
-  if ((await sesionActual())?.gimnasioId) redirect("/panel");
+  const sesion = await sesionActual();
+  if (sesion && (sesion.gimnasioId || esSuperadministrador(sesion))) redirect("/panel");
   return (
     <PaginaCorta>
       <Titulo antetitulo="Bienvenido de vuelta">Entrar</Titulo>

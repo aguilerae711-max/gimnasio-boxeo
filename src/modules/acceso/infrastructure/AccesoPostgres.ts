@@ -112,7 +112,44 @@ export class SesionesPostgres implements RepositorioSesiones {
       FROM sesion s JOIN usuario u ON u.id = s.usuario_id
       WHERE s.token_hash = ${huella} AND s.revocada_en IS NULL AND s.expira_en > now()
         AND u.estado = 'activo' AND u.eliminado_en IS NULL`;
-    if (!u) return null;
+    return u ? this.armarContexto(u) : null;
+  }
+
+  /** Lo mismo, a partir de la cuenta: para que el superadministrador vea la app como otra persona (solo lectura). */
+  async contextoDeUsuario(usuarioId: string): Promise<ContextoDeSesion | null> {
+    const [u] = await this.sql<{ id: string; nombre: string; bienvenida_vista_en: Date | null }[]>`
+      SELECT u.id, u.nombre, u.bienvenida_vista_en FROM usuario u
+      WHERE u.id = ${usuarioId} AND u.estado = 'activo' AND u.eliminado_en IS NULL`;
+    return u ? this.armarContexto(u) : null;
+  }
+
+  /**
+   * Contexto del superadministrador dentro de un gimnasio que eligió: sus roles de ese gimnasio más los del sistema.
+   * Null si el gimnasio no existe.
+   */
+  async contextoEnGimnasio(usuarioId: string, gimnasioId: string): Promise<ContextoDeSesion | null> {
+    const [g] = await this.sql<{ zona_horaria: string }[]>`
+      SELECT zona_horaria FROM gimnasio WHERE id = ${gimnasioId} AND eliminado_en IS NULL`;
+    const [u] = await this.sql<{ id: string; nombre: string; bienvenida_vista_en: Date | null }[]>`
+      SELECT u.id, u.nombre, u.bienvenida_vista_en FROM usuario u
+      WHERE u.id = ${usuarioId} AND u.estado = 'activo' AND u.eliminado_en IS NULL`;
+    if (!g || !u) return null;
+    const filas = await this.sql<{ rol: string; permiso: string | null }[]>`
+      SELECT ur.rol_codigo AS rol, rp.permiso_codigo AS permiso
+      FROM usuario_rol ur LEFT JOIN rol_permiso rp ON rp.rol_codigo = ur.rol_codigo
+      WHERE ur.usuario_id = ${u.id} AND ur.hasta IS NULL AND (ur.gimnasio_id = ${gimnasioId} OR ur.gimnasio_id IS NULL)`;
+    return {
+      usuarioId: u.id,
+      nombre: u.nombre,
+      gimnasioId,
+      zonaHoraria: g.zona_horaria,
+      roles: [...new Set(filas.map((f) => f.rol))],
+      permisos: [...new Set(filas.flatMap((f) => (f.permiso ? [f.permiso] : [])))],
+      vioBienvenida: u.bienvenida_vista_en !== null,
+    };
+  }
+
+  private async armarContexto(u: { id: string; nombre: string; bienvenida_vista_en: Date | null }): Promise<ContextoDeSesion> {
     // LEFT JOIN: un rol puede no tener permisos todavía (el de cliente) y aun así cuenta.
     const filas = await this.sql<{ rol: string; gimnasio_id: string | null; zona_horaria: string | null; permiso: string | null }[]>`
       SELECT ur.rol_codigo AS rol, ur.gimnasio_id, g.zona_horaria, rp.permiso_codigo AS permiso
@@ -155,6 +192,15 @@ export class ConsultasEquipo {
       SELECT u.id AS "usuarioId", u.nombre, u.correo, u.usuario, u.estado, array_agg(ur.rol_codigo ORDER BY ur.rol_codigo) AS roles
       FROM usuario u JOIN usuario_rol ur ON ur.usuario_id = u.id
       WHERE ur.gimnasio_id = ${gimnasioId} AND ur.hasta IS NULL AND ur.rol_codigo <> 'cliente' AND u.eliminado_en IS NULL
+      GROUP BY u.id ORDER BY u.nombre`;
+  }
+
+  /** Todas las personas con un rol vigente en el gimnasio (incluye clientes), para "Ver como". */
+  async personasDelGimnasio(gimnasioId: string): Promise<{ usuarioId: string; nombre: string; roles: string[] }[]> {
+    return this.sql<{ usuarioId: string; nombre: string; roles: string[] }[]>`
+      SELECT u.id AS "usuarioId", u.nombre, array_agg(DISTINCT ur.rol_codigo) AS roles
+      FROM usuario u JOIN usuario_rol ur ON ur.usuario_id = u.id
+      WHERE ur.gimnasio_id = ${gimnasioId} AND ur.hasta IS NULL AND u.estado = 'activo' AND u.eliminado_en IS NULL
       GROUP BY u.id ORDER BY u.nombre`;
   }
 

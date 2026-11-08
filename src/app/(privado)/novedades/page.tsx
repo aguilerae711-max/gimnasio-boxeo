@@ -31,7 +31,7 @@ export default async function Novedades() {
   const inscritosPorEvento = esAdministracion
     ? new Map(await Promise.all(feed.filter((p) => p.requiereInscripcion).map(async (p) => [p.id, await casos.consultas.inscritos(sesion.gimnasioId, p.id)] as const)))
     : new Map();
-  await casos.consultas.marcarVistas(sesion.usuarioId);
+  if (!sesion.vistaComo) await casos.consultas.marcarVistas(sesion.usuarioId);
 
   return (
     <>

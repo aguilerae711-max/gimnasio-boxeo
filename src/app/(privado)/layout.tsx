@@ -1,9 +1,11 @@
 import { casosDeNovedades } from "../_servidor/contenedor";
-import { lectorDe, requerirSesion } from "../_servidor/sesion";
+import Link from "next/link";
+import { esSuperadministrador, lectorDe, requerirSesion } from "../_servidor/sesion";
 import { Menu, type Grupo } from "../_ui/Menu";
 import { marcaDe } from "../_servidor/marca";
 import { MarcaGimnasio } from "../_ui/MarcaGimnasio";
 import { salir } from "../(publico)/acciones";
+import { SoloLectura } from "../_ui/SoloLectura";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +17,6 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const coach = sesion.roles.includes("coach");
   const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
   const grupos: Grupo[] = [
-    {
-      titulo: "Sistema",
-      enlaces: [...solo(tiene("sistema.administrar"), { href: "/sistema", texto: "Panel del sistema" })],
-    },
     {
       titulo: "Gimnasio",
       enlaces: [
@@ -61,15 +59,44 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5">
+      {sesion.vistaComo && <SoloLectura />}
+      {sesion.vistaComo && (
+        <div
+          role="status"
+          className="sticky top-2 z-20 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#6b4d12] bg-[#2a2111] px-4 py-3 text-sm text-[#f1d9a8] shadow-lg"
+        >
+          <p>
+            <span className="font-bold uppercase tracking-wider">Vista de solo lectura</span> · Estás viendo la app como{" "}
+            <b className="text-white">{sesion.nombre}</b>. Nada de lo que toques se guarda.
+          </p>
+          <form action="/ver-como/terminar" method="post">
+            <button type="submit" className="min-h-9 rounded-lg bg-[#f1d9a8] px-3 font-bold text-[#2a2111]">
+              Terminar vista
+            </button>
+          </form>
+        </div>
+      )}
+      {esSuperadministrador(sesion) && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#262932] bg-[#0f1116] px-4 py-2 text-sm">
+          <span className="text-texto-suave">
+            Superadministrador · dentro de <b className="text-texto">{marca.nombre}</b>
+          </span>
+          <Link href="/sistema" className="font-semibold text-[#8fb4ff] no-underline">
+            ← Panel del sistema
+          </Link>
+        </div>
+      )}
       <header className="flex flex-wrap items-center justify-between gap-3">
         <MarcaGimnasio marca={marca} />
         <div className="flex items-center gap-3 text-sm text-texto-suave">
           <span>{sesion.nombre}</span>
-          <form action={salir}>
-            <button type="submit" className="min-h-10 rounded-lg border border-[#3a3d46] px-3 font-semibold text-texto">
-              Salir
-            </button>
-          </form>
+          {!sesion.vistaComo && (
+            <form action={salir}>
+              <button type="submit" className="min-h-10 rounded-lg border border-[#3a3d46] px-3 font-semibold text-texto">
+                Salir
+              </button>
+            </form>
+          )}
         </div>
       </header>
       <Menu grupos={grupos} sueltos={sueltos} />
