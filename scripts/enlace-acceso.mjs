@@ -1,6 +1,6 @@
 // Genera un enlace de un solo uso (72 horas) para activar una cuenta o cambiar la contraseña.
 // Sirve para el primer acceso de la administración, cuando aún nadie puede generarlo desde la app.
-// Uso: npm run acceso:enlace -- "Iván"
+// Uso: npm run acceso:enlace -- "Iván"   o con el usuario corto: npm run acceso:enlace -- ivan.diamante
 import { createHash, randomBytes } from "node:crypto";
 import postgres from "postgres";
 
@@ -21,11 +21,16 @@ const sql = postgres(url, { max: 1, onnotice: () => {} });
 try {
   // Sin distinguir acentos ni mayúsculas: "ivan" encuentra a "Iván".
   const sinAcentos = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-  const usuarios = (await sql`SELECT id, nombre, hash_clave FROM usuario WHERE eliminado_en IS NULL`).filter(
-    (u) => sinAcentos(u.nombre) === sinAcentos(nombre),
-  );
+  // Primero por usuario corto (exacto); si no, por nombre.
+  const todos = await sql`
+    SELECT u.id, u.nombre, u.usuario, u.hash_clave,
+           (SELECT string_agg(DISTINCT rol_codigo, ', ') FROM usuario_rol r WHERE r.usuario_id = u.id AND r.hasta IS NULL) AS roles
+    FROM usuario u WHERE u.eliminado_en IS NULL`;
+  const porUsuario = todos.filter((u) => u.usuario && u.usuario === nombre.trim().toLowerCase());
+  const usuarios = porUsuario.length ? porUsuario : todos.filter((u) => sinAcentos(u.nombre) === sinAcentos(nombre));
   if (usuarios.length !== 1) {
-    console.error(usuarios.length === 0 ? `No hay nadie llamado "${nombre}".` : `Hay varias personas llamadas "${nombre}".`);
+    console.error(usuarios.length === 0 ? `No hay nadie llamado "${nombre}".` : `Hay varias cuentas llamadas "${nombre}". Indica su usuario corto:`);
+    for (const u of usuarios) console.error(`  · usuario ${u.usuario ?? "(sin usuario corto)"} · roles: ${u.roles ?? "ninguno"}`);
     process.exit(1);
   }
   const [u] = usuarios;
