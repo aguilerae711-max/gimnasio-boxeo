@@ -24,7 +24,7 @@ export default async function LayoutSistema({ children }: { children: React.Reac
             </span>
             <div className="leading-tight">
               <p className="text-sm font-bold tracking-tight">Sistema de gestión de gimnasios</p>
-              <p className="text-xs text-texto-suave">Superadministrador</p>
+              <p className="text-xs text-texto-suave">Administración del sistema</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm text-texto-suave">

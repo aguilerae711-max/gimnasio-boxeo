@@ -30,11 +30,21 @@ export const sesionReal = cache(async (): Promise<ContextoDeSesion | null> => {
   return (await casosDeAcceso()).sesiones.contexto(huellaDe(token));
 });
 
-/** La cuenta que puede verse "como": activa, de un gimnasio y que no sea superadministrador. */
-export async function contextoParaVerComo(usuarioId: string): Promise<ContextoDeSesion | null> {
-  if (!UUID.test(usuarioId)) return null;
-  const ctx = await (await casosDeAcceso()).sesiones.contextoDeUsuario(usuarioId);
-  return ctx && ctx.gimnasioId && !ctx.permisos.includes(PERMISO_SISTEMA) ? ctx : null;
+/**
+ * La cuenta que puede verse "como" dentro de un gimnasio: activa, con algún rol en ese gimnasio
+ * y que no sea superadministrador. Su pantalla es la de ese gimnasio, con su marca.
+ */
+export async function contextoParaVerComo(usuarioId: string, gimnasioId: string): Promise<ContextoDeSesion | null> {
+  if (!UUID.test(usuarioId) || !UUID.test(gimnasioId)) return null;
+  const ctx = await (await casosDeAcceso()).sesiones.contextoEnGimnasio(usuarioId, gimnasioId);
+  return ctx && ctx.roles.length > 0 && !ctx.permisos.includes(PERMISO_SISTEMA) ? ctx : null;
+}
+
+/** La cookie de "Ver como" guarda "usuarioId:gimnasioId". */
+export const valorVerComo = (usuarioId: string, gimnasioId: string) => `${usuarioId}:${gimnasioId}`;
+export function leerVerComo(valor: string | undefined): { usuarioId: string; gimnasioId: string } | null {
+  const [usuarioId = "", gimnasioId = ""] = (valor ?? "").split(":");
+  return UUID.test(usuarioId) && UUID.test(gimnasioId) ? { usuarioId, gimnasioId } : null;
 }
 
 /**
@@ -45,9 +55,9 @@ export const sesionActual = cache(async (): Promise<ContextoActual | null> => {
   const real = await sesionReal();
   if (!real || !real.permisos.includes(PERMISO_SISTEMA)) return real;
   const galletas = await cookies();
-  const objetivo = galletas.get(COOKIE_VER_COMO)?.value;
+  const objetivo = leerVerComo(galletas.get(COOKIE_VER_COMO)?.value);
   if (objetivo) {
-    const ctx = await contextoParaVerComo(objetivo);
+    const ctx = await contextoParaVerComo(objetivo.usuarioId, objetivo.gimnasioId);
     if (ctx) return { ...ctx, vistaComo: { usuarioId: real.usuarioId, nombre: real.nombre } };
   }
   // El superadministrador no pertenece a ningún gimnasio: entra al que elige desde el panel del sistema.

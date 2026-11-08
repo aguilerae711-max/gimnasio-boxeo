@@ -105,6 +105,28 @@ export interface FilaCliente {
 export class ConsultasClientes {
   constructor(private readonly sql: postgres.Sql) {}
 
+  /**
+   * Árbol del gimnasio para el panel del sistema: cada coach con sus clientes (pendientes y activos), por su cuenta.
+   * Solo nombres y estados; sin datos de contacto.
+   */
+  async arbolDelGimnasio(gimnasioId: string): Promise<{
+    coaches: { usuarioId: string; nombre: string; estado: string }[];
+    clientes: { usuarioId: string; nombre: string; estado: string; coachUsuarioId: string }[];
+  }> {
+    return enGimnasio(this.sql, gimnasioId, async (tx) => ({
+      coaches: await tx<{ usuarioId: string; nombre: string; estado: string }[]>`
+        SELECT c.usuario_id AS "usuarioId", coalesce(c.apodo, u.nombre) AS nombre, c.estado
+        FROM coach c JOIN usuario u ON u.id = c.usuario_id
+        WHERE c.gimnasio_id = ${gimnasioId} AND c.estado <> 'suspendido' AND u.eliminado_en IS NULL
+        ORDER BY c.creado_en, u.nombre`,
+      clientes: await tx<{ usuarioId: string; nombre: string; estado: string; coachUsuarioId: string }[]>`
+        SELECT cl.usuario_id AS "usuarioId", u.nombre, cl.estado, c.usuario_id AS "coachUsuarioId"
+        FROM cliente cl JOIN usuario u ON u.id = cl.usuario_id JOIN coach c ON c.id = cl.coach_id
+        WHERE cl.gimnasio_id = ${gimnasioId} AND cl.estado IN ('pendiente', 'activo') AND u.eliminado_en IS NULL
+        ORDER BY cl.creado_en, u.nombre`,
+    }));
+  }
+
   async delGimnasio(gimnasioId: string, estado?: EstadoCliente): Promise<FilaCliente[]> {
     return enGimnasio(this.sql, gimnasioId, (tx) => tx<FilaCliente[]>`
       SELECT cl.id, u.nombre, u.correo, u.telefono, c.apodo AS coach, cl.estado, cl.creado_en AS "creadoEn"

@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuditoriaPostgres } from "@/shared/infrastructure/comunes";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
-import { COOKIE_GIMNASIO, COOKIE_VER_COMO, contextoParaVerComo, requerirSistema } from "../../_servidor/sesion";
+import { COOKIE_GIMNASIO, COOKIE_VER_COMO, contextoParaVerComo, requerirSistema, valorVerComo } from "../../_servidor/sesion";
 
 /** Pantalla de entrada de cada interfaz al empezar a ver como otra persona. */
 const INTERFACES = {
@@ -45,10 +45,13 @@ export async function entrarAGimnasio(datos: FormData) {
  */
 export async function verComo(datos: FormData) {
   const sesion = await requerirSistema();
-  // La opción elegida viene como "interfaz:usuarioId".
+  // La opción elegida viene como "interfaz:usuarioId", desde la página del gimnasio.
   const [pedidaTexto, usuarioId = ""] = String(datos.get("eleccion") ?? "").split(":");
-  const objetivo = await contextoParaVerComo(usuarioId);
-  if (!objetivo?.gimnasioId) redirect("/sistema?vercomo=no");
+  const gimnasioId = String(datos.get("gimnasioId") ?? "");
+  const deVuelta = UUID.test(gimnasioId) ? `/sistema/administraciones/${gimnasioId}?vercomo=no` : "/sistema";
+  // Solo personas de la administración elegida: Sistema → Administración → Interfaz → Persona.
+  const objetivo = await contextoParaVerComo(usuarioId, gimnasioId);
+  if (!objetivo) redirect(deVuelta);
 
   const pedida = pedidaTexto as keyof typeof INTERFACES;
   const disponible = (i: keyof typeof INTERFACES) =>
@@ -56,10 +59,10 @@ export async function verComo(datos: FormData) {
   const interfaz = pedida in INTERFACES && disponible(pedida)
     ? pedida
     : (["administracion", "coach", "cliente"] as const).find(disponible);
-  if (!interfaz) redirect("/sistema?vercomo=no");
+  if (!interfaz) redirect(deVuelta);
 
   await new AuditoriaPostgres(baseDeDatos()).registrar({
-    gimnasioId: objetivo.gimnasioId,
+    gimnasioId,
     usuarioId: sesion.usuarioId,
     accion: "sistema.ver_como",
     entidad: "usuario",
@@ -67,6 +70,6 @@ export async function verComo(datos: FormData) {
     antes: null,
     despues: { interfaz },
   });
-  (await cookies()).set(COOKIE_VER_COMO, objetivo.usuarioId, { httpOnly: true, secure: segura, sameSite: "strict", path: "/", maxAge: 2 * 60 * 60 });
+  (await cookies()).set(COOKIE_VER_COMO, valorVerComo(objetivo.usuarioId, gimnasioId), { httpOnly: true, secure: segura, sameSite: "strict", path: "/", maxAge: 2 * 60 * 60 });
   redirect(INTERFACES[interfaz]);
 }

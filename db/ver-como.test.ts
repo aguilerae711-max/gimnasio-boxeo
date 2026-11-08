@@ -1,6 +1,7 @@
 import type postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ConsultasEquipo, SesionesPostgres } from "@/modules/acceso/infrastructure/AccesoPostgres";
+import { ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
 import { servidorDePrueba } from "./pgliteDePrueba";
 
 const GIMNASIO = "00000000-0000-4000-8000-000000000101";
@@ -36,6 +37,14 @@ describe("ver como (superadministrador)", () => {
     const yo = await sesiones.contextoDeUsuario(SUPERADMIN);
     expect(yo!.permisos).toContain("sistema.administrar");
     expect(await sesiones.contextoDeUsuario("00000000-0000-4000-8000-000000009999")).toBeNull();
+  });
+
+  it("arma el árbol de la administración: cada coach con sus clientes", async () => {
+    const arbol = await new ConsultasClientes(sql).arbolDelGimnasio(GIMNASIO);
+    expect(arbol.coaches.length).toBeGreaterThan(0);
+    expect(arbol.coaches.every((c) => c.usuarioId && c.nombre)).toBe(true);
+    const deCoaches = new Set(arbol.coaches.map((c) => c.usuarioId));
+    expect(arbol.clientes.every((cl) => deCoaches.has(cl.coachUsuarioId))).toBe(true);
   });
 
   it("el superadministrador entra a un gimnasio que elige, con los roles que tenga ahí", async () => {

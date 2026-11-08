@@ -79,7 +79,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
       {esSuperadministrador(sesion) && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#262932] bg-[#0f1116] px-4 py-2 text-sm">
           <span className="text-texto-suave">
-            Superadministrador · dentro de <b className="text-texto">{marca.nombre}</b>
+            Superadministrador · en la administración <b className="text-texto">{marca.nombre}</b>
           </span>
           <Link href="/sistema" className="font-semibold text-[#8fb4ff] no-underline">
             ← Panel del sistema

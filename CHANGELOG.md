@@ -7,16 +7,18 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
-## [0.12.0] - 2026-11-07 · Panel del sistema independiente y Ver como
+## [0.12.0] - 2026-11-07 · Administración del sistema: árbol de administraciones y Ver como
 
 ### Agregado
-- **Ver como** (panel del sistema): el superadministrador abre la app exactamente como la ve una persona de administración, un coach o un cliente, para revisar cada interfaz. Es **solo lectura**: nada se guarda, dura 2 horas, se termina con «Terminar vista» y queda en la auditoría del gimnasio.
-- **Entrar al gimnasio** desde el panel del sistema: se ve su administración con su marca, con una franja para regresar al panel.
-- En el panel: **actividad reciente** (auditoría de todos los gimnasios), **salud del sistema** y la lista de **próximos controles**.
+- **Árbol del sistema**: Administración del sistema (tú) → Administración 1, 2… → sus coaches (1.1, 1.2…) → los clientes de cada coach (1.1.1, 1.1.2…). Cada administración tiene su página con su marca, sus cifras, su estructura y su actividad.
+- **Ver como** en cualquier nodo del árbol: abre la app exactamente como la ve esa persona (panel de administración, coach o cliente), con la marca de su administración. Es **solo lectura**: nada se guarda, dura 2 horas, se termina con «Terminar vista» (regresa a esa administración) y queda en la auditoría.
+- **Entrar a su panel**: el superadministrador entra al panel de una administración desde su página, con una franja para regresar a la Administración del sistema.
+- En la Administración del sistema: **actividad reciente**, **salud del sistema** y la lista de **próximos controles**.
 
 ### Cambiado
-- El panel del sistema ya no está atado a ningún gimnasio: tiene su propio encabezado y colores neutros, sin el logotipo ni el menú de Diamante. Al entrar con la cuenta de superadministrador se llega ahí directo.
-- Diseño más profesional del panel: indicadores, tabla de gimnasios y secciones con descripción.
+- La Administración del sistema ya no está atada a ninguna administración: encabezado y colores neutros propios, sin logotipo ni menú de Diamante. Al entrar con la cuenta de superadministrador se llega ahí directo.
+- Tu cuenta es la del sistema: no aparece como coach en el árbol ni cuenta en los indicadores.
+- Diseño más profesional del panel: indicadores, tabla numerada de administraciones y secciones con descripción.
 
 ## [0.11.1] - 2026-11-04 · Manuales y textos de ayuda
 
