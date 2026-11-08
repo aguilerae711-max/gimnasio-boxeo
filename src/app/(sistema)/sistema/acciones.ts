@@ -7,6 +7,7 @@ import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
 import { revalidatePath } from "next/cache";
 import type { TipoTarifa } from "@/modules/membresias/domain/Cuentas";
 import { casosDePagos } from "../../_servidor/contenedor";
+import { CuentasPostgres } from "@/modules/acceso/infrastructure/AccesoPostgres";
 import {
   COOKIE_GIMNASIO,
   COOKIE_VER_COMO,
@@ -107,4 +108,21 @@ export async function programarCuota(_: EstadoFormulario, datos: FormData): Prom
   }
   revalidatePath("/sistema", "layout");
   return { ok: "Cuota programada." };
+}
+
+/** Tu cuenta del sistema deja de ser administración y coach en esa administración; tu parte pasa a tu cuenta de ahí. */
+export async function separarMiCuenta(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const sesion = await requerirSistema();
+  const gimnasioId = String(datos.get("gimnasioId") ?? "");
+  const destino = String(datos.get("destino") ?? "");
+  if (!UUID.test(gimnasioId) || !UUID.test(destino)) return { error: "Elige la cuenta de la administración." };
+  if (datos.get("confirmo") !== "si") return { error: "Marca la casilla para confirmar." };
+  try {
+    const r = await new CuentasPostgres(baseDeDatos()).separarCuentaSistema(gimnasioId, sesion.usuarioId, destino);
+    revalidatePath("/sistema", "layout");
+    return { ok: `Listo: cuenta ${r}.` };
+  } catch (e) {
+    const mensaje = e instanceof Error ? e.message : "";
+    return { error: /cuenta destino|coach con datos|no es la del sistema/.test(mensaje) ? mensaje : mensajeDeError(e) };
+  }
 }

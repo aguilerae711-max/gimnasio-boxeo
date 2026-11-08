@@ -82,6 +82,16 @@ export class CuentasPostgres implements RepositorioCuentas {
     });
   }
 
+  /**
+   * La cuenta del sistema deja de ser administración y coach en un gimnasio; su coach (con todo lo suyo)
+   * pasa a la cuenta de la administración. Ver la función separar_cuenta_sistema (migración 0018).
+   */
+  async separarCuentaSistema(gimnasioId: string, sistemaId: string, destinoId: string): Promise<string> {
+    const [f] = await enGimnasio(this.sql, gimnasioId, (tx) => tx<{ r: string }[]>`
+      SELECT separar_cuenta_sistema(${sistemaId}, ${destinoId}, ${gimnasioId}) AS r`);
+    return f.r;
+  }
+
   async esDelGimnasio(usuarioId: string, gimnasioId: string) {
     const [f] = await this.sql`
       SELECT 1 FROM usuario_rol WHERE usuario_id = ${usuarioId} AND gimnasio_id = ${gimnasioId} AND hasta IS NULL LIMIT 1`;

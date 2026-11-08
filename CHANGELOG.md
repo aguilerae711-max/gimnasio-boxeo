@@ -7,6 +7,12 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.17.0] - 2026-11-07 · Separar la cuenta del sistema
+
+### Agregado
+
+- **Separar mi cuenta** (panel del sistema → la administración): si tu cuenta del sistema todavía es administración o coach en una administración, eliges tu cuenta de esa administración y tu coach pasa completo a ella (clientes, turnos, planes, rutinas, comisiones y pagos), sin copiar ni borrar nada. El sistema queda independiente y sigues entrando con «Entrar a su panel». Queda en la auditoría.
+
 ## [0.16.0] - 2026-11-07 · Calificación del 1 al 10 y rutinas por pilar
 
 ### Agregado

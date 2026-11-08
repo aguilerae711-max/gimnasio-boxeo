@@ -49,7 +49,9 @@ export async function resumenDeGimnasio(g: GimnasioDelSistema, sesion: ContextoA
   // Coaches aprobados de la administración; tu cuenta es la del sistema y no cuenta como coach.
   const coaches = arbol.coaches.filter((c) => c.estado === "aprobado" && c.usuarioId !== sesion.usuarioId);
   const visibles = personas.filter((p) => p.usuarioId !== sesion.usuarioId && !p.roles.includes("superadmin"));
-  return { ...g, mes, activos: activos.length, pendientes: pendientes.length, coaches: coaches.length, ingresos, sistema, visibles, actividad, arbol };
+  // Roles que tu cuenta del sistema todavía tiene en esta administración (lo ideal: ninguno).
+  const misRoles = personas.find((p) => p.usuarioId === sesion.usuarioId)?.roles.filter((r) => r === "admin" || r === "coach") ?? [];
+  return { ...g, mes, activos: activos.length, pendientes: pendientes.length, coaches: coaches.length, ingresos, sistema, visibles, actividad, arbol, misRoles };
 }
 
 export const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija: { centavos: number } } | null) =>
@@ -58,6 +60,7 @@ export const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija
 export const ACCIONES: Record<string, string> = {
   "acceso.enlace_activar": "Generó un enlace de acceso",
   "acceso.usuario_cambiado": "Cambió su usuario",
+  "sistema.cuenta_separada": "Separó la cuenta del sistema",
   "prueba.contactado": "Agendó una clase de prueba",
   "prueba.inscrito": "Inscribió a alguien tras su prueba",
   "prueba.descartado": "Descartó una clase de prueba",
