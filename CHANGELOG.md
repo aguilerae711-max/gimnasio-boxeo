@@ -7,6 +7,14 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.18.1] - 2026-11-08 · Panel del sistema en el celular
+
+### Corregido
+
+- En el celular, el panel del sistema era más ancho que la pantalla: la tabla de administraciones empujaba todo a la derecha y se cortaban el botón de tu cuenta, el árbol de niveles y «Ver como».
+- Las administraciones ahora se ven como tarjetas en el celular (la tabla queda en la computadora).
+- El árbol Administración → Coaches → Clientes se compacta en pantallas chicas para que los nombres y «Ver como» quepan.
+
 ## [0.18.0] - 2026-11-08 · Cambiar de cuenta
 
 ### Agregado

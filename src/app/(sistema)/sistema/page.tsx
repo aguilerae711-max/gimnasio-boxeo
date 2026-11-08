@@ -64,7 +64,30 @@ export default async function PanelDelSistema() {
         titulo="Administraciones"
         descripcion="Elige una administración para ver su detalle, entrar a su panel o ver la app como alguien de ella."
       >
-        <div className="-mx-5 overflow-x-auto">
+        {/* En el celular: una tarjeta por administración, sin tabla ancha. */}
+        <ul className="flex flex-col gap-2 sm:hidden">
+          {filas.map((g, i) => (
+            <li key={g.id}>
+              <Link
+                href={`/sistema/administraciones/${g.id}`}
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#262932] px-4 py-3 text-texto no-underline"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold">
+                    <span className="mr-2 font-mono text-xs text-texto-suave">{i + 1}</span>
+                    {g.nombre}
+                  </span>
+                  <span className="block text-xs text-texto-suave">
+                    {g.activos} clientes · {g.coaches} coaches · {pesos(g.ingresos.centavos)}
+                    {g.pendientes > 0 && <span className="text-[#f1d9a8]"> · +{g.pendientes} por aprobar</span>}
+                  </span>
+                </span>
+                <span aria-hidden className="shrink-0 text-acento">→</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="-mx-5 hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="whitespace-nowrap text-xs uppercase tracking-wider text-texto-suave">

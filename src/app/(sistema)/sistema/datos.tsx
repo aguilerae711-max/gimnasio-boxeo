@@ -94,7 +94,7 @@ export const fechaCorta = (d: Date, zona: string) =>
 
 export function Seccion({ titulo, descripcion, children, accion }: { titulo: string; descripcion?: string; children: React.ReactNode; accion?: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#262932] bg-tarjeta">
+    <section className="min-w-0 rounded-2xl border border-[#262932] bg-tarjeta">
       <header className="flex flex-wrap items-end justify-between gap-2 border-b border-[#262932] px-5 py-4">
         <div>
           <h2 className="text-base font-bold tracking-tight">{titulo}</h2>
@@ -111,9 +111,9 @@ export function Indicadores({ lista }: { lista: { nombre: string; valor: string;
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {lista.map((k) => (
-        <div key={k.nombre} className="rounded-2xl border border-[#262932] bg-tarjeta px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-texto-suave">{k.nombre}</p>
-          <p className={`mt-2 text-3xl font-extrabold tabular-nums tracking-tight ${k.acento ? "text-[#6fe0a2]" : ""}`}>{k.valor}</p>
+        <div key={k.nombre} className="min-w-0 rounded-2xl border border-[#262932] bg-tarjeta px-4 py-4">
+          <p className="truncate text-xs font-semibold uppercase tracking-wider text-texto-suave">{k.nombre}</p>
+          <p className={`mt-2 truncate text-2xl font-extrabold sm:text-3xl tabular-nums tracking-tight ${k.acento ? "text-[#6fe0a2]" : ""}`}>{k.valor}</p>
           <p className="mt-1 text-xs text-texto-suave">{k.nota}</p>
         </div>
       ))}

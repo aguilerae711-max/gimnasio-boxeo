@@ -50,9 +50,9 @@ function Nodo({
 }) {
   const pendiente = estado === "pendiente";
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-[#1b1e25]">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="w-12 shrink-0 font-mono text-xs tabular-nums text-texto-suave">
+    <div className="flex items-center justify-between gap-2 rounded-lg px-2 py-2 hover:bg-[#1b1e25] sm:gap-3 sm:px-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <span className="w-9 shrink-0 font-mono sm:w-12 text-xs tabular-nums text-texto-suave">
           {numero}
         </span>
         <div className="min-w-0">
@@ -80,7 +80,7 @@ function Nodo({
           <input type="hidden" name="gimnasioId" value={gimnasioId} />
           <button
             type="submit"
-            className="rounded-md border border-[#3a3d46] px-2.5 py-1 text-xs font-semibold text-texto"
+            className="whitespace-nowrap rounded-md border border-[#3a3d46] px-2 py-1 text-xs font-semibold text-texto sm:px-2.5"
           >
             Ver como
           </button>
@@ -211,15 +211,15 @@ export default async function AdministracionEnElSistema({
         )}
 
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <span className="w-12 shrink-0 font-mono text-xs text-texto-suave">
+          <div className="flex items-center gap-2 px-2 py-2 sm:gap-3 sm:px-3">
+            <span className="w-9 shrink-0 font-mono sm:w-12 text-xs text-texto-suave">
               {n}
             </span>
             <p className="text-sm font-bold">{g.nombre}</p>
           </div>
 
           {administradores.length > 0 && (
-            <div className="ml-6 border-l border-[#2f333d] pl-3">
+            <div className="ml-2 sm:ml-6 border-l border-[#2f333d] pl-1 sm:pl-3">
               {administradores.map((p) => (
                 <Nodo
                   key={p.usuarioId}
@@ -235,11 +235,11 @@ export default async function AdministracionEnElSistema({
           )}
 
           {coaches.length === 0 ? (
-            <p className="ml-6 border-l border-[#2f333d] px-3 py-2 text-sm text-texto-suave">
+            <p className="ml-2 border-l border-[#2f333d] px-3 py-2 sm:ml-6 text-sm text-texto-suave">
               Todavía no hay coaches.
             </p>
           ) : (
-            <ul className="ml-6 flex flex-col gap-1 border-l border-[#2f333d] pl-3">
+            <ul className="ml-2 sm:ml-6 flex flex-col gap-1 border-l border-[#2f333d] pl-1 sm:pl-3">
               {coaches.map((c) => (
                 <li key={c.usuarioId}>
                   <Nodo
@@ -253,7 +253,7 @@ export default async function AdministracionEnElSistema({
                     tu={c.usuarioId === sesion.usuarioId}
                   />
                   {c.clientes.length > 0 && (
-                    <ul className="ml-6 max-h-80 overflow-y-auto border-l border-[#2f333d] pl-3">
+                    <ul className="ml-2 sm:ml-6 max-h-80 overflow-y-auto border-l border-[#2f333d] pl-1 sm:pl-3">
                       {c.clientes.map((cl, j) => (
                         <li key={cl.usuarioId}>
                           <Nodo
