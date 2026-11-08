@@ -39,6 +39,15 @@ export class CuentasEnMemoria implements RepositorioCuentas {
     this.membresias.push({ usuarioId: m.id, gimnasioId });
   }
 
+  readonly coaches = new Set<string>();
+
+  async sumarCoach(gimnasioId: string, usuarioId: string) {
+    const clave = `${gimnasioId}:${usuarioId}`;
+    if (this.coaches.has(clave)) return false;
+    this.coaches.add(clave);
+    return true;
+  }
+
   async esDelGimnasio(usuarioId: string, gimnasioId: string) {
     return this.membresias.some((m) => m.usuarioId === usuarioId && m.gimnasioId === gimnasioId);
   }

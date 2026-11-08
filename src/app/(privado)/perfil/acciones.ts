@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { casosDeAcceso, casosDeClientes, casosDeOperacion } from "../../_servidor/contenedor";
-import { mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
+import { esSuperadministrador, mensajeDeError, requerirSesion, type EstadoFormulario } from "../../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
 
@@ -67,4 +67,17 @@ export async function guardarPerfilCoach(_: EstadoFormulario, datos: FormData): 
   }
   revalidatePath("/perfil");
   return { ok: "Perfil guardado. Así apareces en la página pública." };
+}
+
+/** Quien administra y también da clases se suma como coach con su misma cuenta. */
+export async function tambienDoyClases(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const sesion = await requerirSesion();
+  if (!sesion.roles.includes("admin") || esSuperadministrador(sesion)) return { error: "Esta opción es para quien administra el gimnasio." };
+  try {
+    await (await casosDeAcceso()).tambienDoyClases(sesion.permisos).ejecutar(sesion, { apodo: texto(datos, "apodo") });
+  } catch (e) {
+    return { error: mensajeDeError(e) };
+  }
+  revalidatePath("/", "layout");
+  return { ok: "Listo: ya tienes el grupo Coach en el menú, con tu código para invitar clientes." };
 }

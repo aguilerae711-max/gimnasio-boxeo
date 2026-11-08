@@ -32,6 +32,8 @@ export interface RepositorioCuentas {
   cambiarUsuario(usuarioId: string, usuario: string | null): Promise<void>;
   /** Alta de alguien del equipo (administración o coach), sin contraseña: la define con su enlace. */
   crearMiembro(gimnasioId: string, m: { id: string; nombre: string; usuario: string | null; rol: "admin" | "coach" }): Promise<void>;
+  /** Le suma el rol de coach (aprobado) a una cuenta que ya es del gimnasio. false si ya era coach. */
+  sumarCoach(gimnasioId: string, usuarioId: string, apodo: string): Promise<boolean>;
 }
 
 export interface RepositorioSesiones {

@@ -1,6 +1,6 @@
 import type postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ConsultasEquipo, SesionesPostgres } from "@/modules/acceso/infrastructure/AccesoPostgres";
+import { ConsultasEquipo, CuentasPostgres, SesionesPostgres } from "@/modules/acceso/infrastructure/AccesoPostgres";
 import { ConsultasClientes } from "@/modules/clientes/infrastructure/ClientesPostgres";
 import { servidorDePrueba } from "./pgliteDePrueba";
 
@@ -54,5 +54,19 @@ describe("ver como (superadministrador)", () => {
     expect(dentro!.permisos).toContain("sistema.administrar");
     expect(dentro!.roles).toContain("superadmin");
     expect(await sesiones.contextoEnGimnasio(SUPERADMIN, "00000000-0000-4000-8000-000000009999")).toBeNull();
+  });
+
+  it("quien administra se suma como coach con su misma cuenta (una vez) y aparece en el árbol", async () => {
+    const equipo = new ConsultasEquipo(sql);
+    const cuentas = new CuentasPostgres(sql);
+    const admin = { usuarioId: "00000000-0000-4000-8000-000000000777" };
+    await cuentas.crearMiembro(GIMNASIO, { id: admin.usuarioId, nombre: "Laura Admin", usuario: "laura.admin", rol: "admin" });
+    await sql`UPDATE usuario SET estado = 'activo' WHERE id = ${admin.usuarioId}`;
+    expect(await cuentas.sumarCoach(GIMNASIO, admin.usuarioId, "Laura")).toBe(true);
+    expect(await cuentas.sumarCoach(GIMNASIO, admin.usuarioId, "Laura")).toBe(false);
+    const roles = (await equipo.personasDelGimnasio(GIMNASIO)).find((p) => p.usuarioId === admin.usuarioId)!.roles;
+    expect(roles).toEqual(expect.arrayContaining(["admin", "coach"]));
+    const arbol = await new ConsultasClientes(sql).arbolDelGimnasio(GIMNASIO);
+    expect(arbol.coaches.some((c) => c.usuarioId === admin.usuarioId && c.estado === "aprobado")).toBe(true);
   });
 });

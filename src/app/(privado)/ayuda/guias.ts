@@ -266,6 +266,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         pasos: [
           "En la ficha del cliente toca “Ver como lo ve el cliente”: ves su Mi estado tal cual, sin poder cambiar nada.",
           "Si tú también entrenas, en Mi perfil → También entreno aquí te inscribes como cliente con tu mismo usuario.",
+          "Si tú también das clases, en Mi perfil → También doy clases te sumas como coach con tu misma cuenta.",
         ],
       },
       {

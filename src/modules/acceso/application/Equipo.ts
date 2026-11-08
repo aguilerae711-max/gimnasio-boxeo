@@ -36,6 +36,31 @@ export class AgregarMiembro {
   }
 }
 
+/**
+ * Quien administra y también da clases se suma como coach con su misma cuenta:
+ * tendrá el grupo Coach en el menú y su código para invitar clientes.
+ */
+export class TambienDoyClases {
+  constructor(private readonly d: { cuentas: RepositorioCuentas; autorizacion: Autorizacion; auditoria: Auditoria }) {}
+
+  async ejecutar(actor: Actor, s: { apodo: string }) {
+    if (!(await this.d.autorizacion.tienePermiso(actor, PERMISO_AGREGAR_EQUIPO))) throw new SinPermiso(PERMISO_AGREGAR_EQUIPO);
+    const apodo = s.apodo.trim().replace(/\s+/g, " ");
+    if (apodo.length < 2 || apodo.length > 30) throw new ErrorDeDominio("apodo_invalido", "Escribe cómo te llaman tus clientes (de 2 a 30 letras).");
+    if (!(await this.d.cuentas.esDelGimnasio(actor.usuarioId, actor.gimnasioId))) throw new ErrorDeDominio("no_es_del_gimnasio", "Tu cuenta no es de esta administración.");
+    if (!(await this.d.cuentas.sumarCoach(actor.gimnasioId, actor.usuarioId, apodo))) throw new ErrorDeDominio("ya_es_coach", "Ya eres coach en esta administración.");
+    await this.d.auditoria.registrar({
+      gimnasioId: actor.gimnasioId,
+      usuarioId: actor.usuarioId,
+      accion: "equipo.tambien_coach",
+      entidad: "usuario",
+      entidadId: actor.usuarioId,
+      antes: null,
+      despues: { rol: "coach", apodo },
+    });
+  }
+}
+
 /** Cada quien puede ponerse (o cambiar) su usuario corto para entrar. */
 export class CambiarMiUsuario {
   constructor(private readonly d: { cuentas: RepositorioCuentas; auditoria: Auditoria }) {}

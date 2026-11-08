@@ -66,6 +66,7 @@ export const ACCIONES: Record<string, string> = {
   "comision.cambiada": "Cambió una comisión",
   "cuadre.cerrado": "Cerró un cuadre",
   "equipo.agregado": "Agregó a alguien al equipo",
+  "equipo.tambien_coach": "Se sumó como coach",
   "evaluacion.anulada": "Anuló una evaluación",
   "evaluacion.cerrada": "Cerró una evaluación",
   "evaluacion.iniciada": "Inició una evaluación",

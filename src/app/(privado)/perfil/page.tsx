@@ -1,9 +1,9 @@
 import { casosDeAcceso, casosDeEvaluacion, casosDeOperacion } from "../../_servidor/contenedor";
 import { definirPin } from "../admin/evaluacion/acciones";
-import { requerirSesion } from "../../_servidor/sesion";
+import { esSuperadministrador, requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
 import { Campo, Tarjeta, Titulo } from "../../_ui/piezas";
-import { cambiarMiUsuario, guardarPerfilCoach, inscribirmeComoCliente } from "./acciones";
+import { cambiarMiUsuario, guardarPerfilCoach, inscribirmeComoCliente, tambienDoyClases } from "./acciones";
 import { FormularioPerfilCliente } from "./FormularioPerfilCliente";
 
 export default async function Perfil() {
@@ -17,6 +17,7 @@ export default async function Perfil() {
   const perfilCliente = comoCliente && (await consultas.perfilCliente(sesion.gimnasioId, comoCliente.clienteId));
   const evalua = sesion.permisos.includes("evaluacion.realizar");
   const cuenta = await (await casosDeAcceso()).cuenta(sesion.usuarioId);
+  const puedeDarClases = sesion.roles.includes("admin") && !comoCoach && !esSuperadministrador(sesion);
   const tienePin = evalua && (await casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria).consultas.tienePin(sesion.usuarioId));
 
   return (
@@ -31,6 +32,17 @@ export default async function Perfil() {
           <Campo etiqueta="Usuario" name="usuario" autoCapitalize="none" spellCheck={false} defaultValue={cuenta?.usuario ?? ""} placeholder="ej. ivan" />
         </Formulario>
       </Tarjeta>
+      {puedeDarClases && (
+        <details className="rounded-2xl bg-tarjeta p-5">
+          <summary className="cursor-pointer font-titulos text-2xl font-bold uppercase">También doy clases</summary>
+          <p className="mb-3 mt-2 text-sm text-texto-suave">
+            Súmate como coach con tu misma cuenta: tendrás el grupo Coach en el menú (tus clientes, rutinas y evaluaciones) y tu código para invitar clientes.
+          </p>
+          <Formulario accion={tambienDoyClases} boton="Sumarme como coach">
+            <Campo etiqueta="Cómo te llaman tus clientes" name="apodo" maxLength={30} required defaultValue={sesion.nombre.split(" ")[0]} />
+          </Formulario>
+        </details>
+      )}
       {!comoCliente && coaches.length > 0 && (
         <details className="rounded-2xl bg-tarjeta p-5">
           <summary className="cursor-pointer font-titulos text-2xl font-bold uppercase">También entreno aquí</summary>

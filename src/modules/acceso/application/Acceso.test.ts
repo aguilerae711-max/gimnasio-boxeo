@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Actor, EntradaAuditoria } from "@/shared/application/puertos";
 import { CuentasEnMemoria, EnlacesEnMemoria, IntentosEnMemoria, SesionesEnMemoria } from "../infrastructure/AccesoEnMemoria";
 import { GenerarEnlaceDeAcceso, UsarEnlaceDeAcceso } from "./EnlacesDeAcceso";
-import { AgregarMiembro, CambiarMiUsuario } from "./Equipo";
+import { AgregarMiembro, CambiarMiUsuario, TambienDoyClases } from "./Equipo";
 import { CerrarSesion, IniciarSesion } from "./IniciarSesion";
 import type { HashDeClaves, Tokens } from "./puertos";
 
@@ -171,6 +171,20 @@ describe("acceso", () => {
       for (let i = 0; i < 5; i++) await entrar.ejecutar("admin9", "mal").catch(() => {});
       await expect(entrar.ejecutar("admin9", "mal")).rejects.toThrow(/Demasiados intentos/);
       await expect(entrar.ejecutar("ivan", CLAVE)).resolves.toBeDefined();
+    });
+
+    it("quien administra se suma como coach con su misma cuenta, una sola vez", async () => {
+      const sumar = new TambienDoyClases({
+        cuentas,
+        autorizacion: { tienePermiso: async (a) => a.usuarioId === "ivan" },
+        auditoria: { registrar: async (e) => void bitacora.push(e) },
+      });
+      await expect(sumar.ejecutar({ usuarioId: "mike", gimnasioId: "g1" }, { apodo: "Mike" })).rejects.toThrow(/permiso/);
+      await expect(sumar.ejecutar(admin, { apodo: " " })).rejects.toThrow(/cómo te llaman/);
+      await sumar.ejecutar(admin, { apodo: "Iván" });
+      expect(bitacora.at(-1)).toMatchObject({ accion: "equipo.tambien_coach", entidadId: "ivan" });
+      await expect(sumar.ejecutar(admin, { apodo: "Iván" })).rejects.toThrow(/Ya eres coach/);
+      await expect(sumar.ejecutar({ usuarioId: "ivan", gimnasioId: "otro" }, { apodo: "Iván" })).rejects.toThrow(/no es de esta/);
     });
   });
 });

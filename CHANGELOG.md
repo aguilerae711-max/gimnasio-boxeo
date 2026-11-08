@@ -7,6 +7,12 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.13.0] - 2026-11-07 · También doy clases
+
+### Agregado
+
+- **También doy clases** (Mi perfil): quien administra el gimnasio se suma como coach con su misma cuenta. Tiene el grupo Coach en el menú y su código para invitar clientes. Así la cuenta del sistema queda independiente y la de la administración hace las dos cosas.
+
 ## [0.12.0] - 2026-11-07 · Administración del sistema: árbol de administraciones y Ver como
 
 ### Agregado

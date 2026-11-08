@@ -66,6 +66,22 @@ export class CuentasPostgres implements RepositorioCuentas {
     });
   }
 
+  async sumarCoach(gimnasioId: string, usuarioId: string, apodo: string) {
+    return enGimnasio(this.sql, gimnasioId, async (tx) => {
+      const [ya] = await tx`
+        SELECT 1 FROM usuario_rol WHERE usuario_id = ${usuarioId} AND rol_codigo = 'coach' AND gimnasio_id = ${gimnasioId} AND hasta IS NULL`;
+      if (ya) return false;
+      await tx`INSERT INTO usuario_rol (usuario_id, rol_codigo, gimnasio_id) VALUES (${usuarioId}, 'coach', ${gimnasioId})`;
+      // Si antes fue coach aquí, se reactiva su registro (con sus clientes e historial).
+      await tx`
+        INSERT INTO coach (gimnasio_id, usuario_id, apodo, estado, codigo_invitacion)
+        VALUES (${gimnasioId}, ${usuarioId}, ${apodo}, 'aprobado',
+                translate(lower(split_part(${apodo}, ' ', 1)), 'áéíóúüñ', 'aeiouun') || '-' || substr(md5(${usuarioId}), 1, 4))
+        ON CONFLICT (gimnasio_id, usuario_id) DO UPDATE SET estado = 'aprobado', apodo = EXCLUDED.apodo`;
+      return true;
+    });
+  }
+
   async esDelGimnasio(usuarioId: string, gimnasioId: string) {
     const [f] = await this.sql`
       SELECT 1 FROM usuario_rol WHERE usuario_id = ${usuarioId} AND gimnasio_id = ${gimnasioId} AND hasta IS NULL LIMIT 1`;
