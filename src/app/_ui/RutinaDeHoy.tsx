@@ -53,8 +53,7 @@ export async function RutinaDeHoy({
             {rutina.bloques.map((b, i) => (
               <li key={i}>
                 <b>
-                  {b.minutos} min · {TIPO_BLOQUE[b.tipo] ?? b.tipo}
-                  {b.rounds ? ` · ${b.rounds} rounds` : ""}
+                  {b.rounds ? `${b.rounds} rounds` : `${b.minutos} min`} · {TIPO_BLOQUE[b.tipo] ?? b.tipo}
                 </b>
                 {b.descripcion && <span className="text-texto-suave"> · {b.descripcion}</span>}
                 {b.elementos.length > 0 && (

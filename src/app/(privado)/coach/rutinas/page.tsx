@@ -5,7 +5,7 @@ import type { Rutina } from "@/modules/biblioteca/domain/Planes";
 import { casosDeBiblioteca } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { TIPO_BLOQUE } from "../../../_ui/formato";
-import { Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { EditorRutina } from "./EditorRutina";
 
 const MODALIDAD: Record<string, string> = { individual: "", parejas: " en parejas", grupal: " grupal" };
@@ -39,8 +39,7 @@ export default async function Rutinas({ searchParams }: { searchParams: Promise<
       <Titulo antetitulo={`Coach ${sesion.nombre}`}>Mis rutinas</Titulo>
       {guardada && <p className="rounded-xl bg-[#132a1f] px-4 py-3 text-sm text-[#6fe0a2]">Rutina guardada.</p>}
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">{enEdicion ? `Editar: ${enEdicion.nombre}` : "Nueva rutina"}</h2>
+      <Desplegable titulo={enEdicion ? `Editar: ${enEdicion.nombre}` : "Nueva rutina"} abierto={Boolean(enEdicion) || rutinas.length === 0}>
         <p className="mb-3 text-sm text-texto-suave">Lo que harás en un turno de 2 horas. Después la asignas a tus turnos en Mi plan.</p>
         <EditorRutina key={editar ?? "nueva"} id={enEdicion?.id ?? null} inicial={inicial} ejercicios={disponibles} />
         {enEdicion && (
@@ -48,7 +47,7 @@ export default async function Rutinas({ searchParams }: { searchParams: Promise<
             Cancelar y crear una nueva
           </Link>
         )}
-      </Tarjeta>
+      </Desplegable>
 
       {rutinas.length === 0 ? (
         <p className="text-sm text-texto-suave">Aún no tienes rutinas.</p>
@@ -67,8 +66,7 @@ export default async function Rutinas({ searchParams }: { searchParams: Promise<
                 {r.bloques.map((b, i) => (
                   <li key={i}>
                     <b>
-                      {b.minutos} min · {TIPO_BLOQUE[b.tipo] ?? b.tipo}
-                      {b.rounds ? ` · ${b.rounds} rounds` : ""}
+                      {b.rounds ? `${b.rounds} rounds` : `${b.minutos} min`} · {TIPO_BLOQUE[b.tipo] ?? b.tipo}
                     </b>
                     {b.descripcion && <span className="text-texto-suave"> · {b.descripcion}</span>}
                     {b.elementos.length > 0 && (

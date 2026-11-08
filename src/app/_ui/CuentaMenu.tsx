@@ -21,15 +21,14 @@ export function CuentaMenu({ nombre, children }: { nombre: string; children?: Re
   const inicial = nombre.trim().charAt(0).toUpperCase();
   return (
     <details ref={ref} className="relative">
-      <summary className="flex cursor-pointer select-none items-center gap-2 rounded-full border border-borde py-1 pl-1 pr-3 text-sm text-[#c9ccd3] hover:border-[#3a3d46]">
-        <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full bg-[#2a2d36] font-semibold text-texto">
-          {inicial}
-        </span>
-        <span className="hidden max-w-36 truncate sm:inline">{nombre}</span>
-        <span aria-hidden className="text-[10px] text-texto-suave">▼</span>
+      <summary
+        aria-label={`Mi cuenta (${nombre})`}
+        className="grid h-7 w-7 cursor-pointer select-none place-items-center rounded-full bg-white/[0.06] text-xs font-semibold text-texto-suave hover:bg-white/[0.1] hover:text-texto"
+      >
+        {inicial}
       </summary>
       <div className="absolute right-0 z-30 mt-2 flex w-48 flex-col gap-0.5 rounded-xl border border-borde bg-[#1e2028] p-1.5 shadow-2xl">
-        <p className="truncate px-3 pb-1.5 pt-1 text-xs text-texto-suave sm:hidden">{nombre}</p>
+        <p className="truncate px-3 pb-1.5 pt-1 text-xs text-texto-suave">{nombre}</p>
         <Link href="/perfil" className="rounded-lg px-3 py-2 text-sm font-semibold text-texto no-underline hover:bg-white/[0.05]">
           Mi cuenta
         </Link>

@@ -7,6 +7,13 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.15.1] - 2026-11-07 · Rutinas más simples
+
+### Cambiado
+
+- **Crear rutina, más simple:** cada bloque es por tiempo o por rounds (uno u otro; con rounds los minutos se calculan solos: 3 min de trabajo y 1 de descanso), solo se agregan ejercicios de la biblioteca y las indicaciones ahora son una nota opcional para los clientes. Una barra muestra cuánto del turno de 2 horas llevas.
+- El botón de tu cuenta, arriba a la derecha, es solo tu inicial, más discreto.
+
 ## [0.15.0] - 2026-11-07 · Vencimientos, seguimiento, peso y golpes ilustrados
 
 ### Agregado
