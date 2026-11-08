@@ -39,7 +39,8 @@ try {
   await sql`
     INSERT INTO enlace_acceso (token_hash, usuario_id, proposito, expira_en)
     VALUES (${createHash("sha256").update(token).digest("hex")}, ${u.id}, ${proposito}, now() + interval '72 hours')`;
-  console.log(`\nEnlace para ${u.nombre} (${proposito === "activar" ? "activar cuenta" : "nueva contraseña"}, vence en 72 horas):\n`);
+  console.log(`\nEnlace para ${u.nombre} · usuario ${u.usuario ?? "(sin usuario corto)"} · roles: ${u.roles ?? "ninguno"}`);
+  console.log(`(${proposito === "activar" ? "activar cuenta" : "nueva contraseña"}, vence en 72 horas):\n`);
   console.log(`${DIRECCION}/activar/${token}\n`);
 } finally {
   await sql.end();
