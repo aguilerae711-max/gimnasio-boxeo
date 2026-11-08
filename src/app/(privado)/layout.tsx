@@ -1,11 +1,10 @@
-import { casosDeNovedades } from "../_servidor/contenedor";
+import { casosDeAcceso, casosDeNovedades } from "../_servidor/contenedor";
 import Link from "next/link";
-import { esSuperadministrador, lectorDe, requerirSesion } from "../_servidor/sesion";
+import { esSuperadministrador, lectorDe, otrasCuentas, requerirSesion } from "../_servidor/sesion";
 import { Menu, type Enlace, type Opcion, type Rol } from "../_ui/Menu";
 import { CuentaMenu } from "../_ui/CuentaMenu";
 import { marcaDe } from "../_servidor/marca";
 import { MarcaGimnasio } from "../_ui/MarcaGimnasio";
-import { salir } from "../(publico)/acciones";
 import { SoloLectura } from "../_ui/SoloLectura";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +12,12 @@ export const dynamic = "force-dynamic";
 export default async function LayoutPrivado({ children }: { children: React.ReactNode }) {
   const sesion = await requerirSesion();
   const tiene = (p: string) => sesion.permisos.includes(p);
-  const marca = await marcaDe(sesion.gimnasioId);
+  const [marca, otras, cuenta] = await Promise.all([
+    marcaDe(sesion.gimnasioId),
+    sesion.vistaComo ? Promise.resolve([]) : otrasCuentas(),
+    sesion.vistaComo ? Promise.resolve(null) : casosDeAcceso().then((a) => a.cuenta(sesion.usuarioId)),
+  ]);
+  const usuario = cuenta?.usuario ?? null;
   const sinVer = await casosDeNovedades(sesion.permisos).consultas.sinVer(sesion.gimnasioId, lectorDe(sesion), sesion.usuarioId);
   const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
   const novedades: Opcion = { texto: "Novedades", paginas: [{ href: "/novedades", texto: "Novedades" }], aviso: sinVer };
@@ -109,15 +113,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
       )}
       <header className="flex items-center justify-between gap-3">
         <MarcaGimnasio marca={marca} />
-        <CuentaMenu nombre={sesion.nombre}>
-          {!sesion.vistaComo && (
-            <form action={salir}>
-              <button type="submit" className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#ff8f97] hover:bg-white/[0.05]">
-                Salir
-              </button>
-            </form>
-          )}
-        </CuentaMenu>
+        <CuentaMenu nombre={sesion.nombre} usuario={usuario} otras={otras} sinAcciones={Boolean(sesion.vistaComo)} />
       </header>
       <Menu roles={roles} />
       <main className="mt-6 flex flex-1 flex-col gap-5">{children}</main>

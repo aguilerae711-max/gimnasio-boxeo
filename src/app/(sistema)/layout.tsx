@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import { requerirSistema } from "../_servidor/sesion";
-import { salir } from "../(publico)/acciones";
+import { otrasCuentas, requerirSistema } from "../_servidor/sesion";
+import { casosDeAcceso } from "../_servidor/contenedor";
+import { CuentaMenu } from "../_ui/CuentaMenu";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: { absolute: "Panel del sistema" } };
@@ -14,6 +15,7 @@ const TEMA = { "--acento": "#4f8cff", "--color-acento": "#4f8cff" } as CSSProper
  */
 export default async function LayoutSistema({ children }: { children: React.ReactNode }) {
   const sesion = await requerirSistema();
+  const [otras, cuenta] = await Promise.all([otrasCuentas(), casosDeAcceso().then((a) => a.cuenta(sesion.usuarioId))]);
   return (
     <div style={TEMA} className="min-h-screen">
       <header className="border-b border-[#262932] bg-[#0f1116]">
@@ -27,14 +29,7 @@ export default async function LayoutSistema({ children }: { children: React.Reac
               <p className="text-xs text-texto-suave">Administración del sistema</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm text-texto-suave">
-            <span>{sesion.nombre}</span>
-            <form action={salir}>
-              <button type="submit" className="min-h-9 rounded-lg border border-[#3a3d46] px-3 font-semibold text-texto">
-                Salir
-              </button>
-            </form>
-          </div>
+          <CuentaMenu nombre={sesion.nombre} usuario={cuenta?.usuario ?? null} otras={otras} conCuenta={false} />
         </div>
       </header>
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-5 py-6">{children}</main>

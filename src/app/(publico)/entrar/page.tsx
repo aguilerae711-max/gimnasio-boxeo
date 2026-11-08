@@ -8,13 +8,15 @@ import { entrar } from "../acciones";
 
 export const metadata = { title: "Entrar" };
 
-export default async function Entrar() {
+export default async function Entrar({ searchParams }: { searchParams: Promise<{ agregar?: string }> }) {
+  const agregar = (await searchParams).agregar === "1";
   const sesion = await sesionActual();
-  if (sesion && (sesion.gimnasioId || esSuperadministrador(sesion))) redirect("/panel");
+  if (!agregar && sesion && (sesion.gimnasioId || esSuperadministrador(sesion))) redirect("/panel");
   return (
     <PaginaCorta>
-      <Titulo antetitulo="Bienvenido de vuelta">Entrar</Titulo>
-      <Formulario accion={entrar} boton="Entrar">
+      <Titulo antetitulo={agregar ? "Tu cuenta actual se queda abierta" : "Bienvenido de vuelta"}>{agregar ? "Agregar cuenta" : "Entrar"}</Titulo>
+      <Formulario accion={entrar} boton={agregar ? "Agregar cuenta" : "Entrar"}>
+        {agregar && <input type="hidden" name="agregar" value="1" />}
         <Campo etiqueta="Correo o usuario" name="correo" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
         <Campo etiqueta="Contraseña" name="clave" type="password" autoComplete="current-password" required />
       </Formulario>

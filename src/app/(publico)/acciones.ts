@@ -2,7 +2,16 @@
 
 import { redirect } from "next/navigation";
 import { casosDeAcceso, casosDeClientes, casosDeSolicitudes, casosDeSolicitudesCoach } from "../_servidor/contenedor";
-import { borrarSesion, guardarSesion, mensajeDeError, tokenDeSesion, type EstadoFormulario } from "../_servidor/sesion";
+import {
+  borrarSesion,
+  cambiarACuenta,
+  guardarSesion,
+  mensajeDeError,
+  pasarASiguienteCuenta,
+  todasLasSesiones,
+  tokenDeSesion,
+  type EstadoFormulario,
+} from "../_servidor/sesion";
 
 const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "");
 
@@ -10,11 +19,26 @@ export async function entrar(_: EstadoFormulario, datos: FormData): Promise<Esta
   const correo = texto(datos, "correo");
   try {
     const sesion = await (await casosDeAcceso()).iniciarSesion.ejecutar(correo, texto(datos, "clave"));
-    await guardarSesion(sesion.token, sesion.expiraEn);
+    // "Agregar otra cuenta": la que estaba abierta se queda guardada para cambiar con un toque.
+    await guardarSesion(sesion.token, sesion.expiraEn, { conservarActual: texto(datos, "agregar") === "1" });
   } catch (e) {
     return { error: mensajeDeError(e), valores: { correo } };
   }
   redirect("/panel");
+}
+
+/** Cambia a otra cuenta abierta en este dispositivo, sin volver a escribir la contraseña. */
+export async function cambiarCuenta(datos: FormData) {
+  await cambiarACuenta(Number(texto(datos, "indice")));
+  redirect("/panel");
+}
+
+/** Cierra todas las cuentas abiertas en este dispositivo. */
+export async function salirDeTodas() {
+  const acceso = await casosDeAcceso();
+  for (const token of await todasLasSesiones()) await acceso.cerrarSesion.ejecutar(token);
+  await borrarSesion();
+  redirect("/entrar");
 }
 
 export async function usarEnlace(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
@@ -26,7 +50,8 @@ export async function usarEnlace(_: EstadoFormulario, datos: FormData): Promise<
     const acceso = await casosDeAcceso();
     await acceso.usarEnlace.ejecutar(texto(datos, "token"), { correo, usuario, clave });
     const sesion = await acceso.iniciarSesion.ejecutar(usuario.trim() || correo, clave);
-    await guardarSesion(sesion.token, sesion.expiraEn);
+    // Si ya había otra cuenta abierta en este dispositivo, se queda para cambiar con un toque.
+    await guardarSesion(sesion.token, sesion.expiraEn, { conservarActual: true });
   } catch (e) {
     return { error: mensajeDeError(e), valores: { correo, usuario } };
   }
@@ -99,9 +124,11 @@ export async function aplicarComoCoach(_: EstadoFormulario, datos: FormData): Pr
   }
 }
 
+/** Sale de la cuenta actual; si hay otra abierta en este dispositivo, pasa a ella. */
 export async function salir() {
   const token = await tokenDeSesion();
   if (token) await (await casosDeAcceso()).cerrarSesion.ejecutar(token);
+  if (await pasarASiguienteCuenta()) redirect("/panel");
   await borrarSesion();
   redirect("/entrar");
 }

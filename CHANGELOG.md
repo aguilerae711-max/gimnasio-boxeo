@@ -7,6 +7,14 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.18.0] - 2026-11-08 · Cambiar de cuenta
+
+### Agregado
+
+- **Cambiar de cuenta sin contraseña:** en el mismo celular o computadora puedes tener abiertas varias cuentas (por ejemplo, la del sistema y la de tu administración). Toca tu inicial arriba a la derecha → «Cambiar a» y pasas a la otra con un toque. «+ Agregar otra cuenta» abre una más sin cerrar la actual; al activar una cuenta con su enlace, la que ya estaba abierta también se queda.
+- **Salir de esta cuenta** pasa a la siguiente que tengas abierta; **Salir de todas** cierra todas.
+- El panel del sistema usa el mismo menú de cuenta.
+
 ## [0.17.0] - 2026-11-07 · Separar la cuenta del sistema
 
 ### Agregado

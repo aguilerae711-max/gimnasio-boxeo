@@ -93,14 +93,109 @@ export function lectorDe(sesion: { permisos: readonly string[]; roles: readonly 
   return sesion.roles.includes("coach") ? "coach" : "cliente";
 }
 
-export async function guardarSesion(token: string, expiraEn: Date) {
-  (await cookies()).set(COOKIE, token, {
+/** Otras cuentas con sesión abierta en este dispositivo (para cambiar de cuenta sin volver a entrar). */
+const COOKIE_CUENTAS = "cuentas";
+const MAX_CUENTAS = 4;
+const TOKEN = /^[A-Za-z0-9_-]{20,200}$/;
+
+async function leerCuentas(): Promise<string[]> {
+  try {
+    const lista = JSON.parse((await cookies()).get(COOKIE_CUENTAS)?.value ?? "[]");
+    return Array.isArray(lista) ? lista.filter((t): t is string => typeof t === "string" && TOKEN.test(t)).slice(0, MAX_CUENTAS) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function escribirCuentas(lista: string[]) {
+  const c = await cookies();
+  if (lista.length === 0) return void c.delete(COOKIE_CUENTAS);
+  c.set(COOKIE_CUENTAS, JSON.stringify(lista.slice(0, MAX_CUENTAS)), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 30 * 24 * 3600,
+  });
+}
+
+/**
+ * Deja activa la sesión de este token. Con conservarActual (al "agregar otra cuenta"),
+ * la sesión que estaba activa se guarda en la lista de cuentas de este dispositivo.
+ */
+export async function guardarSesion(token: string, expiraEn: Date, { conservarActual = false } = {}) {
+  const c = await cookies();
+  const actual = c.get(COOKIE)?.value;
+  let otras = (await leerCuentas()).filter((t) => t !== token);
+  if (conservarActual && actual && actual !== token) otras = [actual, ...otras.filter((t) => t !== actual)];
+  await escribirCuentas(otras);
+  c.set(COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     expires: expiraEn,
   });
+  // Al cambiar de cuenta no se arrastra la vista ni la administración elegida por la otra.
+  c.delete(COOKIE_VER_COMO);
+  c.delete(COOKIE_GIMNASIO);
+}
+
+export interface OtraCuenta {
+  indice: number;
+  nombre: string;
+  usuario: string | null;
+}
+
+/** Las otras cuentas abiertas en este dispositivo que siguen vigentes (sin la actual). */
+export async function otrasCuentas(): Promise<OtraCuenta[]> {
+  const acceso = await casosDeAcceso();
+  const actual = await sesionReal();
+  const lista = await leerCuentas();
+  const cuentas = await Promise.all(
+    lista.map(async (token, indice) => {
+      const ctx = await acceso.sesiones.contexto(huellaDe(token));
+      if (!ctx || ctx.usuarioId === actual?.usuarioId) return null;
+      return { indice, nombre: ctx.nombre, usuario: (await acceso.cuenta(ctx.usuarioId))?.usuario ?? null };
+    }),
+  );
+  return cuentas.filter((c): c is OtraCuenta => c !== null);
+}
+
+/** Cambia a la cuenta guardada en esa posición; la actual pasa a la lista. False si ya no es válida. */
+export async function cambiarACuenta(indice: number): Promise<boolean> {
+  const lista = await leerCuentas();
+  const token = lista[indice];
+  if (!token || !(await (await casosDeAcceso()).sesiones.contexto(huellaDe(token)))) {
+    await escribirCuentas(lista.filter((_, i) => i !== indice));
+    return false;
+  }
+  await guardarSesion(token, new Date(Date.now() + 30 * 24 * 3600 * 1000), { conservarActual: true });
+  return true;
+}
+
+/** Al salir de una cuenta, pasa a la siguiente que siga abierta; si no hay, false. */
+export async function pasarASiguienteCuenta(): Promise<boolean> {
+  const lista = await leerCuentas();
+  const acceso = await casosDeAcceso();
+  for (const [i, token] of lista.entries()) {
+    if (await acceso.sesiones.contexto(huellaDe(token))) {
+      await escribirCuentas(lista.filter((_, j) => j !== i));
+      const c = await cookies();
+      c.set(COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 30 * 24 * 3600 });
+      c.delete(COOKIE_VER_COMO);
+      c.delete(COOKIE_GIMNASIO);
+      return true;
+    }
+  }
+  await escribirCuentas([]);
+  return false;
+}
+
+/** Todos los tokens abiertos en este dispositivo (la actual y las guardadas), para salir de todas. */
+export async function todasLasSesiones(): Promise<string[]> {
+  const actual = (await cookies()).get(COOKIE)?.value;
+  return [...(actual ? [actual] : []), ...(await leerCuentas())];
 }
 
 export async function tokenDeSesion(): Promise<string | undefined> {
@@ -110,6 +205,7 @@ export async function tokenDeSesion(): Promise<string | undefined> {
 export async function borrarSesion() {
   const c = await cookies();
   c.delete(COOKIE);
+  c.delete(COOKIE_CUENTAS);
   c.delete(COOKIE_VER_COMO);
   c.delete(COOKIE_GIMNASIO);
 }
