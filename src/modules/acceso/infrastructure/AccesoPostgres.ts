@@ -199,7 +199,7 @@ export interface MiembroDelEquipo {
   roles: string[];
 }
 
-/** Coaches y administración del gimnasio, con el estado de su cuenta (solo lectura). */
+/** Coaches y administración del gimnasio (sin la cuenta del sistema), con el estado de su cuenta (solo lectura). */
 export class ConsultasEquipo {
   constructor(private readonly sql: postgres.Sql) {}
 
@@ -208,6 +208,8 @@ export class ConsultasEquipo {
       SELECT u.id AS "usuarioId", u.nombre, u.correo, u.usuario, u.estado, array_agg(ur.rol_codigo ORDER BY ur.rol_codigo) AS roles
       FROM usuario u JOIN usuario_rol ur ON ur.usuario_id = u.id
       WHERE ur.gimnasio_id = ${gimnasioId} AND ur.hasta IS NULL AND ur.rol_codigo <> 'cliente' AND u.eliminado_en IS NULL
+        -- La administración ve de su nivel hacia abajo: la cuenta del sistema no es de su equipo.
+        AND NOT EXISTS (SELECT 1 FROM usuario_rol s WHERE s.usuario_id = u.id AND s.rol_codigo = 'superadmin' AND s.hasta IS NULL)
       GROUP BY u.id ORDER BY u.nombre`;
   }
 

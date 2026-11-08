@@ -69,4 +69,10 @@ describe("ver como (superadministrador)", () => {
     const arbol = await new ConsultasClientes(sql).arbolDelGimnasio(GIMNASIO);
     expect(arbol.coaches.some((c) => c.usuarioId === admin.usuarioId && c.estado === "aprobado")).toBe(true);
   });
+
+  it("el equipo de la administración no incluye la cuenta del sistema", async () => {
+    const equipo = await new ConsultasEquipo(sql).delGimnasio(GIMNASIO);
+    expect(equipo.length).toBeGreaterThan(0);
+    expect(equipo.some((m) => m.usuarioId === SUPERADMIN)).toBe(false);
+  });
 });

@@ -7,7 +7,11 @@ import { AprobarCoach } from "./AprobarCoach";
 import { AgregarAlEquipo } from "./AgregarAlEquipo";
 import { GenerarEnlace } from "./GenerarEnlace";
 
-const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "Coach", superadmin: "Superadmin" };
+const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "Coach" };
+const GRUPOS_EQUIPO = [
+  { rol: "admin", titulo: "Administración" },
+  { rol: "coach", titulo: "Coaches" },
+] as const;
 
 export default async function Administracion() {
   const sesion = await requerirSesion("cliente.aprobar");
@@ -20,6 +24,7 @@ export default async function Administracion() {
     sesion.permisos.includes("equipo.agregar") ? casosDeSolicitudesCoach(sesion.permisos).repositorio.pendientes(sesion.gimnasioId) : [],
   ]);
   const puedeEnlazar = sesion.permisos.includes("usuario.enlace_acceso");
+
 
   return (
     <>
@@ -133,26 +138,43 @@ export default async function Administracion() {
         <Tarjeta>
           <h2 className="font-titulos text-2xl font-bold uppercase">Equipo</h2>
           <p className="text-sm text-texto-suave">Para que alguien active su cuenta o cambie su contraseña, genera su enlace y mándaselo.</p>
-          <ul className="mt-2 divide-y divide-[#2a2d36]">
-            {equipo.map((m) => (
-              <li key={m.usuarioId} className="flex flex-wrap items-start justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="font-semibold">
-                    {m.nombre} <Estado valor={m.estado} texto={m.estado === "activo" ? "cuenta activa" : "sin activar"} />
-                  </p>
-                  <p className="text-sm text-texto-suave">
-                    {m.roles.map((r) => NOMBRE_ROL[r] ?? r).join(" · ")}
-                    {m.usuario && <> · entra como <b className="text-texto">{m.usuario}</b></>}
-                  </p>
-                </div>
-                {puedeEnlazar && m.usuarioId !== sesion.usuarioId && (
-                  <div className="w-full sm:w-auto">
-                    <GenerarEnlace usuarioId={m.usuarioId} nombre={m.nombre} activa={m.estado === "activo"} />
-                  </div>
+          {GRUPOS_EQUIPO.map(({ rol, titulo }) => {
+            const miembros = equipo.filter((m) => m.roles.includes(rol));
+            return (
+              <details key={rol} open={rol === "admin"} className="mt-3 rounded-xl border border-[#2a2d36] px-4 py-2">
+                <summary className="cursor-pointer py-1 font-semibold">
+                  {titulo} <span className="font-normal text-texto-suave">({miembros.length})</span>
+                </summary>
+                {miembros.length === 0 ? (
+                  <p className="py-2 text-sm text-texto-suave">Nadie todavía.</p>
+                ) : (
+                  <ul className="divide-y divide-[#2a2d36]">
+                    {miembros.map((m, i) => (
+                      <li key={m.usuarioId} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                        <div className="flex min-w-0 gap-3">
+                          <span className="w-5 shrink-0 pt-0.5 text-sm tabular-nums text-texto-suave">{i + 1}</span>
+                          <div className="min-w-0">
+                            <p className="font-semibold">
+                              {m.nombre} <Estado valor={m.estado} texto={m.estado === "activo" ? "cuenta activa" : "sin activar"} />
+                            </p>
+                            <p className="text-sm text-texto-suave">
+                              {m.roles.length > 1 && <>{m.roles.map((r) => NOMBRE_ROL[r] ?? r).join(" y ")} · </>}
+                              {m.usuario ? <>entra como <b className="text-texto">{m.usuario}</b></> : "sin usuario corto"}
+                            </p>
+                          </div>
+                        </div>
+                        {puedeEnlazar && m.usuarioId !== sesion.usuarioId && (
+                          <div className="w-full sm:w-auto">
+                            <GenerarEnlace usuarioId={m.usuarioId} nombre={m.nombre} activa={m.estado === "activo"} />
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </li>
-            ))}
-          </ul>
+              </details>
+            );
+          })}
           {sesion.permisos.includes("equipo.agregar") && <AgregarAlEquipo />}
         </Tarjeta>
 
