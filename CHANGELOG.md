@@ -7,6 +7,23 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.14.0] - 2026-11-07 · Orden por rol, secciones desplegables y cliente visual
+
+### Agregado
+
+- **Menú por rol:** arriba eliges «Administro · Doy clases · Entreno» y abajo va el menú corto de ese rol; las opciones con varias pantallas tienen subpestañas. Tu nombre, arriba a la derecha, abre Mi cuenta, Ayuda y Salir.
+- **Hoy (administración):** solo lo pendiente, cada cosa desplegable con su número: registros, pagos por confirmar, clases de prueba, quieren ser coach, planes por revisar y membresías por vencer. Si no hay nada, dice «Todo al día».
+- **Personas → Equipo:** clientes agrupados por coach, Administración y Coaches en secciones desplegables; la cuenta del sistema ya no aparece en el equipo.
+- **Hoy (coach):** su turno de hoy con la rutina y los clientes; abajo, sus turnos de la semana, sus clientes e invitar.
+- **Hoy (cliente):** anillo con los días pagados que le quedan, su coach y horario, la rutina del día, el calendario del mes con lo pagado y cuándo vence, y un resumen de su progreso.
+- **Mi progreso (cliente):** gráfica de sus pilares mes a mes, su última evaluación, su peso con gráfica y el historial.
+
+### Cambiado
+
+- Todas las pantallas usan secciones desplegables: la más usada abierta, las demás cerradas.
+- Botones, tipografía y tarjetas más finos; logotipo y nombre del gimnasio más pequeños en el encabezado.
+- Mi perfil ahora se llama Mi cuenta.
+
 ## [0.13.0] - 2026-11-07 · También doy clases
 
 ### Agregado

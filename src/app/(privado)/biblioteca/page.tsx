@@ -2,7 +2,7 @@ import { puedeVer } from "@/modules/biblioteca/domain/Biblioteca";
 import { casosDeBiblioteca } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
-import { Campo, Estado, Tarjeta, Titulo } from "../../_ui/piezas";
+import { Desplegable, Campo, Estado, Titulo } from "../../_ui/piezas";
 import { cambiarAcceso, formalizarEjercicio, fusionarEjercicio, proponerEjercicio } from "./acciones";
 import { Traductor } from "./Traductor";
 
@@ -30,8 +30,7 @@ export default async function Biblioteca() {
       <Titulo antetitulo="Biblioteca">Glosario y ejercicios</Titulo>
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Golpes</h2>
+        <Desplegable titulo="Golpes" abierto>
           <p className="text-xs text-texto-suave">La numeración del gimnasio es la oficial. La letra c indica golpe al cuerpo.</p>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[520px] text-left text-sm">
@@ -62,15 +61,13 @@ export default async function Biblioteca() {
               </tbody>
             </table>
           </div>
-        </Tarjeta>
-        <Tarjeta>
-          <h2 className="mb-2 font-titulos text-2xl font-bold uppercase">Combinaciones</h2>
+        </Desplegable>
+        <Desplegable titulo="Combinaciones">
           <Traductor golpes={glosario.map((g) => ({ codigo: g.codigo, nombre: g.nombre, mano: g.mano as "adelante" | "atras" | "combinacion" }))} />
-        </Tarjeta>
+        </Desplegable>
       </div>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Ejercicios</h2>
+      <Desplegable titulo="Ejercicios">
         <p className="text-xs text-texto-suave">
           {esAdministracion
             ? "Todos los ejercicios del gimnasio."
@@ -104,10 +101,9 @@ export default async function Biblioteca() {
             </div>
           );
         })}
-      </Tarjeta>
+      </Desplegable>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">{esAdministracion ? "Agregar ejercicio" : "Proponer ejercicio"}</h2>
+      <Desplegable titulo={esAdministracion ? "Agregar ejercicio" : "Proponer ejercicio"}>
         <p className="mb-3 text-sm text-texto-suave">
           {esAdministracion
             ? "Queda formalizado y compartido."
@@ -135,12 +131,11 @@ export default async function Biblioteca() {
             <input type="checkbox" name="distinto" value="si" className="h-5 w-5 accent-[#d7263d]" /> Es distinto aunque la app diga que se parece a otro
           </label>
         </Formulario>
-      </Tarjeta>
+      </Desplegable>
 
       {esAdministracion && (
         <>
-          <Tarjeta className={porFormalizar.length ? "border-2 border-acento" : ""}>
-            <h2 className="font-titulos text-2xl font-bold uppercase">Por formalizar</h2>
+          <Desplegable titulo="Por formalizar">
             {porFormalizar.length === 0 && <p className="mt-1 text-sm text-texto-suave">No hay propuestas pendientes.</p>}
             <ul className="mt-2 flex flex-col gap-4">
               {porFormalizar.map((e) => (
@@ -202,10 +197,9 @@ export default async function Biblioteca() {
                 </li>
               ))}
             </ul>
-          </Tarjeta>
+          </Desplegable>
 
-          <Tarjeta>
-            <h2 className="font-titulos text-2xl font-bold uppercase">Acceso a la biblioteca compartida</h2>
+          <Desplegable titulo="Acceso a la biblioteca compartida">
             <ul className="mt-2 divide-y divide-[#2a2d36]">
               {coaches.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-3 py-2.5">
@@ -221,7 +215,7 @@ export default async function Biblioteca() {
                 </li>
               ))}
             </ul>
-          </Tarjeta>
+          </Desplegable>
         </>
       )}
     </>

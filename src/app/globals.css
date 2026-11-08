@@ -6,6 +6,8 @@
   --texto: #f2f3f5;
   --texto-suave: #a3a8b3;
   --acento: #d7263d;
+  --borde: #262932;
+  --campo: #20232b;
 }
 
 @theme inline {
@@ -14,6 +16,8 @@
   --color-texto: var(--texto);
   --color-texto-suave: var(--texto-suave);
   --color-acento: var(--acento);
+  --color-borde: var(--borde);
+  --color-campo: var(--campo);
   --font-sans: var(--font-texto);
   --font-titulos: var(--font-titulos);
   --font-gotica: var(--font-gotica);
@@ -29,4 +33,41 @@ body {
   a {
     color: #ff6b76;
   }
+}
+
+/* Secciones desplegables: el triángulo gira al abrir y no se ve el marcador del navegador. */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] > summary .flecha {
+  transform: rotate(90deg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+button,
+a {
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms,
+    opacity 150ms;
+}
+
+.cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Filas que se deslizan de lado (menú) sin barra visible. */
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
 }

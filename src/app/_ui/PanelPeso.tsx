@@ -1,5 +1,6 @@
 import { estadoCorporal, NOMBRE_ORIGEN, type DivisionPeso, type Medicion, type Sexo } from "@/modules/evaluacion/domain/Composicion";
-import { fechaCorta, LineaDePeso } from "./formato";
+import { fechaCorta } from "./formato";
+import { GraficaPeso } from "./Visual";
 import { Tarjeta } from "./piezas";
 
 const conSigno = (kg: number) => `${kg > 0 ? "+" : ""}${kg.toFixed(1)} kg`;
@@ -27,13 +28,13 @@ export function PanelPeso({
           <div className="mt-2 grid grid-cols-3 gap-3">
             <div>
               <p className="text-xs text-texto-suave">Peso</p>
-              <p className="font-titulos text-3xl font-extrabold">{estado.actual.pesoKg.toFixed(1)} kg</p>
+              <p className="cifras font-titulos text-3xl font-extrabold">{estado.actual.pesoKg.toFixed(1)} kg</p>
               {estado.actual.aproximado && <p className="text-xs text-[#f1d9a8]">aproximado</p>}
             </div>
             <div>
               <p className="text-xs text-texto-suave">División</p>
               <p className="font-titulos text-3xl font-extrabold text-acento">{estado.division?.nombre ?? "—"}</p>
-              <p className="text-xs text-texto-suave">{sexo === "F" ? "Femenil" : sexo === "M" ? "Varonil" : "Indica tu rama en Mi perfil"}</p>
+              <p className="text-xs text-texto-suave">{sexo === "F" ? "Femenil" : sexo === "M" ? "Varonil" : "Indica tu rama en Mi cuenta"}</p>
             </div>
             <div>
               <p className="text-xs text-texto-suave">IMC</p>
@@ -47,8 +48,12 @@ export function PanelPeso({
               {estado.cambioTotal !== null && <> · Desde el primero: <b>{conSigno(estado.cambioTotal)}</b></>}
             </p>
           )}
-          <LineaDePeso pesos={mediciones.filter((m) => !m.aproximado || mediciones.every((x) => x.aproximado)).map((m) => m.pesoKg)} />
-          <ul className="mt-3 divide-y divide-[#2a2d36] text-sm">
+          <div className="mt-3">
+            <GraficaPeso mediciones={mediciones.filter((m) => !m.aproximado || mediciones.every((x) => x.aproximado))} />
+          </div>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-sm font-semibold text-texto-suave">Todos los pesajes ({mediciones.length})</summary>
+          <ul className="mt-1 divide-y divide-borde text-sm">
             {[...mediciones].reverse().map((m, i) => (
               <li key={i} className="flex justify-between py-2">
                 <span>
@@ -58,6 +63,7 @@ export function PanelPeso({
               </li>
             ))}
           </ul>
+          </details>
           <p className="mt-2 text-xs text-texto-suave">
             El IMC es solo una referencia: con mucho músculo sale alto. Tu división se mantiene hasta el siguiente pesaje.
           </p>

@@ -1,69 +1,108 @@
 import Link from "next/link";
-import { casosDeAcceso, casosDeClientes, casosDeSolicitudes, casosDeSolicitudesCoach } from "../../_servidor/contenedor";
+import { estadoMembresia } from "@/modules/membresias/domain/Cuentas";
+import { Fecha } from "@/shared/domain/Fecha";
+import { casosDeBiblioteca, casosDeClientes, casosDePagos, casosDeSolicitudes, casosDeSolicitudesCoach } from "../../_servidor/contenedor";
 import { requerirSesion } from "../../_servidor/sesion";
-import { Estado, Tarjeta, Titulo } from "../../_ui/piezas";
+import { fechaCorta, nombreMes, pesos } from "../../_ui/formato";
+import { BOTON, Desplegable, Filas, Tarjeta, Titulo } from "../../_ui/piezas";
 import { atenderSolicitud, descartarSolicitudCoach, revisarCliente } from "./acciones";
 import { AprobarCoach } from "./AprobarCoach";
-import { AgregarAlEquipo } from "./AgregarAlEquipo";
-import { GenerarEnlace } from "./GenerarEnlace";
 
-const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "Coach" };
-const GRUPOS_EQUIPO = [
-  { rol: "admin", titulo: "Administración" },
-  { rol: "coach", titulo: "Coaches" },
-] as const;
+const BOTON_WHATSAPP =
+  "inline-flex min-h-11 items-center rounded-xl bg-[#1f7a4d] px-4 text-sm font-semibold text-white no-underline hover:brightness-110";
 
-export default async function Administracion() {
+const whatsapp = (telefono: string, texto: string) => `https://wa.me/52${telefono.slice(-10)}?text=${encodeURIComponent(texto)}`;
+
+/** "Hoy" de la administración: solo lo que hay que atender. Lo que está al día no aparece. */
+export default async function Hoy() {
   const sesion = await requerirSesion("cliente.aprobar");
-  const clientes = casosDeClientes().consultas;
-  const [pendientes, todos, equipo, solicitudes, aspirantes] = await Promise.all([
-    clientes.delGimnasio(sesion.gimnasioId, "pendiente"),
-    clientes.delGimnasio(sesion.gimnasioId),
-    (await casosDeAcceso()).equipo.delGimnasio(sesion.gimnasioId),
+  const tiene = (p: string) => sesion.permisos.includes(p);
+  const hoy = Fecha.hoyEn(sesion.zonaHoraria, new Date());
+  const siguiente = Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes;
+  const pagos = casosDePagos(sesion.permisos, sesion.zonaHoraria);
+  const biblioteca = casosDeBiblioteca(sesion.permisos, sesion.zonaHoraria);
+  const [registros, clientes, solicitudes, aspirantes, porConfirmar, periodos, planesMes, planesSiguiente] = await Promise.all([
+    casosDeClientes().consultas.delGimnasio(sesion.gimnasioId, "pendiente"),
+    casosDeClientes().consultas.delGimnasio(sesion.gimnasioId, "activo"),
     casosDeSolicitudes(sesion.permisos).repositorio.pendientes(sesion.gimnasioId),
-    sesion.permisos.includes("equipo.agregar") ? casosDeSolicitudesCoach(sesion.permisos).repositorio.pendientes(sesion.gimnasioId) : [],
+    tiene("equipo.agregar") ? casosDeSolicitudesCoach(sesion.permisos).repositorio.pendientes(sesion.gimnasioId) : [],
+    tiene("pago.confirmar") ? pagos.consultas.porRevisar(sesion.gimnasioId) : [],
+    pagos.consultas.periodos(sesion.gimnasioId),
+    tiene("plan.aprobar") ? biblioteca.consultas.planesDelMes(sesion.gimnasioId, hoy.mes) : [],
+    tiene("plan.aprobar") ? biblioteca.consultas.planesDelMes(sesion.gimnasioId, siguiente) : [],
   ]);
-  const puedeEnlazar = sesion.permisos.includes("usuario.enlace_acceso");
-
+  const porVencer = clientes
+    .map((c) => ({ ...c, membresia: estadoMembresia(periodos.get(c.id) ?? [], hoy) }))
+    .filter((c) => c.membresia.estado === "por_vencer" || c.membresia.estado === "vencido")
+    .sort((a, b) => (a.membresia.diasRestantes ?? 0) - (b.membresia.diasRestantes ?? 0));
+  const planesPorRevisar = [
+    ...planesMes.filter((p) => p.estado === "enviado").map((p) => ({ ...p, mes: hoy.mes })),
+    ...planesSiguiente.filter((p) => p.estado === "enviado").map((p) => ({ ...p, mes: siguiente })),
+  ];
+  const total = registros.length + solicitudes.length + aspirantes.length + porConfirmar.length + planesPorRevisar.length + porVencer.length;
 
   return (
     <>
-      <Titulo antetitulo={`Hola, ${sesion.nombre}`}>Administración</Titulo>
+      <Titulo antetitulo={`Hola, ${sesion.nombre.split(" ")[0]}`}>Hoy</Titulo>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Registros por aprobar</h2>
-        {pendientes.length === 0 ? (
-          <p className="mt-2 text-sm text-texto-suave">No hay registros pendientes. Cuando un cliente se registre con su coach, aparece aquí.</p>
-        ) : (
-          <ul className="mt-2 divide-y divide-[#2a2d36]">
-            {pendientes.map((c) => (
+      {total === 0 && (
+        <Tarjeta>
+          <p className="font-titulos text-2xl font-bold uppercase">Todo al día</p>
+          <p className="mt-1 text-sm text-texto-suave">No hay registros, pagos, planes ni solicitudes pendientes.</p>
+        </Tarjeta>
+      )}
+
+      {registros.length > 0 && (
+        <Desplegable titulo="Registros por aprobar" cuenta={registros.length} alerta abierto>
+          <Filas>
+            {registros.map((c) => (
               <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold">{c.nombre}</p>
                   <p className="text-sm text-texto-suave">
-                    Coach {c.coach} · {c.correo}
+                    Coach {c.coach}
                     {c.telefono ? ` · ${c.telefono}` : ""}
                   </p>
                 </div>
                 <form action={revisarCliente} className="flex gap-2">
                   <input type="hidden" name="clienteId" value={c.id} />
-                  <button name="decision" value="aprobar" className="min-h-11 rounded-xl bg-acento px-4 text-sm font-semibold text-white">
+                  <button name="decision" value="aprobar" className={BOTON.principal}>
                     Aprobar
                   </button>
-                  <button name="decision" value="rechazar" className="min-h-11 rounded-xl border border-[#3a3d46] px-4 text-sm font-semibold">
+                  <button name="decision" value="rechazar" className={BOTON.secundario}>
                     Rechazar
                   </button>
                 </form>
               </li>
             ))}
-          </ul>
-        )}
-      </Tarjeta>
+          </Filas>
+        </Desplegable>
+      )}
+
+      {porConfirmar.length > 0 && (
+        <Desplegable titulo="Pagos por confirmar" cuenta={porConfirmar.length} alerta abierto={registros.length === 0}>
+          <Filas>
+            {porConfirmar.slice(0, 6).map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{p.cliente}</p>
+                  <p className="text-sm text-texto-suave">
+                    {p.plan} · {fechaCorta(p.fechaPago)} · reportó {p.reportadoPor}
+                  </p>
+                </div>
+                <span className="cifras font-semibold">{pesos(p.montoCentavos)}</span>
+              </li>
+            ))}
+          </Filas>
+          <Link href="/admin/pagos" className={`${BOTON.secundario} mt-3`}>
+            Revisar y confirmar
+          </Link>
+        </Desplegable>
+      )}
 
       {solicitudes.length > 0 && (
-        <Tarjeta className="border-2 border-acento">
-          <h2 className="font-titulos text-2xl font-bold uppercase">Clases de prueba por agendar</h2>
-          <ul className="mt-2 divide-y divide-[#2a2d36]">
+        <Desplegable titulo="Clases de prueba" cuenta={solicitudes.length} alerta>
+          <Filas>
             {solicitudes.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
@@ -76,33 +115,32 @@ export default async function Administracion() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href={`https://wa.me/52${s.telefono.slice(-10)}?text=${encodeURIComponent(`Hola ${s.nombre.split(" ")[0]}, te escribimos del gimnasio por tu clase de prueba.`)}`}
+                    href={whatsapp(s.telefono, `Hola ${s.nombre.split(" ")[0]}, te escribimos del gimnasio por tu clase de prueba.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex min-h-11 items-center rounded-xl bg-[#1f7a4d] px-4 text-sm font-semibold text-white no-underline"
+                    className={BOTON_WHATSAPP}
                   >
                     WhatsApp
                   </a>
                   <form action={atenderSolicitud} className="flex gap-2">
                     <input type="hidden" name="id" value={s.id} />
-                    <button name="estado" value="contactado" className="min-h-11 rounded-xl border border-[#3a3d46] px-3 text-sm font-semibold">
+                    <button name="estado" value="contactado" className={BOTON.secundario}>
                       Ya la agendé
                     </button>
-                    <button name="estado" value="descartado" className="min-h-11 rounded-xl border border-[#3a3d46] px-3 text-sm font-semibold text-texto-suave">
+                    <button name="estado" value="descartado" className={BOTON.discreto}>
                       Descartar
                     </button>
                   </form>
                 </div>
               </li>
             ))}
-          </ul>
-        </Tarjeta>
+          </Filas>
+        </Desplegable>
       )}
 
       {aspirantes.length > 0 && (
-        <Tarjeta className="border-2 border-[#4fa3ff]">
-          <h2 className="font-titulos text-2xl font-bold uppercase">Quieren ser coach</h2>
-          <ul className="mt-2 divide-y divide-[#2a2d36]">
+        <Desplegable titulo="Quieren ser coach" cuenta={aspirantes.length} alerta>
+          <Filas>
             {aspirantes.map((a) => (
               <li key={a.id} className="flex flex-col gap-2 py-3">
                 <div>
@@ -115,90 +153,61 @@ export default async function Administracion() {
                 </div>
                 <div className="flex flex-wrap items-end gap-2">
                   <a
-                    href={`https://wa.me/52${a.telefono.slice(-10)}?text=${encodeURIComponent(`Hola ${a.nombre.split(" ")[0]}, te escribimos del gimnasio por tu solicitud para ser coach.`)}`}
+                    href={whatsapp(a.telefono, `Hola ${a.nombre.split(" ")[0]}, te escribimos del gimnasio por tu solicitud para ser coach.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex min-h-11 items-center rounded-xl bg-[#1f7a4d] px-4 text-sm font-semibold text-white no-underline"
+                    className={BOTON_WHATSAPP}
                   >
                     WhatsApp
                   </a>
                   <AprobarCoach id={a.id} />
                   <form action={descartarSolicitudCoach}>
                     <input type="hidden" name="id" value={a.id} />
-                    <button className="min-h-11 rounded-xl border border-[#3a3d46] px-3 text-sm font-semibold text-texto-suave">Descartar</button>
+                    <button className={BOTON.discreto}>Descartar</button>
                   </form>
                 </div>
               </li>
             ))}
-          </ul>
-        </Tarjeta>
+          </Filas>
+        </Desplegable>
       )}
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Equipo</h2>
-          <p className="text-sm text-texto-suave">Para que alguien active su cuenta o cambie su contraseña, genera su enlace y mándaselo.</p>
-          {GRUPOS_EQUIPO.map(({ rol, titulo }) => {
-            const miembros = equipo.filter((m) => m.roles.includes(rol));
-            return (
-              <details key={rol} open={rol === "admin"} className="mt-3 rounded-xl border border-[#2a2d36] px-4 py-2">
-                <summary className="cursor-pointer py-1 font-semibold">
-                  {titulo} <span className="font-normal text-texto-suave">({miembros.length})</span>
-                </summary>
-                {miembros.length === 0 ? (
-                  <p className="py-2 text-sm text-texto-suave">Nadie todavía.</p>
-                ) : (
-                  <ul className="divide-y divide-[#2a2d36]">
-                    {miembros.map((m, i) => (
-                      <li key={m.usuarioId} className="flex flex-wrap items-start justify-between gap-3 py-3">
-                        <div className="flex min-w-0 gap-3">
-                          <span className="w-5 shrink-0 pt-0.5 text-sm tabular-nums text-texto-suave">{i + 1}</span>
-                          <div className="min-w-0">
-                            <p className="font-semibold">
-                              {m.nombre} <Estado valor={m.estado} texto={m.estado === "activo" ? "cuenta activa" : "sin activar"} />
-                            </p>
-                            <p className="text-sm text-texto-suave">
-                              {m.roles.length > 1 && <>{m.roles.map((r) => NOMBRE_ROL[r] ?? r).join(" y ")} · </>}
-                              {m.usuario ? <>entra como <b className="text-texto">{m.usuario}</b></> : "sin usuario corto"}
-                            </p>
-                          </div>
-                        </div>
-                        {puedeEnlazar && m.usuarioId !== sesion.usuarioId && (
-                          <div className="w-full sm:w-auto">
-                            <GenerarEnlace usuarioId={m.usuarioId} nombre={m.nombre} activa={m.estado === "activo"} />
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </details>
-            );
-          })}
-          {sesion.permisos.includes("equipo.agregar") && <AgregarAlEquipo />}
-        </Tarjeta>
+      {planesPorRevisar.length > 0 && (
+        <Desplegable titulo="Planes por revisar" cuenta={planesPorRevisar.length} alerta>
+          <Filas>
+            {planesPorRevisar.map((p) => (
+              <li key={`${p.mes}-${p.coachId}`} className="flex items-center justify-between gap-3 py-3">
+                <span className="font-semibold">
+                  Coach {p.apodo} <span className="font-normal text-texto-suave">· {nombreMes(p.mes)}</span>
+                </span>
+                <Link href={`/admin/planes/${p.planId}`} className={BOTON.secundario}>
+                  Revisar
+                </Link>
+              </li>
+            ))}
+          </Filas>
+        </Desplegable>
+      )}
 
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Clientes</h2>
-          {todos.length === 0 ? (
-            <p className="mt-2 text-sm text-texto-suave">Aún no hay clientes. Cada coach tiene su enlace de invitación en “Mis clientes”.</p>
-          ) : (
-            <ul className="mt-2 divide-y divide-[#2a2d36]">
-              {todos.map((c) => (
-                <li key={c.id}>
-                  <Link href={`/admin/clientes/${c.id}`} className="flex items-center justify-between gap-3 py-3 text-texto no-underline">
-                    <div className="min-w-0">
-                      <p className="font-semibold">{c.nombre}</p>
-                      <p className="text-sm text-texto-suave">Coach {c.coach}</p>
-                    </div>
-                    <Estado valor={c.estado} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Tarjeta>
-      </div>
+      {porVencer.length > 0 && (
+        <Desplegable titulo="Membresías por vencer" cuenta={porVencer.length}>
+          <Filas>
+            {porVencer.map((c) => (
+              <li key={c.id}>
+                <Link href={`/admin/clientes/${c.id}`} className="flex items-center justify-between gap-3 py-3 text-texto no-underline">
+                  <span className="min-w-0">
+                    <span className="block font-semibold">{c.nombre}</span>
+                    <span className="text-sm text-texto-suave">Coach {c.coach}</span>
+                  </span>
+                  <span className={`cifras text-sm font-semibold ${c.membresia.estado === "vencido" ? "text-[#ff8f97]" : "text-[#f1d9a8]"}`}>
+                    {c.membresia.estado === "vencido" ? "vencida" : `${c.membresia.diasRestantes} ${c.membresia.diasRestantes === 1 ? "día" : "días"}`}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </Filas>
+        </Desplegable>
+      )}
     </>
   );
 }

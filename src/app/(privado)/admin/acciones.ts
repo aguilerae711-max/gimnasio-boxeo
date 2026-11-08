@@ -11,7 +11,7 @@ export async function revisarCliente(datos: FormData) {
   const sesion = await requerirSesion("cliente.aprobar");
   const decision = texto(datos, "decision") === "aprobar" ? "aprobar" : "rechazar";
   await casosDeClientes().revisar(sesion.permisos).ejecutar(actor(sesion), texto(datos, "clienteId"), decision);
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export interface EstadoEnlace extends EstadoFormulario {
@@ -41,7 +41,7 @@ export async function agregarAlEquipo(_: EstadoEnlace, datos: FormData): Promise
       rol: texto(datos, "rol") === "coach" ? "coach" : "admin",
     });
     const { token } = await acceso.generarEnlace(sesion.permisos).ejecutar(actor(sesion), id);
-    revalidatePath("/admin");
+    revalidatePath("/admin", "layout");
     return { enlace: `${await direccionPublica()}/activar/${token}`, nombre };
   } catch (e) {
     return { error: mensajeDeError(e), valores: { nombre, usuario: texto(datos, "usuario") } };
@@ -64,13 +64,13 @@ export async function aprobarSolicitudCoach(_: EstadoEnlace, datos: FormData): P
 export async function descartarSolicitudCoach(datos: FormData) {
   const sesion = await requerirSesion("equipo.agregar");
   await casosDeSolicitudesCoach(sesion.permisos).atender.descartar(actor(sesion), texto(datos, "id"));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function atenderSolicitud(datos: FormData) {
   const sesion = await requerirSesion("cliente.aprobar");
   await casosDeSolicitudes(sesion.permisos).atender.ejecutar(actor(sesion), texto(datos, "id"), texto(datos, "estado") === "descartado" ? "descartado" : "contactado");
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function cambiarComision(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {

@@ -1,5 +1,4 @@
 import { claveTurno, planVigente } from "@/modules/biblioteca/domain/Planes";
-import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeBiblioteca } from "../_servidor/contenedor";
 import { TIPO_BLOQUE } from "./formato";
@@ -12,7 +11,6 @@ export const diaDeHoy = (zona: string) => new Date(`${Fecha.hoyEn(zona, new Date
 
 /**
  * "Hoy en tu turno": la rutina que el coach del cliente tiene en su plan vigente para el día y franja de hoy.
- * Si hoy no le toca, dice cuál es su siguiente día de entrenamiento.
  */
 export async function RutinaDeHoy({
   gimnasioId,
@@ -31,17 +29,8 @@ export async function RutinaDeHoy({
 }) {
   if (!franja || diasDelCliente.length === 0) return null;
   const hoy = diaDeHoy(zonaHoraria);
-  if (!diasDelCliente.includes(hoy)) {
-    const siguiente = [...diasDelCliente].sort((a, b) => ((a - hoy + 7) % 7) - ((b - hoy + 7) % 7))[0];
-    return (
-      <Tarjeta>
-        <p className="text-sm text-texto-suave">Hoy en tu turno</p>
-        <p className="mt-1 text-[15px] text-[#c9ccd3]">
-          Hoy no te toca. Tu siguiente entrenamiento es el <b>{NOMBRE_DIA[siguiente].toLowerCase()}</b> de {franja.inicio} a {franja.fin}.
-        </p>
-      </Tarjeta>
-    );
-  }
+  // Solo si hoy hay clase en su horario.
+  if (!diasDelCliente.includes(hoy)) return null;
 
   const biblioteca = casosDeBiblioteca(permisos, zonaHoraria);
   const vigente = planVigente(await biblioteca.consultas.planesDelCoach(gimnasioId, coachId), Fecha.hoyEn(zonaHoraria, new Date()).mes);
@@ -50,9 +39,9 @@ export async function RutinaDeHoy({
   const rutina = rutinaId ? (await biblioteca.consultas.rutinas(gimnasioId, coachId)).find((r) => r.id === rutinaId) : null;
 
   return (
-    <Tarjeta className="border-2 border-acento">
-      <p className="text-sm text-texto-suave">
-        Hoy en tu turno · {franja.inicio} a {franja.fin}
+    <Tarjeta className="border-acento/60 bg-gradient-to-br from-[#2a1418] to-tarjeta">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#ff8f97]">
+        La rutina de hoy · {franja.inicio} a {franja.fin}
       </p>
       {!rutina ? (
         <p className="mt-1 text-[15px] text-[#c9ccd3]">Tu coach todavía no publica la rutina de hoy.</p>

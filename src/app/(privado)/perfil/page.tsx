@@ -2,7 +2,7 @@ import { casosDeAcceso, casosDeEvaluacion, casosDeOperacion } from "../../_servi
 import { definirPin } from "../admin/evaluacion/acciones";
 import { esSuperadministrador, requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
-import { Campo, Tarjeta, Titulo } from "../../_ui/piezas";
+import { Desplegable, Campo, Titulo } from "../../_ui/piezas";
 import { cambiarMiUsuario, guardarPerfilCoach, inscribirmeComoCliente, tambienDoyClases } from "./acciones";
 import { FormularioPerfilCliente } from "./FormularioPerfilCliente";
 
@@ -22,30 +22,27 @@ export default async function Perfil() {
 
   return (
     <>
-      <Titulo antetitulo={sesion.nombre}>Mi perfil</Titulo>
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Cómo entras</h2>
+      <Titulo antetitulo={sesion.nombre}>Mi cuenta</Titulo>
+      <Desplegable titulo="Cómo entras" abierto>
         <p className="mb-3 text-sm text-texto-suave">
           {cuenta?.correo ? `Correo: ${cuenta.correo}. ` : ""}Con un usuario corto entras más rápido (ej. ivan, admin1). Es solo tuyo.
         </p>
         <Formulario accion={cambiarMiUsuario} boton="Guardar usuario" variante="secundario" className="grid! items-end gap-2! sm:grid-cols-[1fr_auto]">
           <Campo etiqueta="Usuario" name="usuario" autoCapitalize="none" spellCheck={false} defaultValue={cuenta?.usuario ?? ""} placeholder="ej. ivan" />
         </Formulario>
-      </Tarjeta>
+      </Desplegable>
       {puedeDarClases && (
-        <details className="rounded-2xl bg-tarjeta p-5">
-          <summary className="cursor-pointer font-titulos text-2xl font-bold uppercase">También doy clases</summary>
+        <Desplegable titulo="También doy clases">
           <p className="mb-3 mt-2 text-sm text-texto-suave">
             Súmate como coach con tu misma cuenta: tendrás el grupo Coach en el menú (tus clientes, rutinas y evaluaciones) y tu código para invitar clientes.
           </p>
           <Formulario accion={tambienDoyClases} boton="Sumarme como coach">
             <Campo etiqueta="Cómo te llaman tus clientes" name="apodo" maxLength={30} required defaultValue={sesion.nombre.split(" ")[0]} />
           </Formulario>
-        </details>
+        </Desplegable>
       )}
       {!comoCliente && coaches.length > 0 && (
-        <details className="rounded-2xl bg-tarjeta p-5">
-          <summary className="cursor-pointer font-titulos text-2xl font-bold uppercase">También entreno aquí</summary>
+        <Desplegable titulo="También entreno aquí">
           <p className="mb-3 mt-2 text-sm text-texto-suave">
             Inscríbete como cliente con tu mismo usuario: tendrás el grupo Cliente en el menú con tu rutina, peso, membresía y evaluaciones.
           </p>
@@ -78,11 +75,10 @@ export default async function Perfil() {
               <span>Leí y acepto el reglamento del gimnasio y la responsiva de riesgos.</span>
             </label>
           </Formulario>
-        </details>
+        </Desplegable>
       )}
       {evalua && (
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">PIN de evaluación</h2>
+        <Desplegable titulo="PIN de evaluación">
           <p className="mb-3 text-sm text-texto-suave">
             {tienePin ? "Ya tienes PIN. Puedes cambiarlo aquí." : "Se pide cada vez que comienzas una evaluación."} De 4 a 6 dígitos, sin números
             repetidos ni seguidos.
@@ -91,11 +87,10 @@ export default async function Perfil() {
             <Campo etiqueta="PIN" name="pin" type="password" inputMode="numeric" autoComplete="off" pattern="\d{4,6}" required />
             <Campo etiqueta="Repite el PIN" name="confirmacion" type="password" inputMode="numeric" autoComplete="off" pattern="\d{4,6}" required />
           </Formulario>
-        </Tarjeta>
+        </Desplegable>
       )}
       {comoCoach && (
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Como coach</h2>
+        <Desplegable titulo="Como coach">
           <p className="mb-3 text-sm text-texto-suave">Tu especialidad y presentación. Por ahora no se muestran en la portada.</p>
           <Formulario accion={guardarPerfilCoach} boton="Guardar perfil">
             <Campo etiqueta="Especialidad" name="especialidad" maxLength={80} placeholder="Ej. principiantes, técnica" defaultValue={comoCoach.especialidad ?? ""} />
@@ -110,13 +105,12 @@ export default async function Perfil() {
               />
             </label>
           </Formulario>
-        </Tarjeta>
+        </Desplegable>
       )}
       {comoCliente && perfilCliente && (
-        <Tarjeta>
-          <h2 className="mb-3 font-titulos text-2xl font-bold uppercase">Tus datos</h2>
+        <Desplegable titulo="Mis datos y salud" abierto>
           <FormularioPerfilCliente clienteId={comoCliente.clienteId} perfil={perfilCliente} />
-        </Tarjeta>
+        </Desplegable>
       )}
 
     </>

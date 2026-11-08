@@ -20,6 +20,6 @@ export async function reasignarCliente(_: EstadoFormulario, datos: FormData): Pr
     return { error: mensajeDeError(e) };
   }
   revalidatePath(`/admin/clientes/${clienteId}`);
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   return { ok: "Cambio guardado." };
 }

@@ -7,7 +7,7 @@ import { casosDeBiblioteca, casosDeOperacion } from "../../../_servidor/contened
 import { requerirSesion } from "../../../_servidor/sesion";
 import { ESTADO_PLAN, nombreMes } from "../../../_ui/formato";
 import { Formulario } from "../../../_ui/Formulario";
-import { Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { guardarPlan, mantenerPlan } from "../../biblioteca/acciones";
 
 export default async function MiPlan({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
@@ -60,8 +60,7 @@ export default async function MiPlan({ searchParams }: { searchParams: Promise<{
         <p className="rounded-xl bg-[#2a2111] px-4 py-3 text-sm text-[#f1d9a8]">La administración pide: {comentario}</p>
       )}
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">¿Qué harás en cada turno?</h2>
+      <Desplegable titulo="¿Qué harás en cada turno?" abierto>
         {turnos.length === 0 ? (
           <p className="mt-1 text-sm text-texto-suave">Aún no tienes turnos en el horario.</p>
         ) : rutinas.length === 0 ? (
@@ -129,11 +128,10 @@ export default async function MiPlan({ searchParams }: { searchParams: Promise<{
           </Formulario>
         )}
         {!editable && <p className="mt-2 text-xs text-texto-suave">{plan?.estado === "enviado" ? "En revisión: no se puede editar." : "Aprobado. Para cambiarlo, arma el plan del mes siguiente."}</p>}
-      </Tarjeta>
+      </Desplegable>
 
       {detalle.length > 0 && (
-        <Tarjeta>
-          <h2 className="font-titulos text-xl font-bold uppercase">Historial</h2>
+        <Desplegable titulo="Historial">
           <ul className="mt-1 text-sm">
             {detalle.map((p) => (
               <li key={p.id} className="flex justify-between py-1">
@@ -142,7 +140,7 @@ export default async function MiPlan({ searchParams }: { searchParams: Promise<{
               </li>
             ))}
           </ul>
-        </Tarjeta>
+        </Desplegable>
       )}
     </>
   );

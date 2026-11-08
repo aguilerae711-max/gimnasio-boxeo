@@ -3,7 +3,7 @@ import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeEvaluacion, casosDeOperacion } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { nombreMes } from "../../../_ui/formato";
-import { Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { COLOR_PILAR, NOMBRE_PILAR, PILARES } from "../../../_ui/Resultados";
 
 /** El coach ve el resultado por pilar de sus clientes y su resultado general; nunca los tests ni valores crudos. */
@@ -51,8 +51,7 @@ export default async function ResultadosCoach() {
         })}
       </div>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Mis clientes</h2>
+      <Desplegable titulo="Mis clientes" abierto>
         <p className="text-xs text-texto-suave">Última evaluación de cada uno. 100 = su punto de partida.</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -80,7 +79,7 @@ export default async function ResultadosCoach() {
             </tbody>
           </table>
         </div>
-      </Tarjeta>
+      </Desplegable>
     </>
   );
 }

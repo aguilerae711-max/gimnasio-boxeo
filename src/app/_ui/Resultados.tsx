@@ -37,7 +37,49 @@ export function Radar({ actual }: { actual: Record<string, number | null> }) {
 }
 
 /** Tarjetas por pilar con la última evaluación, el cambio contra la anterior y contra el inicio. */
-export function ResultadosPorPilar({ historial, titulo = "Resultados por pilar" }: { historial: ResumenPilares[]; titulo?: string }) {
+/** Tabla mes a mes de los pilares con peso y división. */
+export function TablaHistorial({ historial }: { historial: ResumenPilares[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="cifras w-full min-w-[480px] text-left text-sm">
+        <thead className="text-texto-suave">
+          <tr>
+            <th className="py-1.5 font-semibold">Mes</th>
+            {PILARES.map((p) => (
+              <th key={p} className="font-semibold">
+                {NOMBRE_PILAR[p]}
+              </th>
+            ))}
+            <th className="font-semibold">Peso · división</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-borde">
+          {[...historial].reverse().map((h) => (
+            <tr key={h.sesionId}>
+              <td className="py-1.5">{nombreMes(h.periodo)}</td>
+              {PILARES.map((p) => (
+                <td key={p}>{h.pilares[p] ?? "—"}</td>
+              ))}
+              <td>
+                {h.pesoKg ?? "—"} kg{h.division ? ` · ${h.division}` : ""}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function ResultadosPorPilar({
+  historial,
+  titulo = "Resultados por pilar",
+  conTabla = true,
+}: {
+  historial: ResumenPilares[];
+  titulo?: string;
+  conTabla?: boolean;
+}) {
   if (historial.length === 0) {
     return (
       <Tarjeta>
@@ -91,7 +133,7 @@ export function ResultadosPorPilar({ historial, titulo = "Resultados por pilar" 
         </div>
       </div>
       <p className="mt-2 text-xs text-texto-suave">Tu evaluación inicial vale 100 en cada pilar; arriba de 100 es avance. La línea punteada del radar es tu inicio.</p>
-      {historial.length > 1 && (
+      {conTabla && historial.length > 1 && (
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[480px] text-left text-sm">
             <thead className="text-texto-suave">

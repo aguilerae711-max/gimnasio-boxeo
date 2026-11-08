@@ -41,21 +41,3 @@ export function EstadoMembresia({ estado }: { estado: ReturnType<typeof estadoMe
   const [color, texto] = textos[estado.estado];
   return <Estado valor={color} texto={texto} />;
 }
-
-/** Línea pequeña de la evolución del peso. */
-export function LineaDePeso({ pesos: valores }: { pesos: number[] }) {
-  if (valores.length < 2) return null;
-  const min = Math.min(...valores) - 0.5;
-  const max = Math.max(...valores) + 0.5;
-  const x = (i: number) => 6 + (i * 188) / (valores.length - 1);
-  const y = (v: number) => 54 - ((v - min) / (max - min)) * 48;
-  const puntos = valores.map((v, i) => `${x(i)},${y(v)}`).join(" ");
-  return (
-    <svg viewBox="0 0 200 60" className="mt-3 h-16 w-full" role="img" aria-label={`Peso de ${valores[0]} a ${valores.at(-1)} kg`}>
-      <polyline points={puntos} fill="none" stroke="#d7263d" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      {valores.map((v, i) => (
-        <circle key={i} cx={x(i)} cy={y(v)} r="3" fill="#f2f3f5" />
-      ))}
-    </svg>
-  );
-}

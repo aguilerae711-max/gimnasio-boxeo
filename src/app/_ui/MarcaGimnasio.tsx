@@ -19,9 +19,9 @@ export function Logotipo({ marca, tamano = 36 }: { marca: MarcaDelGimnasio; tama
 
 export function MarcaGimnasio({ marca }: { marca: MarcaDelGimnasio }) {
   return (
-    <Link href="/" className="flex items-center gap-3 text-texto no-underline">
-      <Logotipo marca={marca} />
-      <span className="font-gotica text-2xl font-bold leading-none">{marca.nombre}</span>
+    <Link href="/" className="flex items-center gap-2 text-[#c9ccd3] no-underline opacity-90 hover:opacity-100">
+      <Logotipo marca={marca} tamano={26} />
+      <span className="font-gotica text-base font-bold leading-none">{marca.nombre}</span>
     </Link>
   );
 }

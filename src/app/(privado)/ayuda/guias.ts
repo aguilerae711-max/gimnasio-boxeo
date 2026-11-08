@@ -28,20 +28,20 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Escribe tu nombre, correo, teléfono, tu rama (femenil o varonil) y una contraseña de al menos 10 caracteres.",
           "Peso y estatura son opcionales y pueden ser aproximados: en tu primera evaluación te pesamos y medimos.",
           "Acepta el reglamento y la responsiva. Tu registro queda “por aprobar”.",
-          "Cuando la administración lo apruebe, verás tu estado como “activo” en Mi estado.",
+          "Cuando la administración lo apruebe, verás tu registro aprobado en Hoy.",
         ],
       },
       {
         titulo: "Tu rutina de hoy",
         pasos: [
-          "En Mi estado, los días que entrenas aparece “Hoy en tu turno” con la rutina que preparó tu coach.",
+          "En Hoy aparece la rutina que preparó tu coach para la clase del día. Tú decides qué días vienes.",
           "Si hoy no te toca, te dice cuál es tu siguiente día.",
         ],
       },
       {
         titulo: "Tus días y tu peso",
         pasos: [
-          "En Mi estado ves cuántos días te quedan pagados y hasta qué fecha.",
+          "En Hoy, el anillo te dice cuántos días te quedan pagados; el calendario marca tus días pagados y cuándo vence.",
           "En Peso y división ves tu peso, tu división (según tu rama), tu IMC y cuánto has subido o bajado.",
           "Tu división se mantiene hasta el siguiente pesaje. El IMC es solo una referencia.",
         ],
@@ -51,13 +51,13 @@ export const AYUDA: SeccionDeAyuda[] = [
         pasos: [
           "Te evaluamos al empezar y una vez al mes: fuerza, velocidad, resistencia y estrategia.",
           "Tu primera evaluación vale 100 en cada pilar. Arriba de 100 es avance: 115 = 15% mejor que cuando empezaste.",
-          "En Mis resultados ves el radar (la línea punteada es tu inicio), el cambio contra el mes anterior y tu historial con tu peso y división.",
+          "En Mi progreso ves tus pilares mes a mes, el radar (la línea punteada es tu inicio), tu peso y tu historial.",
         ],
       },
       {
         titulo: "Novedades",
         pasos: [
-          "En Novedades ves avisos, eventos, sparrings y felicitaciones del gimnasio; el número junto al menú son las nuevas.",
+          "En Novedades ves avisos, eventos, sparrings y felicitaciones del gimnasio; el número junto a Novedades son las nuevas.",
           "Si un evento lleva inscripción, toca Inscribirme (mientras haya lugares). Puedes cancelar antes de que empiece.",
           "Si te felicitan, la publicación aparece destacada en verde.",
         ],
@@ -65,7 +65,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Completar tu perfil",
         pasos: [
-          "Entra a Mi perfil.",
+          "Toca tu nombre arriba a la derecha → Mi cuenta.",
           "Escribe tu fecha de nacimiento y un contacto de emergencia (nombre y teléfono).",
           "Si tienes alguna lesión o condición, anótala en Notas médicas. Se guardan cifradas y solo las ven tu coach y la administración.",
         ],
@@ -85,7 +85,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Ver tus turnos",
         pasos: [
-          "Entra a Mis turnos: ves cada día y franja que te toca, con los clientes de esa franja. El de hoy está marcado.",
+          "En Doy clases → Hoy ves tu turno de hoy con su rutina y sus clientes; abajo, tus turnos de la semana.",
           "Si un cliente tiene contacto de emergencia o notas médicas, ábrelas en “Emergencia y salud”.",
           "Los turnos los asigna la administración en el horario.",
         ],
@@ -112,7 +112,7 @@ export const AYUDA: SeccionDeAyuda[] = [
           "En Mi plan elige una rutina para cada uno de tus turnos y toca Enviar a la administración.",
           "Si te piden cambios, verás el comentario; corrige y vuelve a enviar. Mientras tanto sigue vigente tu plan aprobado anterior.",
           "Si tu plan es fijo, desde el día 25 te preguntamos si lo mantienes: un toque y el mes siguiente queda aprobado.",
-          "En Mis turnos ves qué rutina toca en cada turno.",
+          "En Hoy → Mis turnos de la semana ves qué rutina toca en cada turno.",
         ],
       },
       {
@@ -142,12 +142,12 @@ export const AYUDA: SeccionDeAyuda[] = [
       },
       {
         titulo: "Tu perfil",
-        pasos: ["Entra a Mi perfil.", "Escribe tu especialidad y una presentación corta. Por ahora no se muestran en la portada."],
+        pasos: ["Toca tu nombre arriba a la derecha → Mi cuenta.", "Escribe tu especialidad y una presentación corta. Por ahora no se muestran en la portada."],
       },
       {
         titulo: "Invitar a un cliente",
         pasos: [
-          "Entra a Mis turnos.",
+          "Entra a Hoy y abre Invitar a un cliente.",
           "En Tu invitación, toca WhatsApp (o Copiar) y mándala.",
           "Cuando se registre, aparece en tu lista como “por aprobar” hasta que la administración lo apruebe.",
         ],
@@ -171,7 +171,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Agregar a alguien al equipo",
         pasos: [
-          "En Administración → Equipo, abajo, escribe el nombre, elige Administración o Coach y, si quieres, un usuario corto (ej. admin2).",
+          "En Personas → Equipo, abre Agregar al equipo, escribe el nombre, elige Administración o Coach y, si quieres, un usuario corto (ej. admin2).",
           "Toca Agregar: aparece su enlace de activación; mándaselo por WhatsApp. Vence en 72 horas.",
           "Cada persona tiene su propia cuenta y contraseña: así se sabe quién hizo cada cosa y nadie depende de la clave de otro.",
         ],
@@ -179,7 +179,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Dar acceso a un coach",
         pasos: [
-          "Entra a Administración → Equipo.",
+          "Entra a Personas → Equipo y abre Administración o Coaches.",
           "Toca “Enlace de activación” junto a su nombre.",
           "Mándale el enlace por WhatsApp. Sirve una vez y vence en 72 horas.",
           "Si alguien olvida su contraseña, el mismo botón genera un enlace para cambiarla.",
@@ -204,7 +204,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Cambiar el coach o la franja de un cliente",
         pasos: [
-          "En Administración → Clientes, toca al cliente.",
+          "En Personas → Clientes, abre el grupo de su coach y toca al cliente.",
           "En Coach y turno elige coach y franja. Junto a cada franja ves qué coaches dan clase y qué días.",
           "Escribe el motivo y guarda. El historial guarda cada cambio.",
           "En la misma ficha puedes ver y corregir su perfil.",
@@ -237,7 +237,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Aplicar una evaluación",
         pasos: [
-          "Primero define tu PIN en Mi perfil (una sola vez).",
+          "Primero define tu PIN en Mi cuenta (una sola vez).",
           "En Evaluación, junto al cliente escribe tu PIN y toca Comenzar. El coach y si es inicial o mensual se ponen solos.",
           "Check-in: si tiene lesión o dolor no se evalúa (queda no apto y se reprograma). Pésalo en la misma báscula.",
           "Sigue los tests en orden, con el cronómetro y el contador en pantalla. Guarda cada uno; deja vacío un intento nulo.",
@@ -264,9 +264,9 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Ver como lo ve el cliente",
         pasos: [
-          "En la ficha del cliente toca “Ver como lo ve el cliente”: ves su Mi estado tal cual, sin poder cambiar nada.",
-          "Si tú también entrenas, en Mi perfil → También entreno aquí te inscribes como cliente con tu mismo usuario.",
-          "Si tú también das clases, en Mi perfil → También doy clases te sumas como coach con tu misma cuenta.",
+          "En la ficha del cliente toca “Ver como lo ve el cliente”: ves su pantalla Hoy tal cual, sin poder cambiar nada.",
+          "Si tú también entrenas, en Mi cuenta → También entreno aquí te inscribes como cliente con tu mismo usuario.",
+          "Si tú también das clases, en Mi cuenta → También doy clases te sumas como coach con tu misma cuenta.",
         ],
       },
       {

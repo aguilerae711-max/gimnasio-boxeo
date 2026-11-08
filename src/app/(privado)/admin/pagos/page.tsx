@@ -6,7 +6,7 @@ import { casosDeClientes, casosDeOperacion, casosDePagos } from "../../../_servi
 import { requerirSesion } from "../../../_servidor/sesion";
 import { EstadoMembresia, fechaCorta, METODO, pesos } from "../../../_ui/formato";
 import { Formulario } from "../../../_ui/Formulario";
-import { Campo, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Campo, Estado, Titulo } from "../../../_ui/piezas";
 import { guardarPlan, revisarPago } from "../../pagos/acciones";
 import { FormularioPago } from "../../pagos/FormularioPago";
 
@@ -34,8 +34,7 @@ export default async function PagosAdmin() {
     <>
       <Titulo antetitulo="Membresías">Pagos</Titulo>
 
-      <Tarjeta className={porRevisar.length ? "border-2 border-acento" : ""}>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Por confirmar</h2>
+      <Desplegable titulo="Por confirmar" abierto>
         {porRevisar.length === 0 ? (
           <p className="mt-1 text-sm text-texto-suave">No hay pagos reportados por confirmar.</p>
         ) : (
@@ -71,16 +70,14 @@ export default async function PagosAdmin() {
             ))}
           </ul>
         )}
-      </Tarjeta>
+      </Desplegable>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Tarjeta>
-          <h2 className="mb-3 font-titulos text-2xl font-bold uppercase">Registrar pago</h2>
+        <Desplegable titulo="Registrar pago">
           <FormularioPago clientes={vigentes} planes={planes} coaches={coaches} hoy={hoy.valor} esAdministracion />
-        </Tarjeta>
+        </Desplegable>
 
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Clientes</h2>
+        <Desplegable titulo="Clientes">
           <p className="text-xs text-texto-suave">Primero los que vencen antes.</p>
           {conEstado.length === 0 ? (
             <p className="mt-2 text-sm text-texto-suave">Aún no hay clientes.</p>
@@ -102,11 +99,10 @@ export default async function PagosAdmin() {
               ))}
             </ul>
           )}
-        </Tarjeta>
+        </Desplegable>
       </div>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Últimos pagos</h2>
+      <Desplegable titulo="Últimos pagos">
         {recientes.length === 0 ? (
           <p className="mt-1 text-sm text-texto-suave">Sin pagos en los últimos 45 días.</p>
         ) : (
@@ -144,11 +140,10 @@ export default async function PagosAdmin() {
             </table>
           </div>
         )}
-      </Tarjeta>
+      </Desplegable>
 
       {puedeConfigurar && (
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Planes</h2>
+        <Desplegable titulo="Planes">
           <ul className="mt-2 divide-y divide-[#2a2d36]">
             {planes.map((p) => (
               <li key={p.id} className="py-3">
@@ -191,7 +186,7 @@ export default async function PagosAdmin() {
             </label>
           </Formulario>
           {planes.length > 0 && <p className="mt-2 text-xs text-texto-suave">Vigentes: {planes.filter((p) => p.activo).map((p) => `${p.nombre} (${describirDuracion(p)})`).join(", ")}</p>}
-        </Tarjeta>
+        </Desplegable>
       )}
     </>
   );

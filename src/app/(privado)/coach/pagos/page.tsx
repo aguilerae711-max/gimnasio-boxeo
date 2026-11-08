@@ -4,7 +4,7 @@ import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeOperacion, casosDePagos } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { EstadoMembresia, fechaCorta, nombreMes, pesos } from "../../../_ui/formato";
-import { Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { FormularioPago } from "../../pagos/FormularioPago";
 
 export default async function PagosCoach() {
@@ -34,8 +34,7 @@ export default async function PagosCoach() {
       <Titulo antetitulo={`Coach ${sesion.nombre}`}>Pagos</Titulo>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Tarjeta>
-          <h2 className="mb-1 font-titulos text-2xl font-bold uppercase">Reportar pago</h2>
+        <Desplegable titulo="Reportar pago" abierto>
           <p className="mb-3 text-sm text-texto-suave">Toma foto del comprobante y envíalo. Cuando la administración lo confirma, se suma tu comisión.</p>
           {clientes.length === 0 ? (
             <p className="text-sm text-texto-suave">Aún no tienes clientes.</p>
@@ -48,7 +47,7 @@ export default async function PagosCoach() {
               esAdministracion={false}
             />
           )}
-        </Tarjeta>
+        </Desplegable>
 
         <div className="flex flex-col gap-5">
           {meses.map(({ mes, cuadre, cerrado }) => (
@@ -76,8 +75,7 @@ export default async function PagosCoach() {
         </div>
       </div>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Mis clientes</h2>
+      <Desplegable titulo="Mis clientes">
         <ul className="mt-2 divide-y divide-[#2a2d36]">
           {clientes.map((c) => {
             const m = estadoMembresia(periodos.get(c.clienteId) ?? [], hoy);
@@ -92,10 +90,9 @@ export default async function PagosCoach() {
             );
           })}
         </ul>
-      </Tarjeta>
+      </Desplegable>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Pagos recientes</h2>
+      <Desplegable titulo="Pagos recientes">
         {recientes.length === 0 ? (
           <p className="mt-1 text-sm text-texto-suave">Sin pagos en los últimos 45 días.</p>
         ) : (
@@ -119,7 +116,7 @@ export default async function PagosCoach() {
             ))}
           </ul>
         )}
-      </Tarjeta>
+      </Desplegable>
     </>
   );
 }

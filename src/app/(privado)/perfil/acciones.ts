@@ -16,7 +16,7 @@ export async function inscribirmeComoCliente(_: EstadoFormulario, datos: FormDat
     return {
       ok:
         r.estado === "activo"
-          ? "Listo: ya tienes el grupo Cliente en el menú. Asígnate tu horario desde tu ficha en Administración → Clientes."
+          ? "Listo: ya tienes «Entreno» arriba del menú. Asígnate tu horario desde tu ficha en Personas → Clientes."
           : "Listo: tu inscripción quedó por aprobar en la administración.",
     };
   } catch (e) {
@@ -79,5 +79,5 @@ export async function tambienDoyClases(_: EstadoFormulario, datos: FormData): Pr
     return { error: mensajeDeError(e) };
   }
   revalidatePath("/", "layout");
-  return { ok: "Listo: ya tienes el grupo Coach en el menú, con tu código para invitar clientes." };
+  return { ok: "Listo: ya tienes «Doy clases» arriba del menú, con tu enlace para invitar clientes." };
 }

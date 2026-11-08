@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import type { EstadoFormulario } from "../_servidor/sesion";
+import { BOTON } from "./piezas";
 
 type Accion = (estado: EstadoFormulario, datos: FormData) => Promise<EstadoFormulario>;
 
@@ -45,9 +46,7 @@ export function Formulario({
         type="submit"
         disabled={enviando}
         className={
-          variante === "principal"
-            ? "min-h-12 rounded-xl bg-acento px-5 font-semibold text-white disabled:opacity-60"
-            : "min-h-11 rounded-xl border border-[#3a3d46] px-4 text-sm font-semibold disabled:opacity-60"
+          variante === "principal" ? BOTON.principal : BOTON.secundario
         }
       >
         {enviando ? "Un momento…" : boton}

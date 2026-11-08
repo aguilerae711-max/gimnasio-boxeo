@@ -5,7 +5,7 @@ import { casosDeOperacion, casosDePagos } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { fechaCorta, nombreMes, pesos } from "../../../_ui/formato";
 import { Formulario } from "../../../_ui/Formulario";
-import { Campo, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Campo, Estado, Titulo } from "../../../_ui/piezas";
 import { cambiarTarifa, cerrarCuadre } from "../../pagos/acciones";
 
 const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija: { centavos: number } }) =>
@@ -47,8 +47,7 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
         {!terminado && <span className="text-sm text-texto-suave">Mes en curso: se cuadra cuando termine.</span>}
       </div>
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Con cada coach</h2>
+      <Desplegable titulo="Con cada coach" abierto>
         <p className="text-xs text-texto-suave">
           Comisión de sus clientes contra el dinero que cobró él. Cuenta lo confirmado en el mes; la carga inicial no entra.
         </p>
@@ -88,12 +87,11 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
             );
           })}
         </ul>
-      </Tarjeta>
+      </Desplegable>
 
       {/* La cuota del sistema es entre el gimnasio y el dueño del sistema: solo la ve el superadministrador. */}
       {esSuperadmin && (
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Con el sistema</h2>
+        <Desplegable titulo="Con el sistema">
           <div className="mt-2 grid gap-3 sm:grid-cols-3">
             <div>
               <p className="text-sm text-texto-suave">Ingresos del mes</p>
@@ -128,7 +126,7 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
               <Campo etiqueta="Desde" name="desde" type="month" min={Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes} required />
               <Campo etiqueta="Motivo" name="motivo" required />
             </Formulario>
-        </Tarjeta>
+        </Desplegable>
       )}
     </>
   );

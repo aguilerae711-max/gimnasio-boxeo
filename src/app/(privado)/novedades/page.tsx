@@ -2,7 +2,7 @@ import { NOMBRE_TIPO, TIPOS } from "@/modules/novedades/domain/Novedades";
 import { casosDeNovedades } from "../../_servidor/contenedor";
 import { lectorDe, requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
-import { Campo, Tarjeta, Titulo } from "../../_ui/piezas";
+import { Desplegable, Campo, Tarjeta, Titulo } from "../../_ui/piezas";
 import { archivar, inscribirse, publicar } from "./acciones";
 
 const COLOR_TIPO: Record<string, string> = {
@@ -38,8 +38,7 @@ export default async function Novedades() {
       <Titulo antetitulo="Del gimnasio">Novedades</Titulo>
 
       {esAdministracion && (
-        <details className="rounded-2xl bg-tarjeta p-5">
-          <summary className="cursor-pointer font-titulos text-2xl font-bold uppercase">Publicar</summary>
+        <Desplegable titulo="Publicar">
           <Formulario accion={publicar} boton="Publicar" className="mt-3">
             <div className="grid gap-2 sm:grid-cols-3">
               <label className="flex flex-col gap-1.5">
@@ -97,7 +96,7 @@ export default async function Novedades() {
               <input type="checkbox" name="fijada" value="si" className="h-5 w-5 accent-[#d7263d]" /> Fijar arriba
             </label>
           </Formulario>
-        </details>
+        </Desplegable>
       )}
 
       {feed.length === 0 && <p className="text-sm text-texto-suave">No hay novedades por ahora.</p>}

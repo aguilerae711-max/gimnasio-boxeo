@@ -33,7 +33,7 @@ export default async function Evaluaciones() {
       {!tienePin && (
         <Tarjeta className="border-2 border-acento">
           <p className="text-sm">
-            Para evaluar necesitas un PIN. <Link href="/perfil">Defínelo en Mi perfil</Link>.
+            Para evaluar necesitas un PIN. <Link href="/perfil">Defínelo en Mi cuenta</Link>.
           </p>
         </Tarjeta>
       )}

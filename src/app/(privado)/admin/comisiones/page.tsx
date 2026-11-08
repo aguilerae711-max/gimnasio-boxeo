@@ -3,7 +3,7 @@ import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeComisiones } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { Formulario } from "../../../_ui/Formulario";
-import { Campo, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Campo, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { cambiarComision } from "../acciones";
 
 const fechaLarga = (valor: string) =>
@@ -43,8 +43,7 @@ export default async function Comisiones() {
             </p>
           </Tarjeta>
 
-          <Tarjeta>
-            <h2 className="font-titulos text-2xl font-bold uppercase">Por coach, hoy</h2>
+          <Desplegable titulo="Por coach, hoy" abierto>
             <p className="text-xs text-texto-suave">Sin excepción, el coach usa la comisión general.</p>
             <ul className="mt-2 divide-y divide-[#2a2d36]">
               {coaches.map((c) => {
@@ -60,11 +59,10 @@ export default async function Comisiones() {
                 );
               })}
             </ul>
-          </Tarjeta>
+          </Desplegable>
 
           {programados.length > 0 && (
-            <Tarjeta>
-              <h2 className="font-titulos text-2xl font-bold uppercase">Cambios programados</h2>
+            <Desplegable titulo="Cambios programados">
               <ul className="mt-2 divide-y divide-[#2a2d36]">
                 {programados.map((a) => (
                   <li key={a.id} className="flex items-center justify-between py-3 text-sm">
@@ -75,13 +73,12 @@ export default async function Comisiones() {
                   </li>
                 ))}
               </ul>
-            </Tarjeta>
+            </Desplegable>
           )}
         </div>
 
         <div className="flex flex-col gap-5">
-          <Tarjeta className="border-2 border-acento">
-            <h2 className="font-titulos text-2xl font-bold uppercase">Mover comisión</h2>
+          <Desplegable titulo="Mover comisión">
             <Formulario accion={cambiarComision} boton="Guardar cambio" className="mt-3">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-[#c9ccd3]">A quién aplica</span>
@@ -106,10 +103,9 @@ export default async function Comisiones() {
                 la misma fecha o después, se reemplaza.
               </p>
             </Formulario>
-          </Tarjeta>
+          </Desplegable>
 
-          <Tarjeta>
-            <h2 className="font-titulos text-2xl font-bold uppercase">Historial</h2>
+          <Desplegable titulo="Historial">
             <ul className="mt-2 divide-y divide-[#2a2d36]">
               {historial.map((h) => (
                 <li key={h.id} className="py-3">
@@ -124,7 +120,7 @@ export default async function Comisiones() {
                 </li>
               ))}
             </ul>
-          </Tarjeta>
+          </Desplegable>
         </div>
       </div>
     </>

@@ -1,7 +1,8 @@
 import { casosDeNovedades } from "../_servidor/contenedor";
 import Link from "next/link";
 import { esSuperadministrador, lectorDe, requerirSesion } from "../_servidor/sesion";
-import { Menu, type Grupo } from "../_ui/Menu";
+import { Menu, type Enlace, type Opcion, type Rol } from "../_ui/Menu";
+import { CuentaMenu } from "../_ui/CuentaMenu";
 import { marcaDe } from "../_servidor/marca";
 import { MarcaGimnasio } from "../_ui/MarcaGimnasio";
 import { salir } from "../(publico)/acciones";
@@ -14,48 +15,67 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
   const tiene = (p: string) => sesion.permisos.includes(p);
   const marca = await marcaDe(sesion.gimnasioId);
   const sinVer = await casosDeNovedades(sesion.permisos).consultas.sinVer(sesion.gimnasioId, lectorDe(sesion), sesion.usuarioId);
-  const coach = sesion.roles.includes("coach");
   const solo = <T,>(condicion: boolean, valor: T) => (condicion ? [valor] : []);
-  const grupos: Grupo[] = [
-    {
-      titulo: "Gimnasio",
-      enlaces: [
-        ...solo(tiene("cliente.aprobar"), { href: "/admin", texto: "Administración" }),
-        ...solo(tiene("horario.asignar"), { href: "/admin/horario", texto: "Horario" }),
-        ...solo(tiene("pago.confirmar"), { href: "/admin/pagos", texto: "Pagos" }),
-        ...solo(tiene("cuadre.cerrar"), { href: "/admin/cuadre", texto: "Cuadre" }),
-        ...solo(tiene("evaluacion.realizar"), { href: "/admin/evaluacion", texto: "Evaluación" }),
-        ...solo(tiene("plan.aprobar"), { href: "/admin/planes", texto: "Planes" }),
-        ...solo(tiene("comision.cambiar"), { href: "/admin/comisiones", texto: "Comisiones" }),
-        ...solo(tiene("biblioteca.formalizar"), { href: "/biblioteca", texto: "Biblioteca" }),
+  const novedades: Opcion = { texto: "Novedades", paginas: [{ href: "/novedades", texto: "Novedades" }], aviso: sinVer };
+  const opcion = (texto: string, paginas: Enlace[]): Opcion[] => (paginas.length > 0 ? [{ texto, paginas }] : []);
+
+  const roles: Rol[] = [];
+  if (tiene("cliente.aprobar")) {
+    roles.push({
+      clave: "administro",
+      titulo: "Administro",
+      opciones: [
+        { texto: "Hoy", paginas: [{ href: "/admin", texto: "Hoy" }] },
+        ...opcion("Personas", [
+          { href: "/admin/personas", texto: "Equipo" },
+          ...solo(tiene("horario.asignar"), { href: "/admin/horario", texto: "Horario" }),
+        ]),
+        ...opcion("Dinero", [
+          ...solo(tiene("pago.confirmar"), { href: "/admin/pagos", texto: "Pagos" }),
+          ...solo(tiene("cuadre.cerrar"), { href: "/admin/cuadre", texto: "Cuadre" }),
+          ...solo(tiene("comision.cambiar"), { href: "/admin/comisiones", texto: "Comisiones" }),
+        ]),
+        ...opcion("Entrenamiento", [
+          ...solo(tiene("evaluacion.realizar"), { href: "/admin/evaluacion", texto: "Evaluación" }),
+          ...solo(tiene("plan.aprobar"), { href: "/admin/planes", texto: "Planes de trabajo" }),
+          ...solo(tiene("biblioteca.formalizar"), { href: "/biblioteca", texto: "Biblioteca" }),
+        ]),
+        novedades,
       ],
-    },
-    {
-      titulo: "Coach",
-      enlaces: [
-        ...solo(coach, { href: "/coach", texto: "Mis turnos" }),
-        ...solo(coach, { href: "/coach/plan", texto: "Mi plan" }),
-        ...solo(coach, { href: "/coach/rutinas", texto: "Rutinas" }),
-        ...solo(coach && !tiene("biblioteca.formalizar"), { href: "/biblioteca", texto: "Biblioteca" }),
-        ...solo(coach, { href: "/coach/resultados", texto: "Resultados" }),
-        ...solo(coach, { href: "/coach/pagos", texto: "Mis pagos" }),
+    });
+  }
+  if (sesion.roles.includes("coach")) {
+    roles.push({
+      clave: "clases",
+      titulo: "Doy clases",
+      opciones: [
+        { texto: "Hoy", paginas: [{ href: "/coach", texto: "Hoy" }] },
+        {
+          texto: "Entrenamiento",
+          paginas: [
+            { href: "/coach/rutinas", texto: "Rutinas" },
+            { href: "/coach/plan", texto: "Mi plan" },
+            { href: "/biblioteca", texto: "Biblioteca" },
+            { href: "/coach/resultados", texto: "Resultados" },
+          ],
+        },
+        { texto: "Mis pagos", paginas: [{ href: "/coach/pagos", texto: "Mis pagos" }] },
+        novedades,
       ],
-    },
-    {
-      titulo: "Cliente",
-      enlaces: [
-        ...solo(sesion.roles.includes("cliente"), { href: "/cliente", texto: "Mi estado" }),
-        ...solo(sesion.roles.includes("cliente"), { href: "/cliente/resultados", texto: "Mis resultados" }),
+    });
+  }
+  if (sesion.roles.includes("cliente")) {
+    roles.push({
+      clave: "entreno",
+      titulo: "Entreno",
+      opciones: [
+        { texto: "Hoy", paginas: [{ href: "/cliente", texto: "Hoy" }] },
+        { texto: "Mi progreso", paginas: [{ href: "/cliente/resultados", texto: "Mi progreso" }] },
+        novedades,
       ],
-    },
-  ];
-  const sueltos = {
-    antes: [{ href: "/novedades", texto: "Novedades", aviso: sinVer }],
-    despues: [
-      { href: "/perfil", texto: "Mi perfil" },
-      { href: "/ayuda", texto: "Ayuda" },
-    ],
-  };
+    });
+  }
+  if (roles.length === 0) roles.push({ clave: "general", titulo: "General", opciones: [novedades] });
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5">
@@ -86,20 +106,19 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
           </Link>
         </div>
       )}
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="flex items-center justify-between gap-3">
         <MarcaGimnasio marca={marca} />
-        <div className="flex items-center gap-3 text-sm text-texto-suave">
-          <span>{sesion.nombre}</span>
+        <CuentaMenu nombre={sesion.nombre}>
           {!sesion.vistaComo && (
             <form action={salir}>
-              <button type="submit" className="min-h-10 rounded-lg border border-[#3a3d46] px-3 font-semibold text-texto">
+              <button type="submit" className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#ff8f97] hover:bg-white/[0.05]">
                 Salir
               </button>
             </form>
           )}
-        </div>
+        </CuentaMenu>
       </header>
-      <Menu grupos={grupos} sueltos={sueltos} />
+      <Menu roles={roles} />
       <main className="mt-6 flex flex-1 flex-col gap-5">{children}</main>
     </div>
   );

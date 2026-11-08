@@ -12,7 +12,7 @@ import { registrarPesaje } from "../../../pagos/acciones";
 import { reiniciarPuntoDePartida } from "../../evaluacion/acciones";
 import { requerirSesion } from "../../../../_servidor/sesion";
 import { Formulario } from "../../../../_ui/Formulario";
-import { Campo, Estado, Tarjeta, Titulo } from "../../../../_ui/piezas";
+import { Desplegable, Campo, Estado, Titulo } from "../../../../_ui/piezas";
 import { FormularioPerfilCliente } from "../../../perfil/FormularioPerfilCliente";
 import { reasignarCliente } from "./acciones";
 
@@ -69,8 +69,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Coach y turno</h2>
+        <Desplegable titulo="Coach y turno" abierto>
           <p className="mt-1 text-[15px]">
             Coach {cliente.coach}
             {franjaActual
@@ -105,12 +104,11 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
               <Campo etiqueta="Motivo" name="motivo" maxLength={200} placeholder="Ej. cambio a horario de la tarde" required />
             </Formulario>
           )}
-        </Tarjeta>
+        </Desplegable>
 
-        <Tarjeta>
-          <h2 className="mb-3 font-titulos text-2xl font-bold uppercase">Perfil</h2>
+        <Desplegable titulo="Perfil">
           <FormularioPerfilCliente clienteId={id} perfil={perfil} />
-        </Tarjeta>
+        </Desplegable>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -136,8 +134,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
           )}
         </PanelPeso>
 
-        <Tarjeta>
-          <h2 className="font-titulos text-2xl font-bold uppercase">Pagos</h2>
+        <Desplegable titulo="Pagos">
           <ul className="mt-2 divide-y divide-[#2a2d36] text-sm">
             {pagos.map((p) => (
               <li key={p.id} className="flex justify-between gap-2 py-2">
@@ -167,7 +164,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
               <FormularioPago clientes={[]} planes={planes} coaches={coaches} hoy={hoy.valor} esAdministracion clienteFijo={id} />
             </div>
           )}
-        </Tarjeta>
+        </Desplegable>
       </div>
 
       <ResultadosPorPilar historial={evaluaciones} titulo="Evaluaciones" />
@@ -184,8 +181,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
       )}
 
       {sesion.permisos.includes("evaluacion.realizar") && evaluaciones.length > 0 && (
-        <details className="rounded-2xl bg-tarjeta p-5">
-          <summary className="cursor-pointer font-semibold">Reiniciar punto de partida</summary>
+        <Desplegable titulo="Reiniciar punto de partida">
           <p className="mt-2 text-sm text-texto-suave">
             Para quien regresa tras 3 meses o más, o de una lesión: su siguiente evaluación vuelve a ser la inicial y vale 100. Las anteriores se
             conservan en el historial.
@@ -203,11 +199,10 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
             <input type="hidden" name="clienteId" value={id} />
             <Campo etiqueta="Motivo" name="motivo" placeholder="Ej. regreso tras lesión de hombro" required />
           </Formulario>
-        </details>
+        </Desplegable>
       )}
 
-      <Tarjeta>
-        <h2 className="font-titulos text-2xl font-bold uppercase">Historial de coach</h2>
+      <Desplegable titulo="Historial de coach">
         <ul className="mt-2 divide-y divide-[#2a2d36]">
           {historial.map((h, i) => (
             <li key={i} className="py-2.5 text-sm">
@@ -222,7 +217,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
             </li>
           ))}
         </ul>
-      </Tarjeta>
+      </Desplegable>
     </>
   );
 }
