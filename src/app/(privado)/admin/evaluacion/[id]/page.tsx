@@ -6,7 +6,7 @@ import { Formulario } from "../../../../_ui/Formulario";
 import { Campo, Estado, Tarjeta, Titulo } from "../../../../_ui/piezas";
 import { anularEvaluacion, cerrarEvaluacion, guardarRubrica, registrarChequeo } from "../acciones";
 import { CapturaTest } from "../CapturaTest";
-import { COLOR_PILAR, NOMBRE_PILAR } from "../../../../_ui/Resultados";
+import { calificacion, colorCalificacion, COLOR_PILAR, NOMBRE_PILAR } from "../../../../_ui/Resultados";
 
 /** "18.00" → "18"; "82.50" → "82.5". */
 const numero = (v: string | null | undefined) => (v === null || v === undefined ? "—" : String(Number(v)));
@@ -162,7 +162,7 @@ export default async function SesionEvaluacion({ params }: { params: Promise<{ i
           <Tarjeta className={abierta ? "border-2 border-acento" : ""}>
             <h2 className="font-titulos text-2xl font-bold uppercase">Resumen por pilar</h2>
             {s.pilares.length === 0 ? (
-              <p className="mt-1 text-sm text-texto-suave">Al cerrar se calculan los índices (la evaluación inicial vale 100).</p>
+              <p className="mt-1 text-sm text-texto-suave">Al cerrar se calcula la calificación del 1 al 10 (10 = nivel élite para su rama).</p>
             ) : (
               <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {(["fuerza", "velocidad", "resistencia", "estrategia"] as const).map((pilar) => {
@@ -172,7 +172,9 @@ export default async function SesionEvaluacion({ params }: { params: Promise<{ i
                       <p className="text-xs font-semibold uppercase" style={{ color: COLOR_PILAR[pilar] }}>
                         {NOMBRE_PILAR[pilar]}
                       </p>
-                      <p className="font-titulos text-4xl font-extrabold">{p?.indice ?? "—"}</p>
+                      <p className="cifras font-titulos text-4xl font-extrabold" style={{ color: colorCalificacion(p?.calificacion ?? null) }}>
+                        {calificacion(p?.calificacion ?? null)}
+                      </p>
                       {p && !p.completo && <p className="text-xs text-texto-suave">no se publica</p>}
                     </div>
                   );

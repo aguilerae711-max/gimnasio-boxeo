@@ -5,7 +5,7 @@ import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeClientes, casosDeEvaluacion, casosDeOperacion, casosDePagos, casosDePesajes } from "../_servidor/contenedor";
 import { fechaCorta, textoVencimiento } from "./formato";
 import { BOTON, Estado, Tarjeta, Titulo } from "./piezas";
-import { PILARES } from "./Resultados";
+import { calificacion, colorCalificacion, promedioPilares } from "./Resultados";
 import { RutinaDeHoy } from "./RutinaDeHoy";
 import { AnilloDias, CalendarioMes, GraficaPeso } from "./Visual";
 
@@ -54,8 +54,8 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
   const dias = franja ? horario.diasDe(asignacion.coachId, franja.id) : [];
   const corporal = estadoCorporal(peso.mediciones, peso.sexo, peso.divisiones);
   const ultima = historial.at(-1);
-  const valores = ultima ? PILARES.map((p) => ultima.pilares[p]).filter((v): v is number => v !== null) : [];
-  const promedio = valores.length ? Math.round(valores.reduce((a, b) => a + b, 0) / valores.length) : null;
+  const promedio = ultima ? promedioPilares(ultima.pilares) : null;
+  const promedioInicio = historial.length > 1 ? promedioPilares(historial[0].pilares) : null;
 
   return (
     <>
@@ -175,9 +175,16 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
       <Tarjeta className="flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">Tus pilares</p>
-          <p className="cifras font-titulos text-4xl font-extrabold leading-none">{promedio ?? "—"}</p>
+          <p className="cifras font-titulos text-4xl font-extrabold leading-none" style={{ color: colorCalificacion(promedio) }}>
+            {calificacion(promedio)}
+            <span className="ml-1 text-lg text-texto-suave">/ 10</span>
+          </p>
           <p className="text-xs text-texto-suave">
-            {promedio === null ? "Aún sin evaluar" : promedio >= 100 ? `+${promedio - 100}% desde tu inicio` : `${promedio - 100}% desde tu inicio`}
+            {promedio === null
+              ? "Aún sin evaluar · 10 es nivel élite"
+              : promedioInicio !== null
+                ? `${promedio - promedioInicio >= 0 ? "+" : "−"}${Math.abs(promedio - promedioInicio).toFixed(1)} desde tu inicio · élite 10`
+                : "Tu punto de partida · élite 10"}
           </p>
         </div>
         {!vista && (

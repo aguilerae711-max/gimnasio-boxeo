@@ -46,7 +46,7 @@ describe("biblioteca, rutinas y planes en Postgres", () => {
     descripcion: "",
     bloques: [
       { tipo: "calentamiento", minutos: 20, rounds: null, descripcion: "Movilidad", elementos: [] },
-      { tipo: "tecnica", minutos: 60, rounds: 6, descripcion: "", elementos: [{ ejercicioId, combinacion, modalidad: "grupal", detalle: "6 rounds" }] },
+      { tipo: "estrategia", minutos: 60, rounds: 6, descripcion: "", elementos: [{ ejercicioId, combinacion, modalidad: "grupal", detalle: "6 rounds" }] },
     ],
   });
 
@@ -74,10 +74,11 @@ describe("biblioteca, rutinas y planes en Postgres", () => {
 
   it("proponer avisa de parecidos (también con el glosario) y deja guardar si es distinto", async () => {
     const proponer = new ProponerEjercicio(d(COACH));
-    await expect(proponer.ejecutar(mike, { nombre: "Manoplas", descripcion: "Combinaciones con manoplas.", categoria: "implementos", esDistinto: false })).rejects.toThrow(/Se parece a: Manopleo/);
-    await expect(proponer.ejecutar(mike, { nombre: "Overhand", descripcion: "Golpe en arco por encima.", categoria: "tecnica", esDistinto: false })).rejects.toThrow(/Volado \(golpe\)/);
-    escalera = await proponer.ejecutar(mike, { nombre: "Escalera de agilidad", descripcion: "Pasos rápidos dentro de la escalera.", categoria: "desplazamiento", esDistinto: false });
-    sombraMike = await proponer.ejecutar(mike, { nombre: "Sombra al espejo", descripcion: "Sombra mirando la guardia en el espejo.", categoria: "tecnica", esDistinto: true });
+    await expect(proponer.ejecutar(mike, { nombre: "Manoplas", descripcion: "Combinaciones con manoplas.", categoria: "fuerza", esDistinto: false })).rejects.toThrow(/Se parece a: Manopleo/);
+    await expect(proponer.ejecutar(mike, { nombre: "Overhand", descripcion: "Golpe en arco por encima.", categoria: "estrategia", esDistinto: false })).rejects.toThrow(/Volado \(golpe\)/);
+    await expect(proponer.ejecutar(mike, { nombre: "Saltos al cajón", descripcion: "Saltos explosivos.", categoria: "tecnica", esDistinto: true })).rejects.toThrow(/pilar/);
+    escalera = await proponer.ejecutar(mike, { nombre: "Escalera de agilidad", descripcion: "Pasos rápidos dentro de la escalera.", categoria: "velocidad", esDistinto: false });
+    sombraMike = await proponer.ejecutar(mike, { nombre: "Sombra al espejo", descripcion: "Sombra mirando la guardia en el espejo.", categoria: "estrategia", esDistinto: true });
     const ej = (await consultas.ejercicios(GIMNASIO)).find((e) => e.id === escalera);
     expect(ej).toMatchObject({ estado: "propuesto", visibilidad: "privado", autor: "Mike" });
   });
@@ -92,7 +93,7 @@ describe("biblioteca, rutinas y planes en Postgres", () => {
       ejecucion: "Dos pies por cuadro, brazos en guardia.",
       errores: "Mirar los pies.",
       nivel: "inicial",
-      categoria: "desplazamiento",
+      categoria: "velocidad",
       visibilidad: "compartido",
       alias: ["Agility ladder"],
     });

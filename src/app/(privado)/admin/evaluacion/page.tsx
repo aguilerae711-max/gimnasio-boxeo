@@ -4,8 +4,8 @@ import { casosDeEvaluacion } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { nombreMes } from "../../../_ui/formato";
 import { Formulario } from "../../../_ui/Formulario";
-import { Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
-import { NOMBRE_PILAR, PILARES } from "../../../_ui/Resultados";
+import { Desplegable, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { calificacion, colorCalificacion, NOMBRE_PILAR, PILARES } from "../../../_ui/Resultados";
 import { comenzar } from "./acciones";
 
 const ESTADO: Record<string, [string, string]> = {
@@ -19,10 +19,10 @@ export default async function Evaluaciones() {
   const sesion = await requerirSesion("evaluacion.realizar");
   const casos = casosDeEvaluacion(sesion.permisos, sesion.zonaHoraria);
   const periodo = Fecha.hoyEn(sesion.zonaHoraria, new Date()).mes;
-  const [clientes, coaches, referencias, tienePin] = await Promise.all([
+  const [clientes, coaches, metas, tienePin] = await Promise.all([
     casos.consultas.delMes(sesion.gimnasioId, periodo),
     casos.consultas.resultadoCoaches(sesion.gimnasioId, periodo),
-    casos.consultas.referencias(sesion.gimnasioId),
+    casos.consultas.metas(sesion.gimnasioId),
     casos.consultas.tienePin(sesion.usuarioId),
   ]);
   const evaluados = clientes.filter((c) => c.estado === "completa").length;
@@ -94,7 +94,7 @@ export default async function Evaluaciones() {
       <Tarjeta>
         <h2 className="font-titulos text-2xl font-bold uppercase">Resultado de los coaches</h2>
         <p className="text-xs text-texto-suave">
-          Índice promedio por pilar de sus clientes evaluados este mes y cobertura (clientes activos evaluados). Comparar solo con 3 o más evaluados.
+          Calificación promedio (1 a 10) por pilar de sus clientes evaluados este mes y cobertura (clientes activos evaluados). Comparar solo con 3 o más evaluados.
         </p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -121,7 +121,9 @@ export default async function Evaluaciones() {
                     {c.activos > 0 ? ` (${Math.round((c.evaluados / c.activos) * 100)}%)` : ""}
                   </td>
                   {PILARES.map((p) => (
-                    <td key={p}>{c[p] ?? "—"}</td>
+                    <td key={p} className="cifras font-semibold" style={{ color: colorCalificacion(c[p] ?? null) }}>
+                      {calificacion(c[p] ?? null)}
+                    </td>
                   ))}
                 </tr>
               ))}
@@ -130,29 +132,48 @@ export default async function Evaluaciones() {
         </div>
       </Tarjeta>
 
-      <details className="rounded-2xl bg-tarjeta p-5">
-        <summary className="cursor-pointer font-titulos text-xl font-bold uppercase">Referencia de niveles (solo administración)</summary>
-        <table className="mt-2 w-full text-left text-sm">
-          <thead className="text-texto-suave">
-            <tr>
-              <th className="py-1.5 font-semibold">Test</th>
-              <th className="font-semibold">Inicial</th>
-              <th className="font-semibold">Intermedio</th>
-              <th className="font-semibold">Avanzado</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#2a2d36]">
-            {referencias.map((r) => (
-              <tr key={r.clave}>
-                <td className="py-1.5">{r.nombre}</td>
-                <td>{r.inicial}</td>
-                <td>{r.intermedio}</td>
-                <td>{r.avanzado}</td>
+      <Desplegable titulo="Calificación y meta élite" nota="Solo administración">
+        <p className="text-xs text-texto-suave">
+          Valor real que vale cada calificación, por rama. Debajo del 5 baja hasta 1; arriba de la élite se queda en 10. La élite es aproximada: no hay
+          estudios publicados de boxeadores élite con estos tests exactos.
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="cifras w-full min-w-[560px] text-left text-sm">
+            <thead className="text-texto-suave">
+              <tr>
+                <th className="py-1.5 font-semibold">Test</th>
+                <th className="font-semibold">Rama</th>
+                <th className="font-semibold">5</th>
+                <th className="font-semibold">7</th>
+                <th className="font-semibold">8.5</th>
+                <th className="font-semibold text-[#e8c25b]">10 · élite</th>
               </tr>
+            </thead>
+            <tbody className="divide-y divide-borde">
+              {metas.map((m) => (
+                <tr key={`${m.test}-${m.sexo}`} title={m.fuente}>
+                  <td className="py-1.5">{m.test}</td>
+                  <td>{m.sexo === "F" ? "Femenil" : "Varonil"}</td>
+                  <td>{m.a5}</td>
+                  <td>{m.a7}</td>
+                  <td>{m.a85}</td>
+                  <td className="font-semibold text-[#e8c25b]">
+                    {m.elite} {m.unidad}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <details className="mt-3 text-xs text-texto-suave">
+          <summary className="cursor-pointer font-semibold">Fuentes</summary>
+          <ul className="mt-1 list-disc pl-5">
+            {[...new Set(metas.map((m) => `${m.test}: ${m.fuente}`))].map((f) => (
+              <li key={f}>{f}</li>
             ))}
-          </tbody>
-        </table>
-      </details>
+          </ul>
+        </details>
+      </Desplegable>
     </>
   );
 }

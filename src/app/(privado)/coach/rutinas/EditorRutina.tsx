@@ -3,30 +3,30 @@
 import { useActionState, useState } from "react";
 import { DURACION_TURNO_MIN, TIPOS_BLOQUE, type Bloque, type Rutina } from "@/modules/biblioteca/domain/Planes";
 import type { EstadoFormulario } from "../../../_servidor/sesion";
+import { COLOR_ENFOQUE } from "../../../_ui/formato";
 import { BOTON } from "../../../_ui/piezas";
 import { guardarRutina } from "../../biblioteca/acciones";
 
 const NOMBRE_TIPO: Record<string, string> = {
   calentamiento: "Calentamiento",
-  tecnica: "Técnica",
-  implementos: "Implementos",
-  sparring: "Sparring",
-  acondicionamiento: "Acondicionamiento",
+  fuerza: "Fuerza",
+  velocidad: "Velocidad",
+  resistencia: "Resistencia",
+  estrategia: "Estrategia",
   enfriamiento: "Enfriamiento",
-  otro: "Otro",
 };
 
 /** Un round de boxeo: 3 minutos de trabajo y 1 de descanso. */
 const MIN_POR_ROUND = 4;
 
 const campo = "min-h-11 w-full rounded-lg border border-borde bg-campo px-3 text-sm text-texto outline-none focus:border-acento";
-const bloqueVacio = (): Bloque => ({ tipo: "tecnica", minutos: 20, rounds: null, descripcion: "", elementos: [] });
+const bloqueVacio = (): Bloque => ({ tipo: "estrategia", minutos: 20, rounds: null, descripcion: "", elementos: [] });
 
 /**
  * Arma la rutina de un turno: bloques que duran cierto tiempo o cierto número de rounds,
  * con ejercicios de la biblioteca y una nota opcional para los clientes.
  */
-export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; inicial: Rutina | null; ejercicios: { id: string; nombre: string }[] }) {
+export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; inicial: Rutina | null; ejercicios: { id: string; nombre: string; enfoque: string }[] }) {
   const [rutina, setRutina] = useState<Rutina>(inicial ?? { nombre: "", descripcion: "", bloques: [{ ...bloqueVacio(), tipo: "calentamiento", minutos: 15 }] });
   const [estado, enviar, enviando] = useActionState<EstadoFormulario, FormData>(guardarRutina, {});
   const total = rutina.bloques.reduce((s, b) => s + (Number(b.minutos) || 0), 0);
@@ -57,8 +57,10 @@ export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; i
         return (
           <section key={i} className="rounded-xl border border-borde bg-white/[0.02] p-4">
             <div className="flex items-center gap-2">
-              <span className="cifras w-4 shrink-0 text-center font-titulos text-xl font-extrabold text-texto-suave">{i + 1}</span>
-              <select value={b.tipo} onChange={(e) => cambiarBloque(i, { tipo: e.target.value as Bloque["tipo"] })} className={campo} aria-label="Qué se hace">
+              <span className="cifras w-4 shrink-0 text-center font-titulos text-xl font-extrabold" style={{ color: COLOR_ENFOQUE[b.tipo] }}>
+                {i + 1}
+              </span>
+              <select value={b.tipo} onChange={(e) => cambiarBloque(i, { tipo: e.target.value as Bloque["tipo"] })} className={campo} aria-label="Pilar que trabaja">
                 {TIPOS_BLOQUE.map((t) => (
                   <option key={t} value={t}>
                     {NOMBRE_TIPO[t]}
@@ -149,11 +151,24 @@ export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; i
                       aria-label="Ejercicio"
                     >
                       {!nombreDe.has(e.ejercicioId) && <option value={e.ejercicioId}>Ejercicio de la biblioteca</option>}
-                      {ejercicios.map((x) => (
-                        <option key={x.id} value={x.id}>
-                          {x.nombre}
-                        </option>
-                      ))}
+                      <optgroup label={`De ${NOMBRE_TIPO[b.tipo]?.toLowerCase()}`}>
+                        {ejercicios
+                          .filter((x) => x.enfoque === b.tipo)
+                          .map((x) => (
+                            <option key={x.id} value={x.id}>
+                              {x.nombre}
+                            </option>
+                          ))}
+                      </optgroup>
+                      <optgroup label="Otros">
+                        {ejercicios
+                          .filter((x) => x.enfoque !== b.tipo)
+                          .map((x) => (
+                            <option key={x.id} value={x.id}>
+                              {x.nombre}
+                            </option>
+                          ))}
+                      </optgroup>
                     </select>
                   ) : (
                     <span className={`${campo} flex items-center text-texto-suave`}>Combinación {e.combinacion}</span>
@@ -180,7 +195,12 @@ export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; i
               <button
                 type="button"
                 onClick={() =>
-                  cambiarBloque(i, { elementos: [...b.elementos, { ejercicioId: ejercicios[0].id, combinacion: null, modalidad: "individual", detalle: "" }] })
+                  cambiarBloque(i, {
+                    elementos: [
+                      ...b.elementos,
+                      { ejercicioId: (ejercicios.find((x) => x.enfoque === b.tipo) ?? ejercicios[0]).id, combinacion: null, modalidad: "individual", detalle: "" },
+                    ],
+                  })
                 }
                 className={`${BOTON.discreto} mt-1 px-0! text-[#ff6b76]!`}
               >
@@ -210,11 +230,24 @@ export function EditorRutina({ id, inicial, ejercicios }: { id: string | null; i
             {total} de {DURACION_TURNO_MIN} min
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-          <div
-            className={`h-full rounded-full ${total > DURACION_TURNO_MIN ? "bg-[#ff8f97]" : "bg-acento"}`}
-            style={{ width: `${Math.min(100, (total / DURACION_TURNO_MIN) * 100)}%` }}
-          />
+        <div className="flex h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
+          {TIPOS_BLOQUE.map((t) => {
+            const min = rutina.bloques.filter((b) => b.tipo === t).reduce((s, b) => s + (Number(b.minutos) || 0), 0);
+            return min > 0 ? (
+              <div key={t} style={{ width: `${(min / Math.max(total, DURACION_TURNO_MIN)) * 100}%`, background: COLOR_ENFOQUE[t] }} title={`${NOMBRE_TIPO[t]}: ${min} min`} />
+            ) : null;
+          })}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-texto-suave">
+          {TIPOS_BLOQUE.map((t) => {
+            const min = rutina.bloques.filter((b) => b.tipo === t).reduce((s, b) => s + (Number(b.minutos) || 0), 0);
+            return min > 0 ? (
+              <span key={t} className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ background: COLOR_ENFOQUE[t] }} />
+                {NOMBRE_TIPO[t]} <b className="cifras text-texto">{min}</b>
+              </span>
+            ) : null;
+          })}
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeOperacion, casosDePagos } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
 import { EstadoMembresia, fechaCorta, nombreMes, pesos } from "../../../_ui/formato";
-import { Desplegable, Estado, Tarjeta, Titulo } from "../../../_ui/piezas";
+import { Desplegable, Estado, Titulo } from "../../../_ui/piezas";
 import { FormularioPago } from "../../pagos/FormularioPago";
 
 export default async function PagosCoach() {
@@ -29,51 +29,53 @@ export default async function PagosCoach() {
     { mes: mesAnterior, cuadre: cuenta(delAnterior, mesAnterior), cerrado: cerradosAnterior.find((c) => c.coachId === yo.id) ?? null },
   ];
 
+  const activos = clientes.filter((c) => c.estado === "activo");
+  const alCorriente = activos.filter((c) => {
+    const e = estadoMembresia(periodos.get(c.clienteId) ?? [], hoy).estado;
+    return e === "activo" || e === "por_vencer";
+  }).length;
+
   return (
     <>
-      <Titulo antetitulo={`Coach ${sesion.nombre}`}>Pagos</Titulo>
+      <Titulo antetitulo={`Coach ${sesion.nombre.split(" ")[0]}`}>Mis pagos</Titulo>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <Desplegable titulo="Reportar pago" abierto>
-          <p className="mb-3 text-sm text-texto-suave">Toma foto del comprobante y envíalo. Cuando la administración lo confirma, se suma tu comisión.</p>
-          {clientes.length === 0 ? (
-            <p className="text-sm text-texto-suave">Aún no tienes clientes.</p>
-          ) : (
-            <FormularioPago
-              clientes={clientes.map((c) => ({ id: c.clienteId, nombre: c.nombre }))}
-              planes={planes}
-              coaches={[]}
-              hoy={hoy.valor}
-              esAdministracion={false}
-            />
-          )}
-        </Desplegable>
-
-        <div className="flex flex-col gap-5">
-          {meses.map(({ mes, cuadre, cerrado }) => (
-            <Tarjeta key={mes}>
-              <div className="flex items-baseline justify-between">
-                <h2 className="font-titulos text-2xl font-bold uppercase">Mi cuenta · {nombreMes(mes)}</h2>
-                {mes === hoy.mes ? <span className="text-xs text-texto-suave">en curso</span> : cerrado && <Estado valor="activo" texto="cuadrado" />}
-              </div>
-              <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-                <div>
-                  <p className="text-texto-suave">Comisión</p>
-                  <p className="font-titulos text-2xl font-bold text-[#6fe0a2]">{pesos(cuadre.comisiones.centavos)}</p>
-                </div>
-                <div>
-                  <p className="text-texto-suave">Cobré yo</p>
-                  <p className="font-titulos text-2xl font-bold">{pesos(cuadre.cobrosEnMano.centavos)}</p>
-                </div>
-                <div>
-                  <p className="text-texto-suave">{cuadre.saldoCentavos >= 0 ? "Me pagan" : "Entrego"}</p>
-                  <p className="font-titulos text-2xl font-bold">{pesos(Math.abs(cuadre.saldoCentavos))}</p>
-                </div>
-              </div>
-            </Tarjeta>
-          ))}
-        </div>
+      {/* Cuenta del mes, discreta: cuántos clientes pagan y lo que eso deja. */}
+      <div className="flex flex-col gap-1 rounded-xl border border-borde px-4 py-3 text-sm text-texto-suave">
+        {meses.map(({ mes, cuadre, cerrado }) => (
+          <p key={mes} className="cifras">
+            <span className="font-semibold capitalize text-[#c9ccd3]">{nombreMes(mes).split(" ")[0]}</span>
+            {mes === hoy.mes && (
+              <>
+                {" "}· <b className="text-texto">{alCorriente}</b> de {activos.length} clientes al corriente
+              </>
+            )}{" "}
+            · comisión <b className="text-texto">{pesos(cuadre.comisiones.centavos)}</b>
+            {cuadre.cobrosEnMano.centavos > 0 && <> · cobraste {pesos(cuadre.cobrosEnMano.centavos)}</>}
+            {cuadre.saldoCentavos !== 0 && (
+              <>
+                {" "}
+                · {cuadre.saldoCentavos > 0 ? "te pagan" : "entregas"} {pesos(Math.abs(cuadre.saldoCentavos))}
+              </>
+            )}
+            {mes !== hoy.mes && cerrado && <span className="text-[#6fe0a2]"> · cuadrado</span>}
+          </p>
+        ))}
       </div>
+
+      <Desplegable titulo="Reportar pago" abierto>
+        <p className="mb-3 text-sm text-texto-suave">Toma foto del comprobante y envíalo. Cuando la administración lo confirma, se suma tu comisión.</p>
+        {clientes.length === 0 ? (
+          <p className="text-sm text-texto-suave">Aún no tienes clientes.</p>
+        ) : (
+          <FormularioPago
+            clientes={clientes.map((c) => ({ id: c.clienteId, nombre: c.nombre }))}
+            planes={planes}
+            coaches={[]}
+            hoy={hoy.valor}
+            esAdministracion={false}
+          />
+        )}
+      </Desplegable>
 
       <Desplegable titulo="Mis clientes">
         <ul className="mt-2 divide-y divide-[#2a2d36]">

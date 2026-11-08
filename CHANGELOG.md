@@ -7,6 +7,19 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.16.0] - 2026-11-07 · Calificación del 1 al 10 y rutinas por pilar
+
+### Agregado
+
+- **Calificación del 1 al 10**, como en la escuela: 6 aprueba y 10 es nivel élite para la rama (femenil o varonil). Desde la primera evaluación el cliente ve qué tan cerca está de la élite y, después, cuánto ha subido desde su inicio. Colores de boleta: rojo, ámbar, verde y dorado. Todo el historial se recalcula desde los valores reales de cada test.
+- **Meta élite por test y rama**, con sus fuentes, en Evaluación → «Calificación y meta élite» (solo administración). Es aproximada: no hay estudios publicados de boxeadores élite con estos tests exactos.
+- **Rutinas por pilar:** cada bloque es calentamiento, fuerza, velocidad, resistencia, estrategia o enfriamiento, y te sugiere primero los ejercicios de ese pilar. Abajo ves cuántos minutos del turno van a cada pilar. Cada ejercicio de la biblioteca tiene su pilar.
+
+### Cambiado
+
+- Mi progreso, el radar, las gráficas y los resultados del coach y de la administración usan la calificación del 1 al 10.
+- Mis pagos del coach: en lugar de las tarjetas de «Mi cuenta», una línea discreta con cuántos de sus clientes están al corriente, su comisión y el saldo del mes.
+
 ## [0.15.1] - 2026-11-07 · Rutinas más simples
 
 ### Cambiado

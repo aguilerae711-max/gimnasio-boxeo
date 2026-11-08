@@ -20,12 +20,21 @@ export const ESTADO_PLAN: Record<string, [string, string]> = {
 
 export const TIPO_BLOQUE: Record<string, string> = {
   calentamiento: "calentamiento",
-  tecnica: "técnica",
-  implementos: "implementos",
-  sparring: "sparring",
-  acondicionamiento: "acondicionamiento",
+  fuerza: "fuerza",
+  velocidad: "velocidad",
+  resistencia: "resistencia",
+  estrategia: "estrategia",
   enfriamiento: "enfriamiento",
-  otro: "otro",
+};
+
+/** Color de cada enfoque: los 4 pilares con su color de siempre; calentamiento y enfriamiento en gris. */
+export const COLOR_ENFOQUE: Record<string, string> = {
+  calentamiento: "#a3a8b3",
+  fuerza: "#FF6B76",
+  velocidad: "#E8B04B",
+  resistencia: "#4FA3FF",
+  estrategia: "#6FE0A2",
+  enfriamiento: "#6b7080",
 };
 
 export const METODO: Record<string, string> = { efectivo: "Efectivo", transferencia: "Transferencia", tarjeta: "Tarjeta" };

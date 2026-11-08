@@ -54,7 +54,7 @@ describe("quién ve cada ejercicio", () => {
 });
 
 describe("rutinas y planes", () => {
-  const bloque = (minutos: number) => ({ tipo: "tecnica" as const, minutos, rounds: null, descripcion: "", elementos: [] });
+  const bloque = (minutos: number) => ({ tipo: "estrategia" as const, minutos, rounds: null, descripcion: "", elementos: [] });
   it("una rutina no pasa de 120 minutos", () => {
     expect(() => validarRutina({ nombre: "A", descripcion: "", bloques: [bloque(20)] })).toThrow(/nombre/);
     expect(() => validarRutina({ nombre: "Técnica", descripcion: "", bloques: [bloque(90), bloque(40)] })).toThrow(/130 minutos/);

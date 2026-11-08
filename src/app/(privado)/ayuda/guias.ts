@@ -50,7 +50,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         titulo: "Tus resultados por pilar",
         pasos: [
           "Te evaluamos al empezar y una vez al mes: fuerza, velocidad, resistencia y estrategia.",
-          "Tu primera evaluación vale 100 en cada pilar. Arriba de 100 es avance: 115 = 15% mejor que cuando empezaste.",
+          "Cada pilar se califica del 1 al 10, como en la escuela: 6 aprueba y 10 es nivel élite para tu rama. Desde tu primera evaluación ves qué tan cerca estás de la élite y cuánto has subido desde tu inicio.",
           "En Mi progreso ves tus pilares mes a mes, el radar (la línea punteada es tu inicio), tu peso y tu historial.",
         ],
       },
@@ -93,7 +93,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Resultados de tus clientes",
         pasos: [
-          "En Resultados ves la última evaluación por pilar de cada cliente (100 = su punto de partida) y su división.",
+          "En Resultados ves la última evaluación por pilar de cada cliente (del 1 al 10; 10 = nivel élite) y su división.",
           "Tu resultado del mes es el promedio por pilar de tus clientes evaluados; la cobertura dice cuántos de tus activos se evaluaron.",
           "Se mide el avance de cada cliente, no su nivel: un principiante que mejora cuenta igual que un avanzado.",
         ],
@@ -101,7 +101,7 @@ export const AYUDA: SeccionDeAyuda[] = [
       {
         titulo: "Armar tus rutinas",
         pasos: [
-          "En Rutinas arma lo que harás en un turno de 2 horas: bloques (calentamiento, técnica, implementos...) con sus minutos.",
+          "En Rutinas arma lo que harás en un turno de 2 horas: bloques por pilar (calentamiento, fuerza, velocidad, resistencia, estrategia, enfriamiento) con sus minutos o rounds; cada bloque te sugiere los ejercicios de ese pilar.",
           "En cada bloque agrega ejercicios de la biblioteca o combinaciones de golpes (1-2-3c).",
           "La rutina no puede pasar de 120 minutos; la app te dice cuánto llevas.",
         ],
@@ -242,7 +242,7 @@ export const AYUDA: SeccionDeAyuda[] = [
           "Check-in: si tiene lesión o dolor no se evalúa (queda no apto y se reprograma). Pésalo en la misma báscula.",
           "Sigue los tests en orden, con el cronómetro y el contador en pantalla. Guarda cada uno; deja vacío un intento nulo.",
           "Estrategia: califica cada conducta 0, 1 o 2 y anota al compañero de sparring. Si no hay compañero, cierra como parcial y complétala otro día del mes.",
-          "Cerrar y publicar calcula los índices; avisa si algún valor cambió más de 40% contra el mes anterior. Para repetirla, anúlala con motivo.",
+          "Cerrar y publicar calcula la calificación del 1 al 10; avisa si algún valor cambió más de 40% contra el mes anterior. Para repetirla, anúlala con motivo.",
         ],
       },
       {
@@ -273,7 +273,7 @@ export const AYUDA: SeccionDeAyuda[] = [
         titulo: "Reiniciar el punto de partida",
         pasos: [
           "Si un cliente regresa tras 3 meses o más, o de una lesión, abre su ficha → Reiniciar punto de partida.",
-          "Escribe el motivo. Su siguiente evaluación vuelve a ser la inicial (vale 100); las anteriores siguen en su historial.",
+          "Escribe el motivo. Su siguiente evaluación vuelve a ser la inicial: su avance se mide desde ahí; las anteriores siguen en su historial.",
         ],
       },
       {

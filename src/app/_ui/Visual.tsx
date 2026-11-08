@@ -96,7 +96,7 @@ export function CalendarioMes({
   );
 }
 
-/** Líneas de los 4 pilares mes a mes, con la línea de 100 (tu inicio) punteada. */
+/** Líneas de los 4 pilares mes a mes del 1 al 10, con la élite (10) y el aprobatorio (6) marcados. */
 export function GraficaPilares({
   historial,
   pilares,
@@ -110,8 +110,9 @@ export function GraficaPilares({
 }) {
   if (historial.length < 2) return null;
   const valores = historial.flatMap((h) => pilares.map((p) => h.pilares[p])).filter((v): v is number => v !== null);
-  const min = Math.min(97, ...valores) - 3;
-  const max = Math.max(103, ...valores) + 3;
+  // Escala de calificación: desde un poco abajo de la más baja hasta 10 (élite).
+  const min = Math.max(0, Math.floor(Math.min(6, ...valores)) - 1);
+  const max = 10;
   const ancho = 320;
   const alto = 160;
   const x = (i: number) => 28 + (i * (ancho - 40)) / (historial.length - 1);
@@ -120,9 +121,13 @@ export function GraficaPilares({
   return (
     <figure>
       <svg viewBox={`0 0 ${ancho} ${alto}`} className="w-full" role="img" aria-label="Tus pilares mes a mes">
-        <line x1="28" x2={ancho - 12} y1={y(100)} y2={y(100)} stroke="#a3a8b3" strokeDasharray="4 4" strokeWidth="1" />
-        <text x="2" y={y(100) + 4} fontSize="10" className="fill-[#a3a8b3]">
-          100
+        <line x1="28" x2={ancho - 12} y1={y(10)} y2={y(10)} stroke="#e8c25b" strokeOpacity="0.7" strokeDasharray="2 3" strokeWidth="1" />
+        <text x="2" y={y(10) + 4} fontSize="10" className="fill-[#e8c25b]">
+          10
+        </text>
+        <line x1="28" x2={ancho - 12} y1={y(6)} y2={y(6)} stroke="#a3a8b3" strokeDasharray="4 4" strokeWidth="1" />
+        <text x="8" y={y(6) + 4} fontSize="10" className="fill-[#a3a8b3]">
+          6
         </text>
         {pilares.map((p) => {
           const puntos = historial.map((h, i) => (h.pilares[p] !== null ? `${x(i)},${y(h.pilares[p]!)}` : null)).filter(Boolean);
@@ -148,7 +153,10 @@ export function GraficaPilares({
           </span>
         ))}
         <span className="flex items-center gap-1.5">
-          <span className="w-3 border-t border-dashed border-[#a3a8b3]" /> Tu inicio
+          <span className="w-3 border-t border-dashed border-[#e8c25b]" /> Élite (10)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 border-t border-dashed border-[#a3a8b3]" /> Aprueba (6)
         </span>
       </figcaption>
     </figure>

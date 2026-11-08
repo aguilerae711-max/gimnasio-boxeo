@@ -290,6 +290,7 @@ export interface ResumenPilares {
   estado: EstadoSesion;
   pesoKg: number | null;
   division: string | null;
+  /** Calificación del 1 al 10 por pilar (10 = nivel élite). */
   pilares: Record<string, number | null>;
   tactica: number | null;
   adaptabilidad: number | null;
@@ -341,8 +342,10 @@ export class ConsultasEvaluacion {
         WHERE g.id = ${gimnasioId} ORDER BY r.test_codigo, r.orden`;
       const puntajes = await tx<{ clave: string; valor: string | null; base: string | null; indice: number | null; atipico: boolean }[]>`
         SELECT clave, valor, base, indice, atipico FROM puntaje_test WHERE sesion_id = ${sesionId}`;
-      const pilares = await tx<{ pilar: string; indice: number | null; completo: boolean }[]>`
-        SELECT pilar, indice, completo FROM puntaje_pilar WHERE sesion_id = ${sesionId}`;
+      const pilares = await tx<{ pilar: string; indice: number | null; completo: boolean; calificacion: number | null }[]>`
+        SELECT pp.pilar, pp.indice, pp.completo, cp.calificacion::float8 AS calificacion
+        FROM puntaje_pilar pp JOIN calificacion_pilar cp ON cp.sesion_id = pp.sesion_id AND cp.pilar = pp.pilar
+        WHERE pp.sesion_id = ${sesionId}`;
       return { ...s, pesoKg: s.pesoKg === null ? null : Number(s.pesoKg), tests, criterios, puntajes, pilares };
     });
   }
@@ -355,8 +358,8 @@ export class ConsultasEvaluacion {
       SELECT s.id AS "sesionId", s.periodo, s.tipo, s.estado, s.peso_kg AS "pesoKg", s.division, x.clave, x.indice
       FROM sesion_evaluacion s
       LEFT JOIN LATERAL (
-        SELECT pilar AS clave, indice FROM puntaje_pilar WHERE sesion_id = s.id
-        UNION ALL SELECT clave, indice FROM puntaje_test WHERE sesion_id = s.id AND clave IN ('tactica', 'adaptabilidad')) x ON true
+        SELECT pilar AS clave, calificacion::float8 AS indice FROM calificacion_pilar WHERE sesion_id = s.id
+        UNION ALL SELECT clave, valor::float8 FROM puntaje_test WHERE sesion_id = s.id AND clave IN ('tactica', 'adaptabilidad')) x ON true
       WHERE s.cliente_id = ${clienteId} AND s.estado IN ${tx(CERRADAS)}
       ORDER BY s.iniciada_en`);
     const porSesion = new Map<string, ResumenPilares>();
@@ -381,7 +384,7 @@ export class ConsultasEvaluacion {
   }
 
   /**
-   * Resultado del coach en un mes: índice promedio por pilar de sus clientes evaluados y cobertura
+   * Resultado del coach en un mes: calificación promedio (1 a 10) por pilar de sus clientes evaluados y cobertura
    * (% de sus clientes activos evaluados). Sin coachId, de todos los coaches.
    */
   resultadoCoaches(gimnasioId: string, periodo: string) {
@@ -391,13 +394,13 @@ export class ConsultasEvaluacion {
       SELECT c.id AS "coachId", c.apodo, c.color,
         (SELECT count(*)::int FROM cliente cl WHERE cl.coach_id = c.id AND cl.estado = 'activo') AS activos,
         count(DISTINCT s.id)::int AS evaluados,
-        round(avg(pp.indice) FILTER (WHERE pp.pilar = 'fuerza'))::int AS fuerza,
-        round(avg(pp.indice) FILTER (WHERE pp.pilar = 'velocidad'))::int AS velocidad,
-        round(avg(pp.indice) FILTER (WHERE pp.pilar = 'resistencia'))::int AS resistencia,
-        round(avg(pp.indice) FILTER (WHERE pp.pilar = 'estrategia'))::int AS estrategia
+        round(avg(pp.calificacion) FILTER (WHERE pp.pilar = 'fuerza'), 1)::float8 AS fuerza,
+        round(avg(pp.calificacion) FILTER (WHERE pp.pilar = 'velocidad'), 1)::float8 AS velocidad,
+        round(avg(pp.calificacion) FILTER (WHERE pp.pilar = 'resistencia'), 1)::float8 AS resistencia,
+        round(avg(pp.calificacion) FILTER (WHERE pp.pilar = 'estrategia'), 1)::float8 AS estrategia
       FROM coach c
       LEFT JOIN sesion_evaluacion s ON s.coach_id = c.id AND s.periodo = ${periodo} AND s.estado IN ${tx(CERRADAS)}
-      LEFT JOIN puntaje_pilar pp ON pp.sesion_id = s.id
+      LEFT JOIN calificacion_pilar pp ON pp.sesion_id = s.id
       WHERE c.gimnasio_id = ${gimnasioId} AND c.estado = 'aprobado'
       GROUP BY c.id ORDER BY c.apodo`);
   }
@@ -408,10 +411,10 @@ export class ConsultasEvaluacion {
       { clienteId: string; nombre: string; periodo: string | null; division: string | null; fuerza: number | null; velocidad: number | null; resistencia: number | null; estrategia: number | null }[]
     >`
       SELECT cl.id AS "clienteId", u.nombre, s.periodo, s.division,
-        (SELECT indice FROM puntaje_pilar WHERE sesion_id = s.id AND pilar = 'fuerza') AS fuerza,
-        (SELECT indice FROM puntaje_pilar WHERE sesion_id = s.id AND pilar = 'velocidad') AS velocidad,
-        (SELECT indice FROM puntaje_pilar WHERE sesion_id = s.id AND pilar = 'resistencia') AS resistencia,
-        (SELECT indice FROM puntaje_pilar WHERE sesion_id = s.id AND pilar = 'estrategia') AS estrategia
+        (SELECT calificacion::float8 FROM calificacion_pilar WHERE sesion_id = s.id AND pilar = 'fuerza') AS fuerza,
+        (SELECT calificacion::float8 FROM calificacion_pilar WHERE sesion_id = s.id AND pilar = 'velocidad') AS velocidad,
+        (SELECT calificacion::float8 FROM calificacion_pilar WHERE sesion_id = s.id AND pilar = 'resistencia') AS resistencia,
+        (SELECT calificacion::float8 FROM calificacion_pilar WHERE sesion_id = s.id AND pilar = 'estrategia') AS estrategia
       FROM cliente cl JOIN usuario u ON u.id = cl.usuario_id
       LEFT JOIN LATERAL (
         SELECT id, periodo, division FROM sesion_evaluacion
@@ -425,6 +428,16 @@ export class ConsultasEvaluacion {
     return enGimnasio(this.sql, gimnasioId, (tx) => tx<{ en: Date; motivo: string; por: string }[]>`
       SELECT r.en, r.motivo, u.nombre AS por FROM reinicio_linea_base r JOIN usuario u ON u.id = r.por
       WHERE r.cliente_id = ${clienteId} ORDER BY r.en DESC`);
+  }
+
+  /** Anclas de la calificación 1–10 por test y rama, con la meta élite y su fuente. */
+  metas(gimnasioId: string) {
+    return this.sql<{ test: string; unidad: string; sexo: "F" | "M"; a5: number; a7: number; a85: number; elite: number; aproximado: boolean; fuente: string }[]>`
+      SELECT t.nombre AS test, t.unidad, m.sexo, m.ancla_5::float8 AS a5, m.ancla_7::float8 AS a7, m.ancla_85::float8 AS a85,
+             m.elite::float8 AS elite, m.aproximado, m.fuente
+      FROM meta_test m JOIN gimnasio g ON g.disciplina_id = m.disciplina_id
+      JOIN test_def t ON t.disciplina_id = m.disciplina_id AND t.codigo = m.test_codigo
+      WHERE g.id = ${gimnasioId} ORDER BY t.pilar_codigo, t.nombre, m.sexo`;
   }
 
   referencias(gimnasioId: string) {

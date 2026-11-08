@@ -17,7 +17,7 @@ export default async function Rutinas({ searchParams }: { searchParams: Promise<
   if (!yo) redirect("/panel");
   const [rutinas, ejercicios] = await Promise.all([casos.consultas.rutinas(sesion.gimnasioId, yo.id), casos.consultas.ejercicios(sesion.gimnasioId)]);
   const lector = { esAdministracion: sesion.permisos.includes("biblioteca.formalizar"), coachId: yo.id, accesoCompartido: yo.accesoBiblioteca };
-  const disponibles = ejercicios.filter((e) => puedeVer(e, lector)).map((e) => ({ id: e.id, nombre: e.nombre }));
+  const disponibles = ejercicios.filter((e) => puedeVer(e, lector)).map((e) => ({ id: e.id, nombre: e.nombre, enfoque: e.categoria }));
   const { editar, guardada } = await searchParams;
   const enEdicion = editar ? rutinas.find((r) => r.id === editar) : null;
   const inicial: Rutina | null = enEdicion

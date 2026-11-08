@@ -2,7 +2,7 @@ import { ErrorDeDominio, SinPermiso } from "@/shared/domain/ErrorDeDominio";
 import { Fecha } from "@/shared/domain/Fecha";
 import type { Actor, Auditoria, Autorizacion, GeneradorDeIds, Reloj } from "@/shared/application/puertos";
 import { parecidos, puedeVer, traducirCombinacion, validarPropuesta, type EjercicioVisible, type Golpe, type NombreConocido, type Visibilidad } from "../domain/Biblioteca";
-import { claveTurno, diferencias, siguienteEstado, validarRutina, type Asignaciones, type EstadoPlan, type Rutina } from "../domain/Planes";
+import { claveTurno, diferencias, siguienteEstado, TIPOS_BLOQUE, validarRutina, type Asignaciones, type EstadoPlan, type Rutina } from "../domain/Planes";
 
 export const PERMISO_PROPONER = "biblioteca.proponer";
 export const PERMISO_FORMALIZAR = "biblioteca.formalizar";
@@ -73,12 +73,18 @@ const registrar = (d: DependenciasBiblioteca, actor: Actor, accion: string, enti
  * Si se parece a uno existente, se avisa: solo se guarda si confirma que es distinto.
  * Si lo crea la administración, queda formalizado y compartido.
  */
+/** Cada ejercicio trabaja un enfoque principal: el mismo que los bloques de las rutinas. */
+function validarEnfoque(enfoque: string) {
+  if (!(TIPOS_BLOQUE as readonly string[]).includes(enfoque)) throw new ErrorDeDominio("enfoque", "Elige qué pilar trabaja el ejercicio.");
+}
+
 export class ProponerEjercicio {
   constructor(private readonly d: DependenciasBiblioteca) {}
 
   async ejecutar(actor: Actor, s: { nombre: string; descripcion: string; categoria: string; esDistinto: boolean }) {
     await exigir(this.d, actor, PERMISO_PROPONER);
     const { nombre, descripcion } = validarPropuesta(s);
+    validarEnfoque(s.categoria);
     if (!s.esDistinto) {
       const parecido = parecidos(nombre, await this.d.repositorio.nombresConocidos(actor.gimnasioId));
       if (parecido.length > 0) {
@@ -117,6 +123,7 @@ export class FormalizarEjercicio {
     const e = await this.d.repositorio.ejercicio(actor.gimnasioId, id);
     if (!e || e.estado === "fusionado") throw new ErrorDeDominio("ejercicio_no_encontrado", "No existe ese ejercicio.");
     const { nombre, descripcion } = validarPropuesta(s);
+    validarEnfoque(s.categoria);
     const alias = [...new Set(s.alias.map((a) => a.trim()).filter((a) => a.length >= 2 && a !== nombre))].slice(0, 10);
     await this.d.repositorio.formalizar(actor.gimnasioId, id, {
       nombre,

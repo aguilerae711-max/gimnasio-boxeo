@@ -4,6 +4,7 @@ import { requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
 import { Desplegable, Campo, Estado, Titulo } from "../../_ui/piezas";
 import { cambiarAcceso, formalizarEjercicio, fusionarEjercicio, proponerEjercicio } from "./acciones";
+import { COLOR_ENFOQUE } from "../../_ui/formato";
 import { IlustracionGolpe } from "./IlustracionGolpe";
 
 const MANO: Record<string, string> = { adelante: "Mano de adelante", atras: "Mano de atrás", ambas: "Cualquier mano" };
@@ -71,7 +72,10 @@ export default async function Biblioteca() {
           if (propios.length === 0) return null;
           return (
             <div key={c.codigo} className="mt-3">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-texto-suave">{c.nombre}</h3>
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-texto-suave">
+                <span className="h-2 w-2 rounded-full" style={{ background: COLOR_ENFOQUE[c.codigo] }} />
+                {c.nombre}
+              </h3>
               <ul className="mt-1 grid gap-2 sm:grid-cols-2">
                 {propios.map((e) => (
                   <li key={e.id}>
@@ -104,7 +108,7 @@ export default async function Biblioteca() {
           <div className="grid gap-2 sm:grid-cols-[2fr_1fr]">
             <Campo etiqueta="Nombre" name="nombre" maxLength={80} required />
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-semibold text-[#c9ccd3]">Categoría</span>
+              <span className="text-sm font-semibold text-[#c9ccd3]">Pilar que trabaja</span>
               <select name="categoria" className={selector}>
                 {categorias.map((c) => (
                   <option key={c.codigo} value={c.codigo}>
@@ -139,7 +143,7 @@ export default async function Biblioteca() {
                     <div className="grid gap-2 sm:grid-cols-3">
                       <Campo etiqueta="Nombre oficial" name="nombre" defaultValue={e.nombre} required />
                       <label className="flex flex-col gap-1.5">
-                        <span className="text-sm font-semibold text-[#c9ccd3]">Categoría</span>
+                        <span className="text-sm font-semibold text-[#c9ccd3]">Pilar que trabaja</span>
                         <select name="categoria" defaultValue={e.categoria} className={selector}>
                           {categorias.map((c) => (
                             <option key={c.codigo} value={c.codigo}>

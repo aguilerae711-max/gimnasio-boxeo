@@ -129,13 +129,15 @@ describe("evaluación por pilares en Postgres", () => {
   it("historial del cliente, división de cada evaluación y resultado del coach", async () => {
     const consultas = new ConsultasEvaluacion(sql);
     const historial = await consultas.historialDeCliente(GIMNASIO, ana);
+    // Calificación 1–10 desde los valores reales (rama femenil): salto 185 cm = 8.1 y flexiones 18 = 8.7 → fuerza 8.4;
+    // en diciembre salto 204 = 9.6 y flexiones 20 = 9.1 → 9.4. Estrategia sale de la rúbrica (0–10).
     expect(historial.map((h) => [h.tipo, h.periodo, h.division, h.pilares.fuerza])).toEqual([
-      ["inicial", "2026-11", "57 kg", 100],
-      ["mensual", "2026-12", "57 kg", 111],
+      ["inicial", "2026-11", "57 kg", 8.4],
+      ["mensual", "2026-12", "57 kg", 9.4],
     ]);
     const mike = (await consultas.resultadoCoaches(GIMNASIO, "2026-12")).find((c) => c.coachId === coachMike)!;
-    expect(mike).toMatchObject({ activos: 1, evaluados: 1, fuerza: 111, estrategia: 150 });
-    expect((await consultas.ultimosDelCoach(GIMNASIO, coachMike))[0]).toMatchObject({ nombre: "Ana López", periodo: "2026-12", fuerza: 111 });
+    expect(mike).toMatchObject({ activos: 1, evaluados: 1, fuerza: 9.4, estrategia: 10 });
+    expect((await consultas.ultimosDelCoach(GIMNASIO, coachMike))[0]).toMatchObject({ nombre: "Ana López", periodo: "2026-12", fuerza: 9.4 });
   });
 
   it("anular con motivo permite repetir la del mes; los datos crudos se conservan", async () => {
@@ -169,5 +171,17 @@ describe("evaluación por pilares en Postgres", () => {
     const consultas = new ConsultasEvaluacion(sql);
     expect((await consultas.historialDeCliente(GIMNASIO, ana)).map((h) => h.periodo)).toEqual(["2026-11", "2027-01"]);
     expect((await consultas.reinicios(GIMNASIO, ana))[0]).toMatchObject({ motivo: "Regreso tras lesión de hombro" });
+  });
+
+  it("la calificación va de 1 a 10: anclas inicial 5, intermedio 7, avanzado 8.5 y élite 10", async () => {
+    const calif = async (v: number) => Number((await sql`SELECT calificar(${v}, 150, 170, 190, 210) AS c`)[0].c);
+    expect(await calif(150)).toBe(5);
+    expect(await calif(170)).toBe(7);
+    expect(await calif(190)).toBe(8.5);
+    expect(await calif(210)).toBe(10);
+    expect(await calif(260)).toBe(10);
+    expect(await calif(180)).toBe(7.8);
+    expect(await calif(75)).toBe(1);
+    expect(await calif(10)).toBe(1);
   });
 });

@@ -1,7 +1,8 @@
 import { ErrorDeDominio } from "@/shared/domain/ErrorDeDominio";
 
 export const DURACION_TURNO_MIN = 120;
-export const TIPOS_BLOQUE = ["calentamiento", "tecnica", "implementos", "sparring", "acondicionamiento", "enfriamiento", "otro"] as const;
+/** Cada bloque parte de un pilar de la evaluación, con calentamiento al inicio y enfriamiento al final. */
+export const TIPOS_BLOQUE = ["calentamiento", "fuerza", "velocidad", "resistencia", "estrategia", "enfriamiento"] as const;
 export type TipoBloque = (typeof TIPOS_BLOQUE)[number];
 export type Modalidad = "individual" | "parejas" | "grupal";
 

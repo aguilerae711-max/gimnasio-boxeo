@@ -4,7 +4,7 @@ import { casosDeEvaluacion, casosDeOperacion } from "../../../_servidor/contened
 import { requerirSesion } from "../../../_servidor/sesion";
 import { nombreMes } from "../../../_ui/formato";
 import { Desplegable, Tarjeta, Titulo } from "../../../_ui/piezas";
-import { COLOR_PILAR, NOMBRE_PILAR, PILARES } from "../../../_ui/Resultados";
+import { calificacion, colorCalificacion, COLOR_PILAR, NOMBRE_PILAR, PILARES } from "../../../_ui/Resultados";
 
 /** El coach ve el resultado por pilar de sus clientes y su resultado general; nunca los tests ni valores crudos. */
 export default async function ResultadosCoach() {
@@ -42,7 +42,9 @@ export default async function ResultadosCoach() {
                     <p className="text-xs font-semibold uppercase" style={{ color: COLOR_PILAR[p] }}>
                       {NOMBRE_PILAR[p]}
                     </p>
-                    <p className="font-titulos text-3xl font-extrabold">{datos?.[p] ?? "—"}</p>
+                    <p className="cifras font-titulos text-3xl font-extrabold" style={{ color: colorCalificacion(datos?.[p] ?? null) }}>
+                      {calificacion(datos?.[p] ?? null)}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -52,7 +54,7 @@ export default async function ResultadosCoach() {
       </div>
 
       <Desplegable titulo="Mis clientes" abierto>
-        <p className="text-xs text-texto-suave">Última evaluación de cada uno. 100 = su punto de partida.</p>
+        <p className="text-xs text-texto-suave">Última evaluación de cada uno, del 1 al 10 (6 aprueba, 10 es nivel élite).</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="text-texto-suave">
@@ -72,7 +74,9 @@ export default async function ResultadosCoach() {
                   <td className="py-1.5">{c.nombre}</td>
                   <td>{c.periodo ? `${nombreMes(c.periodo)}${c.division ? ` · ${c.division}` : ""}` : "sin evaluar"}</td>
                   {PILARES.map((p) => (
-                    <td key={p}>{c[p] ?? "—"}</td>
+                    <td key={p} className="cifras font-semibold" style={{ color: colorCalificacion(c[p] ?? null) }}>
+                      {calificacion(c[p] ?? null)}
+                    </td>
                   ))}
                 </tr>
               ))}
