@@ -1,6 +1,6 @@
 import type postgres from "postgres";
 import { enGimnasio } from "@/shared/infrastructure/baseDeDatos";
-import type { RepositorioSolicitudes } from "../application/SolicitudesDePrueba";
+import { DESDE, type EstadoAtencion, type RepositorioSolicitudes } from "../application/SolicitudesDePrueba";
 
 export class SolicitudesPostgres implements RepositorioSolicitudes {
   constructor(private readonly sql: postgres.Sql) {}
@@ -22,10 +22,10 @@ export class SolicitudesPostgres implements RepositorioSolicitudes {
       VALUES (${s.id}, ${gimnasioId}, ${s.nombre}, ${s.telefono}, ${s.franjaId}, ${s.comentario}, ${s.en})`);
   }
 
-  async atender(gimnasioId: string, id: string, estado: "contactado" | "descartado", por: string, en: Date) {
+  async atender(gimnasioId: string, id: string, estado: EstadoAtencion, por: string, en: Date) {
     const filas = await enGimnasio(this.sql, gimnasioId, (tx) => tx`
       UPDATE solicitud_prueba SET estado = ${estado}, atendida_por = ${por}, atendida_en = ${en}
-      WHERE id = ${id} AND gimnasio_id = ${gimnasioId} AND estado = 'pendiente' RETURNING 1`);
+      WHERE id = ${id} AND gimnasio_id = ${gimnasioId} AND estado IN ${tx(DESDE[estado] as string[])} RETURNING 1`);
     return filas.length === 1;
   }
 
@@ -35,6 +35,13 @@ export class SolicitudesPostgres implements RepositorioSolicitudes {
       SELECT s.id, s.nombre, s.telefono, to_char(f.hora_inicio, 'HH24:MI') || '–' || to_char(f.hora_fin, 'HH24:MI') AS franja, s.comentario, s.creada_en AS "creadaEn"
       FROM solicitud_prueba s LEFT JOIN franja_horaria f ON f.id = s.franja_id
       WHERE s.gimnasio_id = ${gimnasioId} AND s.estado = 'pendiente' ORDER BY s.creada_en`);
+  }
+
+  /** Ya agendadas: después de su clase de prueba se les manda la inscripción. */
+  agendadas(gimnasioId: string) {
+    return enGimnasio(this.sql, gimnasioId, (tx) => tx<{ id: string; nombre: string; telefono: string; agendadaEn: Date }[]>`
+      SELECT id, nombre, telefono, atendida_en AS "agendadaEn" FROM solicitud_prueba
+      WHERE gimnasio_id = ${gimnasioId} AND estado = 'contactado' ORDER BY atendida_en`);
   }
 
   /** Franjas para el formulario público. */

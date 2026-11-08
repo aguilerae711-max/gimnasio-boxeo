@@ -3,17 +3,19 @@ import { estadoCorporal } from "@/modules/evaluacion/domain/Composicion";
 import { estadoMembresia } from "@/modules/membresias/domain/Cuentas";
 import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeClientes, casosDeEvaluacion, casosDeOperacion, casosDePagos, casosDePesajes } from "../_servidor/contenedor";
-import { fechaCorta } from "./formato";
-import { Estado, Tarjeta, Titulo } from "./piezas";
+import { fechaCorta, textoVencimiento } from "./formato";
+import { BOTON, Estado, Tarjeta, Titulo } from "./piezas";
 import { PILARES } from "./Resultados";
 import { RutinaDeHoy } from "./RutinaDeHoy";
-import { AnilloDias, CalendarioMes } from "./Visual";
+import { AnilloDias, CalendarioMes, GraficaPeso } from "./Visual";
 
 const MENSAJE: Record<string, string> = {
   pendiente: "La administración está revisando tu registro. Te avisamos en el gimnasio cuando quede aprobado.",
   rechazado: "Tu registro no fue aprobado. Habla con la administración en el gimnasio.",
   baja: "Tu cuenta está dada de baja. Si quieres volver, habla con la administración.",
 };
+
+const conSigno = (kg: number) => `${kg > 0 ? "+" : kg < 0 ? "−" : ""}${Math.abs(kg).toFixed(1)} kg`;
 
 const COLOR_MEMBRESIA = { activo: "#6fe0a2", por_vencer: "#f1d9a8", vencido: "#ff8f97", sin_pago: "#a3a8b3" } as const;
 
@@ -59,6 +61,21 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
     <>
       <Titulo antetitulo={`Hola, ${yo.nombre.split(" ")[0]}`}>Hoy</Titulo>
 
+      {membresia.vence && yo.estado === "activo" && (membresia.estado === "vencido" || (membresia.diasRestantes ?? 99) <= 2) && (
+        <div
+          role="status"
+          className={`rounded-2xl border px-5 py-4 ${membresia.estado === "vencido" ? "border-[#6b2a31] bg-[#2a1418] text-[#ff8f97]" : "border-[#6b4d12] bg-[#2a2111] text-[#f1d9a8]"}`}
+        >
+          <p className="font-titulos text-xl font-bold uppercase">
+            {membresia.estado === "vencido" ? "Tu membresía venció" : `Tu membresía ${textoVencimiento(membresia.diasRestantes ?? 0)}`}
+          </p>
+          <p className="text-sm">
+            {membresia.estado === "vencido" ? `Venció el ${fechaCorta(membresia.vence.valor)}.` : `Pagado hasta el ${fechaCorta(membresia.vence.valor)}.`} Renueva con
+            tu coach o en la administración para no perder tus días.
+          </p>
+        </div>
+      )}
+
       {yo.estado !== "activo" && (
         <Tarjeta className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-[15px] text-[#c9ccd3]">{MENSAJE[yo.estado]}</p>
@@ -99,6 +116,47 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
         </div>
       </Tarjeta>
 
+      <Tarjeta>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">Tu peso</p>
+            <p className="cifras font-titulos text-6xl font-extrabold leading-none">
+              {corporal ? corporal.actual.pesoKg.toFixed(1) : "—"}
+              <span className="ml-1 text-2xl text-texto-suave">kg</span>
+            </p>
+          </div>
+          {corporal?.division && (
+            <div className="text-right">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">División</p>
+              <p className="font-titulos text-2xl font-extrabold text-acento">{corporal.division.nombre}</p>
+            </div>
+          )}
+        </div>
+        {corporal ? (
+          <>
+            {(corporal.cambioTotal !== null || corporal.cambioAnterior !== null) && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {corporal.cambioTotal !== null && (
+                  <span className="cifras rounded-full bg-white/[0.06] px-3 py-1 text-sm">
+                    <b>{conSigno(corporal.cambioTotal)}</b> <span className="text-texto-suave">desde tu inicio</span>
+                  </span>
+                )}
+                {corporal.cambioAnterior !== null && (
+                  <span className="cifras rounded-full bg-white/[0.06] px-3 py-1 text-sm">
+                    <b>{conSigno(corporal.cambioAnterior)}</b> <span className="text-texto-suave">desde tu último pesaje</span>
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="mt-3">
+              <GraficaPeso mediciones={peso.mediciones.filter((m) => !m.aproximado || peso.mediciones.every((x) => x.aproximado))} />
+            </div>
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-texto-suave">Te pesamos en tu evaluación; aquí verás cómo cambia mes a mes.</p>
+        )}
+      </Tarjeta>
+
       {yo.estado === "activo" && (
         <RutinaDeHoy
           gimnasioId={sesion.gimnasioId}
@@ -114,31 +172,19 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
         <CalendarioMes hoy={hoy} periodos={periodos} vence={membresia.vence} />
       </Tarjeta>
 
-      <Tarjeta>
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="font-titulos text-xl font-bold uppercase">Tu progreso</p>
-          {!vista && (
-            <Link href="/cliente/resultados" className="text-sm font-semibold no-underline">
-              Ver todo →
-            </Link>
-          )}
+      <Tarjeta className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">Tus pilares</p>
+          <p className="cifras font-titulos text-4xl font-extrabold leading-none">{promedio ?? "—"}</p>
+          <p className="text-xs text-texto-suave">
+            {promedio === null ? "Aún sin evaluar" : promedio >= 100 ? `+${promedio - 100}% desde tu inicio` : `${promedio - 100}% desde tu inicio`}
+          </p>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/[0.04] p-3">
-            <p className="text-[11px] uppercase tracking-wider text-texto-suave">Peso</p>
-            <p className="cifras font-titulos text-3xl font-extrabold">{corporal ? corporal.actual.pesoKg.toFixed(1) : "—"}</p>
-            <p className="text-xs text-texto-suave">kg</p>
-          </div>
-          <div className="rounded-xl bg-white/[0.04] p-3">
-            <p className="text-[11px] uppercase tracking-wider text-texto-suave">División</p>
-            <p className="truncate font-titulos text-xl font-extrabold leading-9 text-acento">{corporal?.division?.nombre ?? "—"}</p>
-          </div>
-          <div className="rounded-xl bg-white/[0.04] p-3">
-            <p className="text-[11px] uppercase tracking-wider text-texto-suave">Pilares</p>
-            <p className="cifras font-titulos text-3xl font-extrabold">{promedio ?? "—"}</p>
-            <p className="text-xs text-texto-suave">{promedio === null ? "sin evaluar" : promedio >= 100 ? `+${promedio - 100}% desde tu inicio` : `${promedio - 100}%`}</p>
-          </div>
-        </div>
+        {!vista && (
+          <Link href="/cliente/resultados" className={BOTON.secundario}>
+            Mi progreso
+          </Link>
+        )}
       </Tarjeta>
 
       {!vista && (

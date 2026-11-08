@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { cargoDelSistema, cuadreDelMes, ingresosDelMes } from "@/modules/membresias/domain/Cuentas";
+import { cuadreDelMes } from "@/modules/membresias/domain/Cuentas";
 import { Fecha } from "@/shared/domain/Fecha";
 import { casosDeOperacion, casosDePagos } from "../../../_servidor/contenedor";
 import { requerirSesion } from "../../../_servidor/sesion";
-import { fechaCorta, nombreMes, pesos } from "../../../_ui/formato";
+import { nombreMes, pesos } from "../../../_ui/formato";
 import { Formulario } from "../../../_ui/Formulario";
-import { Desplegable, Campo, Estado, Titulo } from "../../../_ui/piezas";
-import { cambiarTarifa, cerrarCuadre } from "../../pagos/acciones";
-
-const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija: { centavos: number } }) =>
-  t.tipo === "porcentaje" ? `${t.puntosBase / 100}% de los ingresos` : `${pesos(t.cuotaFija.centavos)} fijos al mes`;
+import { Desplegable, Estado, Titulo } from "../../../_ui/piezas";
+import { cerrarCuadre } from "../../pagos/acciones";
 
 export default async function Cuadre({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const sesion = await requerirSesion("cuadre.cerrar");
@@ -20,16 +17,12 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
   const [anterior, siguiente] = [inicio.sumarMeses(-1).mes, inicio.sumarMeses(1).mes];
 
   const casos = casosDePagos(sesion.permisos, sesion.zonaHoraria);
-  const [pagos, cerrados, coaches, tarifas] = await Promise.all([
+  const [pagos, cerrados, coaches] = await Promise.all([
     casos.repositorio.confirmadosDelMes(sesion.gimnasioId, mes),
     casos.consultas.cuadresDelMes(sesion.gimnasioId, mes),
     casosDeOperacion(sesion.permisos, sesion.zonaHoraria).consultas.coaches(sesion.gimnasioId),
-    casos.repositorio.tarifas(sesion.gimnasioId),
   ]);
   const terminado = mes < hoy.mes;
-  const ingresos = ingresosDelMes(pagos, mes);
-  const sistema = cargoDelSistema(tarifas, mes, ingresos);
-  const esSuperadmin = sesion.permisos.includes("sistema.administrar");
 
   return (
     <>
@@ -89,45 +82,6 @@ export default async function Cuadre({ searchParams }: { searchParams: Promise<{
         </ul>
       </Desplegable>
 
-      {/* La cuota del sistema es entre el gimnasio y el dueño del sistema: solo la ve el superadministrador. */}
-      {esSuperadmin && (
-        <Desplegable titulo="Con el sistema">
-          <div className="mt-2 grid gap-3 sm:grid-cols-3">
-            <div>
-              <p className="text-sm text-texto-suave">Ingresos del mes</p>
-              <p className="font-titulos text-3xl font-bold">{pesos(ingresos.centavos)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-texto-suave">Cuota vigente</p>
-              <p className="font-titulos text-3xl font-bold">{sistema.tarifa ? describirTarifa(sistema.tarifa) : "—"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-texto-suave">A pagar al sistema</p>
-              <p className="font-titulos text-3xl font-bold text-[#6fe0a2]">{pesos(sistema.cargo.centavos)}</p>
-            </div>
-          </div>
-          <ul className="mt-3 text-xs text-texto-suave">
-            {tarifas.map((t) => (
-              <li key={t.vigenteDesde.valor}>
-                Desde {fechaCorta(t.vigenteDesde.valor)} {t.vigenteDesde.valor.slice(0, 4)}: {describirTarifa(t)}
-              </li>
-            ))}
-          </ul>
-            <Formulario accion={cambiarTarifa} boton="Programar cuota" variante="secundario" className="mt-4 grid! grid-cols-2 items-end gap-2! sm:grid-cols-[1fr_1fr_1fr_1fr_2fr_auto]">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-semibold text-[#c9ccd3]">Tipo</span>
-                <select name="tipo" className="min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-texto">
-                  <option value="porcentaje">Porcentaje</option>
-                  <option value="cuota_fija">Cuota fija</option>
-                </select>
-              </label>
-              <Campo etiqueta="%" name="porcentaje" type="number" min={0} max={50} step={0.01} defaultValue={0} />
-              <Campo etiqueta="Cuota ($)" name="cuota" type="number" min={0} step={0.01} defaultValue={0} />
-              <Campo etiqueta="Desde" name="desde" type="month" min={Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes} required />
-              <Campo etiqueta="Motivo" name="motivo" required />
-            </Formulario>
-        </Desplegable>
-      )}
     </>
   );
 }

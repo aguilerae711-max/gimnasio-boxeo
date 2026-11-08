@@ -1,17 +1,15 @@
 import Link from "next/link";
-import { estadoMembresia } from "@/modules/membresias/domain/Cuentas";
+import { DIAS_AVISO_ANTICIPADO, situacionDePago } from "@/modules/membresias/domain/Cuentas";
 import { Fecha } from "@/shared/domain/Fecha";
-import { casosDeBiblioteca, casosDeClientes, casosDePagos, casosDeSolicitudes, casosDeSolicitudesCoach } from "../../_servidor/contenedor";
-import { requerirSesion } from "../../_servidor/sesion";
-import { fechaCorta, nombreMes, pesos } from "../../_ui/formato";
+import { casosDeBiblioteca, casosDeClientes, casosDePagos, casosDePesajes, casosDeSolicitudes, casosDeSolicitudesCoach } from "../../_servidor/contenedor";
+import { direccionPublica, requerirSesion } from "../../_servidor/sesion";
+import { BOTON_WHATSAPP, fechaCorta, nombreMes, pesos, textoVencimiento, whatsapp } from "../../_ui/formato";
 import { BOTON, Desplegable, Filas, Tarjeta, Titulo } from "../../_ui/piezas";
 import { atenderSolicitud, descartarSolicitudCoach, revisarCliente } from "./acciones";
 import { AprobarCoach } from "./AprobarCoach";
 
-const BOTON_WHATSAPP =
-  "inline-flex min-h-11 items-center rounded-xl bg-[#1f7a4d] px-4 text-sm font-semibold text-white no-underline hover:brightness-110";
+const conSigno = (kg: number) => `${kg > 0 ? "+" : kg < 0 ? "−" : ""}${Math.abs(kg).toFixed(1)} kg`;
 
-const whatsapp = (telefono: string, texto: string) => `https://wa.me/52${telefono.slice(-10)}?text=${encodeURIComponent(texto)}`;
 
 /** "Hoy" de la administración: solo lo que hay que atender. Lo que está al día no aparece. */
 export default async function Hoy() {
@@ -21,25 +19,36 @@ export default async function Hoy() {
   const siguiente = Fecha.de(`${hoy.mes}-01`).sumarMeses(1).mes;
   const pagos = casosDePagos(sesion.permisos, sesion.zonaHoraria);
   const biblioteca = casosDeBiblioteca(sesion.permisos, sesion.zonaHoraria);
-  const [registros, clientes, solicitudes, aspirantes, porConfirmar, periodos, planesMes, planesSiguiente] = await Promise.all([
+  const [registros, clientes, solicitudes, agendadas, aspirantes, porConfirmar, periodos, planesMes, planesSiguiente, cambiosPeso] = await Promise.all([
     casosDeClientes().consultas.delGimnasio(sesion.gimnasioId, "pendiente"),
     casosDeClientes().consultas.delGimnasio(sesion.gimnasioId, "activo"),
     casosDeSolicitudes(sesion.permisos).repositorio.pendientes(sesion.gimnasioId),
+    casosDeSolicitudes(sesion.permisos).repositorio.agendadas(sesion.gimnasioId),
     tiene("equipo.agregar") ? casosDeSolicitudesCoach(sesion.permisos).repositorio.pendientes(sesion.gimnasioId) : [],
     tiene("pago.confirmar") ? pagos.consultas.porRevisar(sesion.gimnasioId) : [],
     pagos.consultas.periodos(sesion.gimnasioId),
     tiene("plan.aprobar") ? biblioteca.consultas.planesDelMes(sesion.gimnasioId, hoy.mes) : [],
     tiene("plan.aprobar") ? biblioteca.consultas.planesDelMes(sesion.gimnasioId, siguiente) : [],
+    casosDePesajes(sesion.permisos, sesion.zonaHoraria).cambios(sesion.gimnasioId),
   ]);
+  // Avances de peso del último mes que merecen una felicitación (bajar o subir lo deciden con su coach).
+  const haceUnMes = hoy.sumarDias(-31);
+  const paraFelicitar = cambiosPeso
+    .filter((p) => p.pesajes >= 2 && !Fecha.de(p.ultimaFecha).esAntesDe(haceUnMes))
+    .map((p) => ({ ...p, total: p.ultimoKg - p.primeroKg, reciente: p.anteriorKg === null ? 0 : p.ultimoKg - p.anteriorKg }))
+    .filter((p) => Math.abs(p.total) >= 3 || Math.abs(p.reciente) >= 1.5)
+    .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+  // Una semana antes de vencer y hasta dos semanas después: lo demás vive en Dinero → Seguimiento.
   const porVencer = clientes
-    .map((c) => ({ ...c, membresia: estadoMembresia(periodos.get(c.id) ?? [], hoy) }))
-    .filter((c) => c.membresia.estado === "por_vencer" || c.membresia.estado === "vencido")
-    .sort((a, b) => (a.membresia.diasRestantes ?? 0) - (b.membresia.diasRestantes ?? 0));
+    .map((c) => ({ ...c, ...situacionDePago(periodos.get(c.id) ?? [], hoy) }))
+    .filter((c): c is typeof c & { dias: number } => c.dias !== null && c.dias <= DIAS_AVISO_ANTICIPADO && c.dias > -14)
+    .sort((a, b) => a.dias - b.dias);
   const planesPorRevisar = [
     ...planesMes.filter((p) => p.estado === "enviado").map((p) => ({ ...p, mes: hoy.mes })),
     ...planesSiguiente.filter((p) => p.estado === "enviado").map((p) => ({ ...p, mes: siguiente })),
   ];
-  const total = registros.length + solicitudes.length + aspirantes.length + porConfirmar.length + planesPorRevisar.length + porVencer.length;
+  const enlaceRegistro = `${await direccionPublica()}/registro`;
+  const total = registros.length + solicitudes.length + agendadas.length + aspirantes.length + porConfirmar.length + planesPorRevisar.length + porVencer.length;
 
   return (
     <>
@@ -138,6 +147,45 @@ export default async function Hoy() {
         </Desplegable>
       )}
 
+      {agendadas.length > 0 && (
+        <Desplegable titulo="Después de su prueba" cuenta={agendadas.length} nota="Mándales su inscripción">
+          <Filas>
+            {agendadas.map((s) => (
+              <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{s.nombre}</p>
+                  <p className="text-sm text-texto-suave">
+                    {s.telefono} · agendada el {fechaCorta(s.agendadaEn.toISOString().slice(0, 10))}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={whatsapp(
+                      s.telefono,
+                      `Hola ${s.nombre.split(" ")[0]}, ¡gracias por venir a tu clase de prueba! Si quieres quedarte, inscríbete aquí y elige a tu coach: ${enlaceRegistro}`,
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={BOTON_WHATSAPP}
+                  >
+                    Mandar inscripción
+                  </a>
+                  <form action={atenderSolicitud} className="flex gap-2">
+                    <input type="hidden" name="id" value={s.id} />
+                    <button name="estado" value="inscrito" className={BOTON.secundario}>
+                      Ya se inscribió
+                    </button>
+                    <button name="estado" value="descartado" className={BOTON.discreto}>
+                      No se quedó
+                    </button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </Filas>
+        </Desplegable>
+      )}
+
       {aspirantes.length > 0 && (
         <Desplegable titulo="Quieren ser coach" cuenta={aspirantes.length} alerta>
           <Filas>
@@ -189,6 +237,29 @@ export default async function Hoy() {
         </Desplegable>
       )}
 
+      {paraFelicitar.length > 0 && (
+        <Desplegable titulo="Para felicitar" cuenta={paraFelicitar.length} nota="Avances de peso del último mes">
+          <Filas>
+            {paraFelicitar.map((p) => (
+              <li key={p.clienteId} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{p.nombre}</p>
+                  <p className="cifras text-sm text-texto-suave">
+                    {conSigno(p.total)} desde su inicio · {conSigno(p.reciente)} en su último pesaje · hoy {p.ultimoKg.toFixed(1)} kg
+                  </p>
+                </div>
+                <Link
+                  href={`/novedades?felicitar=${p.clienteId}&titulo=${encodeURIComponent(`¡Felicidades, ${p.nombre.split(" ")[0]}!`)}`}
+                  className={BOTON.secundario}
+                >
+                  Felicitar
+                </Link>
+              </li>
+            ))}
+          </Filas>
+        </Desplegable>
+      )}
+
       {porVencer.length > 0 && (
         <Desplegable titulo="Membresías por vencer" cuenta={porVencer.length}>
           <Filas>
@@ -199,13 +270,14 @@ export default async function Hoy() {
                     <span className="block font-semibold">{c.nombre}</span>
                     <span className="text-sm text-texto-suave">Coach {c.coach}</span>
                   </span>
-                  <span className={`cifras text-sm font-semibold ${c.membresia.estado === "vencido" ? "text-[#ff8f97]" : "text-[#f1d9a8]"}`}>
-                    {c.membresia.estado === "vencido" ? "vencida" : `${c.membresia.diasRestantes} ${c.membresia.diasRestantes === 1 ? "día" : "días"}`}
-                  </span>
+                  <span className={`text-sm font-semibold ${c.dias <= 0 ? "text-[#ff8f97]" : "text-[#f1d9a8]"}`}>{textoVencimiento(c.dias)}</span>
                 </Link>
               </li>
             ))}
           </Filas>
+          <Link href="/admin/seguimiento" className={`${BOTON.secundario} mt-3`}>
+            Ver seguimiento y avisar por WhatsApp
+          </Link>
         </Desplegable>
       )}
     </>

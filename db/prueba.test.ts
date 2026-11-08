@@ -34,11 +34,15 @@ describe("solicitudes de clase de prueba en Postgres", () => {
     expect(await repo.pendientes(GIMNASIO)).toEqual([expect.objectContaining({ nombre: "Pedro Ruiz", telefono: "5512345678", franja: "18:00–20:00" })]);
   });
 
-  it("la administración la marca como contactada y sale de pendientes; solo una vez", async () => {
+  it("se agenda, después de la prueba se inscribe, y cada paso solo una vez", async () => {
     const [p] = await repo.pendientes(GIMNASIO);
     const atender = new AtenderSolicitud({ repositorio: repo, autorizacion: autorizacionConPermisos(["cliente.aprobar"]), auditoria: new AuditoriaPostgres(sql), reloj: { ahora: () => ahora } });
     await atender.ejecutar(admin, p.id, "contactado");
     expect(await repo.pendientes(GIMNASIO)).toEqual([]);
+    expect((await repo.agendadas(GIMNASIO)).map((a) => a.id)).toEqual([p.id]);
+    await expect(atender.ejecutar(admin, p.id, "contactado")).rejects.toThrow(/ya fue atendida/);
+    await atender.ejecutar(admin, p.id, "inscrito");
+    expect(await repo.agendadas(GIMNASIO)).toEqual([]);
     await expect(atender.ejecutar(admin, p.id, "descartado")).rejects.toThrow(/ya fue atendida/);
     await expect(new AtenderSolicitud({ repositorio: repo, autorizacion: autorizacionConPermisos([]), auditoria: new AuditoriaPostgres(sql), reloj: { ahora: () => ahora } }).ejecutar(admin, p.id, "contactado")).rejects.toThrow(/permiso/);
   });

@@ -7,6 +7,24 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.15.0] - 2026-11-07 · Vencimientos, seguimiento, peso y golpes ilustrados
+
+### Agregado
+
+- **Por vencer (coach):** en su Hoy ve a sus clientes que vencen en los próximos 7 días (o se les venció hace poco) con un botón de WhatsApp con el mensaje listo; en Mis clientes ve los días pagados de cada uno.
+- **Aviso al cliente:** el día anterior y el día que vence, y si ya venció, su pantalla Hoy se lo dice arriba.
+- **Dinero → Seguimiento:** al corriente, por vencer (7 días), vencidas, cuántos renovaron este mes y quién dejó de pagar, con WhatsApp para avisar a cada uno.
+- **Después de su prueba:** a quien ya se le agendó la clase de prueba se le manda la inscripción por WhatsApp y se marca «Ya se inscribió» o «No se quedó».
+- **Para felicitar:** en Hoy aparecen los clientes con un avance de peso notable en el último mes; «Felicitar» abre Novedades con la felicitación lista para revisar.
+- **Golpes ilustrados:** cada golpe de la biblioteca tiene un dibujo de su trayectoria; el volado se tira con cualquiera de las dos manos.
+
+### Cambiado
+
+- El peso va primero: en Hoy del cliente, con el cambio desde su inicio y su gráfica; en Mi progreso, antes que los pilares.
+- Equipo en orden: Administración, Coaches, Clientes y Agregar.
+- La cuota del servicio se programa solo desde el panel del sistema; la administración ya no la ve.
+- Se quitaron las combinaciones de la biblioteca.
+
 ## [0.14.0] - 2026-11-07 · Orden por rol, secciones desplegables y cliente visual
 
 ### Agregado

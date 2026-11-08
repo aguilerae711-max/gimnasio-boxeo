@@ -3,7 +3,7 @@ import { Dinero } from "@/shared/domain/Dinero";
 import { Fecha } from "@/shared/domain/Fecha";
 import { Porcentaje } from "@/shared/domain/Porcentaje";
 import { AcuerdoComision } from "./AcuerdoComision";
-import { cargoDelSistema, cuadreDelMes, estadoMembresia, ingresosDelMes, validarMesCerrable, type PagoConfirmado } from "./Cuentas";
+import { cargoDelSistema, cuadreDelMes, estadoMembresia, ingresosDelMes, renovacionesDelMes, situacionDePago, validarMesCerrable, type PagoConfirmado } from "./Cuentas";
 import { Pago } from "./Pago";
 import { finDelPeriodo } from "./Plan";
 import { PoliticaComision } from "./PoliticaComision";
@@ -146,4 +146,24 @@ describe("cuentas del mes", () => {
     expect(() => validarMesCerrable("2026-11", f("2026-11-20"))).toThrow(/ya terminaron/);
     expect(() => validarMesCerrable("2026-10", f("2026-11-20"))).not.toThrow();
   });
+
+describe("seguimiento de vencimientos", () => {
+  const p = (desde: string, hasta: string) => ({ periodoDesde: Fecha.de(desde), periodoHasta: Fecha.de(hasta) });
+
+  it("cuenta los días que quedan (incluido hoy); 0 o menos es vencida", () => {
+    expect(situacionDePago([], Fecha.de("2026-11-10"))).toEqual({ vence: null, dias: null });
+    expect(situacionDePago([p("2026-10-18", "2026-11-17")], Fecha.de("2026-11-10")).dias).toBe(8);
+    expect(situacionDePago([p("2026-10-18", "2026-11-17")], Fecha.de("2026-11-17")).dias).toBe(1);
+    expect(situacionDePago([p("2026-10-18", "2026-11-17")], Fecha.de("2026-11-20")).dias).toBe(-2);
+  });
+
+  it("de quienes vencieron en el mes, separa a quien renovó de quien dejó de pagar", () => {
+    const periodos = new Map([
+      ["renovo", [p("2026-10-05", "2026-11-04"), p("2026-11-05", "2026-12-04")]],
+      ["se_fue", [p("2026-10-08", "2026-11-07")]],
+      ["aun_no_vence", [p("2026-11-01", "2026-11-30")]],
+    ]);
+    expect(renovacionesDelMes(periodos, "2026-11", Fecha.de("2026-11-15"))).toEqual({ renovaron: ["renovo"], sinRenovar: ["se_fue"] });
+  });
+});
 });

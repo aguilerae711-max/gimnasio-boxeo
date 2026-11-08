@@ -69,7 +69,9 @@ export async function descartarSolicitudCoach(datos: FormData) {
 
 export async function atenderSolicitud(datos: FormData) {
   const sesion = await requerirSesion("cliente.aprobar");
-  await casosDeSolicitudes(sesion.permisos).atender.ejecutar(actor(sesion), texto(datos, "id"), texto(datos, "estado") === "descartado" ? "descartado" : "contactado");
+  const pedido = texto(datos, "estado");
+  const estado = pedido === "descartado" || pedido === "inscrito" ? pedido : "contactado";
+  await casosDeSolicitudes(sesion.permisos).atender.ejecutar(actor(sesion), texto(datos, "id"), estado);
   revalidatePath("/admin", "layout");
 }
 

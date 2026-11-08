@@ -19,11 +19,13 @@ const cuando = (d: Date, zona: string) =>
   new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit", timeZone: zona }).format(d);
 const selector = "min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-base text-texto";
 
-export default async function Novedades() {
+export default async function Novedades({ searchParams }: { searchParams: Promise<{ felicitar?: string; titulo?: string }> }) {
   const sesion = await requerirSesion();
   const lector = lectorDe(sesion);
   const casos = casosDeNovedades(sesion.permisos);
   const esAdministracion = lector === "administracion";
+  // Desde "Para felicitar" en Hoy: la publicación llega lista para revisar.
+  const { felicitar, titulo: tituloSugerido } = await searchParams;
   const [feed, clientes] = await Promise.all([
     casos.consultas.feed(sesion.gimnasioId, lector, sesion.usuarioId),
     esAdministracion ? casos.consultas.clientes(sesion.gimnasioId) : Promise.resolve([]),
@@ -38,12 +40,12 @@ export default async function Novedades() {
       <Titulo antetitulo="Del gimnasio">Novedades</Titulo>
 
       {esAdministracion && (
-        <Desplegable titulo="Publicar">
+        <Desplegable titulo="Publicar" abierto={Boolean(felicitar)}>
           <Formulario accion={publicar} boton="Publicar" className="mt-3">
             <div className="grid gap-2 sm:grid-cols-3">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-[#c9ccd3]">Tipo</span>
-                <select name="tipo" className={selector}>
+                <select name="tipo" className={selector} defaultValue={felicitar ? "felicitacion" : undefined}>
                   {TIPOS.map((t) => (
                     <option key={t} value={t}>
                       {NOMBRE_TIPO[t]}
@@ -63,7 +65,7 @@ export default async function Novedades() {
               </label>
               <Campo etiqueta="Deja de mostrarse (opcional)" name="expira" type="datetime-local" />
             </div>
-            <Campo etiqueta="Título" name="titulo" maxLength={100} required />
+            <Campo etiqueta="Título" name="titulo" maxLength={100} required defaultValue={felicitar ? tituloSugerido?.slice(0, 100) : undefined} />
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-[#c9ccd3]">Texto</span>
               <textarea name="cuerpo" rows={3} maxLength={2000} className="rounded-xl border border-[#2a2d36] bg-[#23262e] px-4 py-3 text-base text-texto" />
@@ -83,7 +85,7 @@ export default async function Novedades() {
             {clientes.length > 0 && (
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-[#c9ccd3]">Mencionar clientes (felicitaciones) · Ctrl o Cmd para elegir varios</span>
-                <select name="menciones" multiple size={Math.min(6, clientes.length)} className="rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 py-2 text-base text-texto">
+                <select name="menciones" multiple size={Math.min(6, clientes.length)} defaultValue={felicitar ? [felicitar] : undefined} className="rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 py-2 text-base text-texto">
                   {clientes.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.nombre}

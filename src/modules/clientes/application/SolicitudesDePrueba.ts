@@ -10,8 +10,17 @@ export interface RepositorioSolicitudes {
   /** Cuántas solicitudes dejó ese teléfono desde cierta fecha (para no duplicar). */
   recientesDelTelefono(gimnasioId: string, telefono: string, desde: Date): Promise<number>;
   crear(gimnasioId: string, s: { id: string; nombre: string; telefono: string; franjaId: string | null; comentario: string | null; en: Date }): Promise<void>;
-  atender(gimnasioId: string, id: string, estado: "contactado" | "descartado", por: string, en: Date): Promise<boolean>;
+  /** Cambia el estado solo si viene del anterior permitido; false si no. */
+  atender(gimnasioId: string, id: string, estado: EstadoAtencion, por: string, en: Date): Promise<boolean>;
 }
+
+/** pendiente → contactado (se agendó) → inscrito o descartado. Desde pendiente también se puede descartar. */
+export type EstadoAtencion = "contactado" | "inscrito" | "descartado";
+export const DESDE: Record<EstadoAtencion, readonly string[]> = {
+  contactado: ["pendiente"],
+  inscrito: ["contactado"],
+  descartado: ["pendiente", "contactado"],
+};
 
 /**
  * Un visitante pide una clase de prueba desde la portada: nombre, WhatsApp y su horario preferido.
@@ -40,7 +49,7 @@ export class SolicitarClaseDePrueba {
 export class AtenderSolicitud {
   constructor(private readonly d: { repositorio: RepositorioSolicitudes; autorizacion: Autorizacion; auditoria: Auditoria; reloj: Reloj }) {}
 
-  async ejecutar(actor: Actor, id: string, estado: "contactado" | "descartado") {
+  async ejecutar(actor: Actor, id: string, estado: EstadoAtencion) {
     if (!(await this.d.autorizacion.tienePermiso(actor, PERMISO_ATENDER))) throw new SinPermiso(PERMISO_ATENDER);
     if (!(await this.d.repositorio.atender(actor.gimnasioId, id, estado, actor.usuarioId, this.d.reloj.ahora()))) {
       throw new ErrorDeDominio("ya_atendida", "Esa solicitud ya fue atendida.");

@@ -4,7 +4,18 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuditoriaPostgres } from "@/shared/infrastructure/comunes";
 import { baseDeDatos } from "@/shared/infrastructure/baseDeDatos";
-import { COOKIE_GIMNASIO, COOKIE_VER_COMO, contextoParaVerComo, requerirSistema, valorVerComo } from "../../_servidor/sesion";
+import { revalidatePath } from "next/cache";
+import type { TipoTarifa } from "@/modules/membresias/domain/Cuentas";
+import { casosDePagos } from "../../_servidor/contenedor";
+import {
+  COOKIE_GIMNASIO,
+  COOKIE_VER_COMO,
+  contextoParaVerComo,
+  mensajeDeError,
+  requerirSistema,
+  valorVerComo,
+  type EstadoFormulario,
+} from "../../_servidor/sesion";
 
 /** Pantalla de entrada de cada interfaz al empezar a ver como otra persona. */
 const INTERFACES = {
@@ -72,4 +83,28 @@ export async function verComo(datos: FormData) {
   });
   (await cookies()).set(COOKIE_VER_COMO, valorVerComo(objetivo.usuarioId, gimnasioId), { httpOnly: true, secure: segura, sameSite: "strict", path: "/", maxAge: 2 * 60 * 60 });
   redirect(INTERFACES[interfaz]);
+}
+
+/** La cuota del servicio es entre cada administración y el sistema: solo se programa desde aquí. */
+export async function programarCuota(_: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const sesion = await requerirSistema();
+  const gimnasioId = String(datos.get("gimnasioId") ?? "");
+  if (!UUID.test(gimnasioId)) return { error: "Administración no válida." };
+  const numero = (campo: string) => Number(String(datos.get(campo) ?? "").replace(",", ".")) || 0;
+  try {
+    await casosDePagos(sesion.permisos, sesion.zonaHoraria).cambiarTarifa.ejecutar(
+      { usuarioId: sesion.usuarioId, gimnasioId },
+      {
+        tipo: String(datos.get("tipo") ?? "") as TipoTarifa,
+        porcentaje: numero("porcentaje"),
+        cuotaPesos: numero("cuota"),
+        desdeMes: String(datos.get("desde") ?? ""),
+        motivo: String(datos.get("motivo") ?? ""),
+      },
+    );
+  } catch (e) {
+    return { error: mensajeDeError(e) };
+  }
+  revalidatePath("/sistema", "layout");
+  return { ok: "Cuota programada." };
 }

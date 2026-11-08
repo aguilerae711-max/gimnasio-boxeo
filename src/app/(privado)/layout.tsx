@@ -32,6 +32,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
         ]),
         ...opcion("Dinero", [
           ...solo(tiene("pago.confirmar"), { href: "/admin/pagos", texto: "Pagos" }),
+          ...solo(tiene("pago.confirmar"), { href: "/admin/seguimiento", texto: "Seguimiento" }),
           ...solo(tiene("cuadre.cerrar"), { href: "/admin/cuadre", texto: "Cuadre" }),
           ...solo(tiene("comision.cambiar"), { href: "/admin/comisiones", texto: "Comisiones" }),
         ]),

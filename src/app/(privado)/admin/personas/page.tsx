@@ -8,7 +8,7 @@ import { GenerarEnlace } from "../GenerarEnlace";
 const NOMBRE_ROL: Record<string, string> = { admin: "Administración", coach: "Coach" };
 const ESTADO_CLIENTE: Record<string, string> = { activo: "activo", pendiente: "por aprobar", rechazado: "rechazado", baja: "baja" };
 
-/** Personas de la administración: clientes agrupados por coach y el equipo (administración y coaches). */
+/** Equipo, de arriba hacia abajo: administración, coaches, clientes (por coach) y agregar. */
 export default async function Personas() {
   const sesion = await requerirSesion("cliente.aprobar");
   const [clientes, equipo] = await Promise.all([
@@ -33,37 +33,10 @@ export default async function Personas() {
     <>
       <Titulo antetitulo="Personas">Equipo</Titulo>
 
-      <Desplegable titulo="Clientes" cuenta={vigentes.length} abierto>
-        {porCoach.length === 0 ? (
-          <Vacio>Aún no hay clientes. Cada coach tiene su invitación en su pantalla Hoy.</Vacio>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {porCoach.map((g) => (
-              <details key={g.coach} className="rounded-xl border border-borde px-4" open={porCoach.length === 1}>
-                <summary className="flex min-h-12 cursor-pointer items-center gap-2 font-semibold">
-                  <span aria-hidden className="flecha text-[10px] text-texto-suave transition-transform">
-                    ▶
-                  </span>
-                  Coach {g.coach}
-                  <span className="cifras text-sm font-normal text-texto-suave">({g.clientes.length})</span>
-                </summary>
-                <Filas>{g.clientes.map(filaCliente)}</Filas>
-              </details>
-            ))}
-          </div>
-        )}
-        {anteriores.length > 0 && (
-          <details className="mt-3">
-            <summary className="cursor-pointer text-sm font-semibold text-texto-suave">Bajas y rechazados ({anteriores.length})</summary>
-            <Filas>{anteriores.map(filaCliente)}</Filas>
-          </details>
-        )}
-      </Desplegable>
-
       {(["admin", "coach"] as const).map((rol) => {
         const miembros = equipo.filter((m) => m.roles.includes(rol));
         return (
-          <Desplegable key={rol} titulo={rol === "admin" ? "Administración" : "Coaches"} cuenta={miembros.length}>
+          <Desplegable key={rol} titulo={rol === "admin" ? "Administración" : "Coaches"} cuenta={miembros.length} abierto={rol === "admin"}>
             {miembros.length === 0 ? (
               <Vacio>Nadie todavía.</Vacio>
             ) : (
@@ -94,6 +67,33 @@ export default async function Personas() {
           </Desplegable>
         );
       })}
+
+      <Desplegable titulo="Clientes" cuenta={vigentes.length}>
+        {porCoach.length === 0 ? (
+          <Vacio>Aún no hay clientes. Cada coach tiene su invitación en su pantalla Hoy.</Vacio>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {porCoach.map((g) => (
+              <details key={g.coach} className="rounded-xl border border-borde px-4" open={porCoach.length === 1}>
+                <summary className="flex min-h-12 cursor-pointer items-center gap-2 font-semibold">
+                  <span aria-hidden className="flecha text-[10px] text-texto-suave transition-transform">
+                    ▶
+                  </span>
+                  Coach {g.coach}
+                  <span className="cifras text-sm font-normal text-texto-suave">({g.clientes.length})</span>
+                </summary>
+                <Filas>{g.clientes.map(filaCliente)}</Filas>
+              </details>
+            ))}
+          </div>
+        )}
+        {anteriores.length > 0 && (
+          <details className="mt-3">
+            <summary className="cursor-pointer text-sm font-semibold text-texto-suave">Bajas y rechazados ({anteriores.length})</summary>
+            <Filas>{anteriores.map(filaCliente)}</Filas>
+          </details>
+        )}
+      </Desplegable>
 
       {sesion.permisos.includes("equipo.agregar") && (
         <Desplegable titulo="Agregar al equipo">

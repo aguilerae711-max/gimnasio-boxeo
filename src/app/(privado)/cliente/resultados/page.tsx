@@ -5,7 +5,7 @@ import { Desplegable, Tarjeta, Titulo } from "../../../_ui/piezas";
 import { COLOR_PILAR, NOMBRE_PILAR, PILARES, ResultadosPorPilar, TablaHistorial } from "../../../_ui/Resultados";
 import { GraficaPilares } from "../../../_ui/Visual";
 
-/** Mi progreso: pilares mes a mes, la última evaluación, el peso y el historial. Nunca tests, intentos ni comentarios. */
+/** Mi progreso: primero el peso (lo que más siguen), luego pilares mes a mes, la última evaluación y el historial. Nunca tests, intentos ni comentarios. */
 export default async function MiProgreso() {
   const sesion = await requerirSesion();
   const yo = await casosDeOperacion(sesion.permisos, sesion.zonaHoraria).consultas.clienteDelUsuario(sesion.gimnasioId, sesion.usuarioId);
@@ -17,6 +17,7 @@ export default async function MiProgreso() {
   return (
     <>
       <Titulo antetitulo={sesion.nombre.split(" ")[0]}>Mi progreso</Titulo>
+      <PanelPeso {...peso} />
       {historial.length > 1 && (
         <Tarjeta>
           <p className="mb-3 font-titulos text-xl font-bold uppercase">Mes a mes</p>
@@ -24,7 +25,6 @@ export default async function MiProgreso() {
         </Tarjeta>
       )}
       <ResultadosPorPilar historial={historial} titulo="Tu última evaluación" conTabla={false} />
-      <PanelPeso {...peso} />
       {historial.length > 1 && (
         <Desplegable titulo="Historial" cuenta={historial.length}>
           <TablaHistorial historial={historial} />

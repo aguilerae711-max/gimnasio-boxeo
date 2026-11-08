@@ -41,3 +41,18 @@ export function EstadoMembresia({ estado }: { estado: ReturnType<typeof estadoMe
   const [color, texto] = textos[estado.estado];
   return <Estado valor={color} texto={texto} />;
 }
+
+/** Enlace de WhatsApp con el mensaje listo (números de México de 10 dígitos). */
+export const whatsapp = (telefono: string, texto: string) => `https://wa.me/52${telefono.replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(texto)}`;
+
+export const BOTON_WHATSAPP =
+  "inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#1f7a4d] px-3.5 text-sm font-semibold text-white no-underline hover:brightness-110";
+
+/** "vence hoy", "vence mañana", "vence en 5 días", "vencida hace 3 días". */
+export function textoVencimiento(dias: number) {
+  if (dias === 1) return "vence hoy";
+  if (dias === 2) return "vence mañana";
+  if (dias > 2) return `vence en ${dias - 1} días`;
+  const atras = 1 - dias;
+  return `vencida hace ${atras} ${atras === 1 ? "día" : "días"}`;
+}

@@ -2,13 +2,22 @@ import { redirect } from "next/navigation";
 import { claveTurno, planVigente } from "@/modules/biblioteca/domain/Planes";
 import { NOMBRE_DIA } from "@/modules/operacion/domain/Horario";
 import { Fecha } from "@/shared/domain/Fecha";
-import { casosDeAcceso, casosDeBiblioteca, casosDeOperacion } from "../../_servidor/contenedor";
+import { DIAS_AVISO_ANTICIPADO, situacionDePago } from "@/modules/membresias/domain/Cuentas";
+import { casosDeAcceso, casosDeBiblioteca, casosDeOperacion, casosDePagos } from "../../_servidor/contenedor";
+import { BOTON_WHATSAPP, fechaCorta, textoVencimiento, whatsapp } from "../../_ui/formato";
 import { direccionPublica, requerirSesion } from "../../_servidor/sesion";
 import { CopiarEnlace } from "../../_ui/CopiarEnlace";
 import { Desplegable, Estado, Filas, Tarjeta, Titulo, Vacio } from "../../_ui/piezas";
 
 /** Día de la semana (0 = domingo) en la zona del gimnasio. */
 const diaDeHoy = (zona: string) => new Date(`${Fecha.hoyEn(zona, new Date()).valor}T12:00:00Z`).getUTCDay();
+
+/** Días pagados que le quedan a un cliente, con color de semáforo. */
+function DiasPagados({ dias }: { dias: number | null }) {
+  if (dias === null) return <Estado valor="baja" texto="sin pago" />;
+  if (dias <= 0) return <Estado valor="rechazado" texto="vencida" />;
+  return <Estado valor={dias <= DIAS_AVISO_ANTICIPADO ? "pendiente" : "activo"} texto={`${dias} ${dias === 1 ? "día" : "días"}`} />;
+}
 
 export default async function HoyCoach() {
   const sesion = await requerirSesion();
@@ -20,7 +29,18 @@ export default async function HoyCoach() {
     operacion.repositorio.horario(sesion.gimnasioId),
   ]);
   if (!yo) redirect("/panel");
-  const clientes = await operacion.consultas.clientesDelCoach(sesion.gimnasioId, yo.id);
+  const [clientes, periodos] = await Promise.all([
+    operacion.consultas.clientesDelCoach(sesion.gimnasioId, yo.id),
+    casosDePagos(sesion.permisos, sesion.zonaHoraria).consultas.periodos(sesion.gimnasioId),
+  ]);
+  const fechaHoy = Fecha.hoyEn(sesion.zonaHoraria, new Date());
+  const pago = new Map(clientes.map((c) => [c.clienteId, situacionDePago(periodos.get(c.clienteId) ?? [], fechaHoy)]));
+  // Aviso una semana antes y seguimiento de quien se le venció en las últimas dos semanas.
+  const porVencer = clientes
+    .filter((c) => c.estado === "activo")
+    .map((c) => ({ ...c, ...pago.get(c.clienteId)! }))
+    .filter((c): c is typeof c & { dias: number } => c.dias !== null && c.dias <= DIAS_AVISO_ANTICIPADO && c.dias > -14)
+    .sort((a, b) => a.dias - b.dias);
   const perfiles = new Map(
     await Promise.all(clientes.map(async (c) => [c.clienteId, await operacion.consultas.perfilCliente(sesion.gimnasioId, c.clienteId)] as const)),
   );
@@ -103,6 +123,38 @@ export default async function HoyCoach() {
         )}
       </Tarjeta>
 
+      {porVencer.length > 0 && (
+        <Desplegable titulo="Por vencer" cuenta={porVencer.length} alerta abierto nota="Avísales por WhatsApp">
+          <Filas>
+            {porVencer.map((c) => (
+              <li key={c.clienteId} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{c.nombre}</p>
+                  <p className={`text-sm ${c.dias <= 0 ? "text-[#ff8f97]" : "text-[#f1d9a8]"}`}>
+                    {textoVencimiento(c.dias)} · {fechaCorta(c.vence!.valor)}
+                  </p>
+                </div>
+                {c.telefono && (
+                  <a
+                    href={whatsapp(
+                      c.telefono,
+                      c.dias > 0
+                        ? `Hola ${c.nombre.split(" ")[0]}, tu membresía ${textoVencimiento(c.dias)} (${fechaCorta(c.vence!.valor)}). ¿Te la renuevo? — Coach ${yo.apodo}`
+                        : `Hola ${c.nombre.split(" ")[0]}, tu membresía venció el ${fechaCorta(c.vence!.valor)}. Te esperamos para renovarla. — Coach ${yo.apodo}`,
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={BOTON_WHATSAPP}
+                  >
+                    WhatsApp
+                  </a>
+                )}
+              </li>
+            ))}
+          </Filas>
+        </Desplegable>
+      )}
+
       <Desplegable titulo="Mis turnos de la semana" cuenta={turnos.length}>
         {turnos.length === 0 ? (
           <Vacio>Aún no tienes turnos. La administración te los asigna en el horario.</Vacio>
@@ -147,7 +199,11 @@ export default async function HoyCoach() {
                       <p className="font-semibold">{c.nombre}</p>
                       <p className="text-sm text-texto-suave">{franja ? `${franja.inicio}–${franja.fin}` : "Sin franja asignada"}</p>
                     </div>
-                    {c.estado !== "activo" && <Estado valor={c.estado} texto={c.estado === "pendiente" ? "por aprobar" : c.estado} />}
+                    {c.estado !== "activo" ? (
+                      <Estado valor={c.estado} texto={c.estado === "pendiente" ? "por aprobar" : c.estado} />
+                    ) : (
+                      <DiasPagados dias={pago.get(c.clienteId)?.dias ?? null} />
+                    )}
                   </div>
                   {(perfil?.contactoEmergencia || perfil?.notasMedicas) && (
                     <details className="mt-2 rounded-lg bg-white/[0.04] px-3 py-2 text-sm">

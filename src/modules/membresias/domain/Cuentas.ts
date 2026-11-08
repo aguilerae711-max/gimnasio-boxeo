@@ -27,6 +27,35 @@ export function estadoMembresia(periodos: readonly { periodoDesde: Fecha; period
   return { estado, vence, diasRestantes: Math.max(diasRestantes, 0) };
 }
 
+/** Con cuántos días de anticipación se avisa al coach y a la administración. */
+export const DIAS_AVISO_ANTICIPADO = 7;
+
+/**
+ * Hasta cuándo tiene pagado y cuántos días le quedan, contando hoy (0 o menos: vencida).
+ * Sin pagos: vence y dias en null.
+ */
+export function situacionDePago(periodos: readonly { periodoHasta: Fecha }[], hoy: Fecha): { vence: Fecha | null; dias: number | null } {
+  if (periodos.length === 0) return { vence: null, dias: null };
+  const vence = periodos.map((p) => p.periodoHasta).reduce((a, b) => (a.esAntesDe(b) ? b : a));
+  return { vence, dias: hoy.diasHasta(vence) + 1 };
+}
+
+/**
+ * De quienes se les venció la membresía en el mes (ya pasó la fecha), quién renovó y quién no.
+ * Renovó si tiene un periodo pagado que termina después del que se le venció.
+ */
+export function renovacionesDelMes(periodosPorCliente: ReadonlyMap<string, readonly { periodoHasta: Fecha }[]>, mes: string, hoy: Fecha) {
+  const renovaron: string[] = [];
+  const sinRenovar: string[] = [];
+  for (const [clienteId, periodos] of periodosPorCliente) {
+    const vencidos = periodos.filter((p) => p.periodoHasta.mes === mes && p.periodoHasta.esAntesDe(hoy));
+    if (vencidos.length === 0) continue;
+    const ultimoVencido = vencidos.map((p) => p.periodoHasta).reduce((a, b) => (a.esAntesDe(b) ? b : a));
+    (periodos.some((p) => ultimoVencido.esAntesDe(p.periodoHasta)) ? renovaron : sinRenovar).push(clienteId);
+  }
+  return { renovaron, sinRenovar };
+}
+
 export interface CuadreCoach {
   /** Comisiones de sus clientes por pagos confirmados en el mes. */
   comisiones: Dinero;

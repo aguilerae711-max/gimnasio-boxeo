@@ -121,6 +121,7 @@ export interface ClienteEnTurno {
   nombre: string;
   estado: string;
   franjaId: string | null;
+  telefono: string | null;
 }
 
 export interface PerfilClienteVisible {
@@ -145,7 +146,7 @@ export class ConsultasOperacion {
   /** Clientes vigentes (pendientes o activos) de un coach, con su franja. */
   clientesDelCoach(gimnasioId: string, coachId: string): Promise<ClienteEnTurno[]> {
     return enGimnasio(this.sql, gimnasioId, (tx) => tx<ClienteEnTurno[]>`
-      SELECT cl.id AS "clienteId", u.nombre, cl.estado, a.franja_id AS "franjaId"
+      SELECT cl.id AS "clienteId", u.nombre, cl.estado, a.franja_id AS "franjaId", u.telefono
       FROM cliente cl
       JOIN usuario u ON u.id = cl.usuario_id
       LEFT JOIN asignacion_coach_cliente a ON a.cliente_id = cl.id AND a.hasta IS NULL

@@ -52,7 +52,7 @@ export function parecidos(nombre: string, conocidos: readonly NombreConocido[]):
 export interface Golpe {
   codigo: string;
   nombre: string;
-  mano: "adelante" | "atras" | "combinacion";
+  mano: "adelante" | "atras" | "ambas" | "combinacion";
 }
 
 /** "1-2-3c" → Jab, Recto de atrás, Gancho al hígado. Acepta guiones, comas o espacios; avisa del código desconocido. */

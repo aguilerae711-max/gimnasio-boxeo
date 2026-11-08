@@ -4,7 +4,11 @@ import { marcaDe } from "../../../../_servidor/marca";
 import { requerirSistema } from "../../../../_servidor/sesion";
 import { nombreMes, pesos } from "../../../../_ui/formato";
 import { Logotipo } from "../../../../_ui/MarcaGimnasio";
-import { entrarAGimnasio, verComo } from "../../acciones";
+import { Fecha } from "@/shared/domain/Fecha";
+import { casosDePagos } from "../../../../_servidor/contenedor";
+import { Formulario } from "../../../../_ui/Formulario";
+import { Campo } from "../../../../_ui/piezas";
+import { entrarAGimnasio, programarCuota, verComo } from "../../acciones";
 import { describirTarifa, gimnasioDelSistema, gimnasiosDelSistema, Indicadores, ListaActividad, resumenDeGimnasio, Seccion } from "../../datos";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +64,12 @@ export default async function AdministracionEnElSistema({ params, searchParams }
   const [{ id }, { vercomo }] = await Promise.all([params, searchParams]);
   const [todas, g] = await Promise.all([gimnasiosDelSistema(), gimnasioDelSistema(id)]);
   if (!g) notFound();
-  const [r, marca] = await Promise.all([resumenDeGimnasio(g, sesion, 12), marcaDe(g.id)]);
+  const [r, marca, tarifas] = await Promise.all([
+    resumenDeGimnasio(g, sesion, 12),
+    marcaDe(g.id),
+    casosDePagos(sesion.permisos, g.zonaHoraria).repositorio.tarifas(g.id),
+  ]);
+  const proximoMes = Fecha.de(`${Fecha.hoyEn(g.zonaHoraria, new Date()).mes}-01`).sumarMeses(1).mes;
   const n = String(todas.findIndex((x) => x.id === g.id) + 1);
 
   // Quienes administran (sin ti) y el árbol coach → clientes.
@@ -176,6 +185,31 @@ export default async function AdministracionEnElSistema({ params, searchParams }
         <p className="mt-3 text-xs text-texto-suave">
           La portada pública de esta administración la ves sin cuenta: abre una ventana privada en <Link href="/">la página de inicio</Link>.
         </p>
+      </Seccion>
+
+      <Seccion titulo="Cuota del servicio" descripcion="Lo que esta administración le paga al sistema. Solo tú la ves y la programas; empieza el primer día del mes que elijas.">
+        <ul className="mb-4 text-sm text-texto-suave">
+          {tarifas.length === 0 && <li>Sin cuota programada.</li>}
+          {tarifas.map((t) => (
+            <li key={t.vigenteDesde.valor}>
+              Desde {nombreMes(t.vigenteDesde.mes)}: <b className="text-texto">{describirTarifa(t)}</b>
+            </li>
+          ))}
+        </ul>
+        <Formulario accion={programarCuota} boton="Programar cuota" variante="secundario" className="grid! grid-cols-2 items-end gap-2! sm:grid-cols-[1fr_1fr_1fr_1fr_2fr_auto]">
+          <input type="hidden" name="gimnasioId" value={g.id} />
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[13px] font-medium text-[#c9ccd3]">Tipo</span>
+            <select name="tipo" className="min-h-12 rounded-xl border border-borde bg-campo px-3 text-texto">
+              <option value="porcentaje">Porcentaje</option>
+              <option value="cuota_fija">Cuota fija</option>
+            </select>
+          </label>
+          <Campo etiqueta="%" name="porcentaje" type="number" min={0} max={50} step={0.01} defaultValue={0} />
+          <Campo etiqueta="Cuota ($)" name="cuota" type="number" min={0} step={0.01} defaultValue={0} />
+          <Campo etiqueta="Desde" name="desde" type="month" min={proximoMes} required />
+          <Campo etiqueta="Motivo" name="motivo" required />
+        </Formulario>
       </Seccion>
 
       <Seccion titulo="Actividad reciente" descripcion="Últimos movimientos en la auditoría de esta administración.">

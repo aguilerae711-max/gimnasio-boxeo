@@ -58,6 +58,9 @@ export const describirTarifa = (t: { tipo: string; puntosBase: number; cuotaFija
 export const ACCIONES: Record<string, string> = {
   "acceso.enlace_activar": "Generó un enlace de acceso",
   "acceso.usuario_cambiado": "Cambió su usuario",
+  "prueba.contactado": "Agendó una clase de prueba",
+  "prueba.inscrito": "Inscribió a alguien tras su prueba",
+  "prueba.descartado": "Descartó una clase de prueba",
   "cliente.aprobado": "Revisó un registro de cliente",
   "cliente.inscrito_con_su_cuenta": "Se inscribió como cliente",
   "cliente.perfil_actualizado": "Actualizó un perfil de cliente",

@@ -55,7 +55,7 @@ import { RegistrarPesaje } from "@/modules/evaluacion/application/Pesajes";
 import { Archivar, CancelarInscripcion, Inscribirse, Publicar } from "@/modules/novedades/application/Novedades";
 import { ConsultasNovedades, NovedadesPostgres } from "@/modules/novedades/infrastructure/NovedadesPostgres";
 import { ConsultasEvaluacion, EvaluacionesPostgres } from "@/modules/evaluacion/infrastructure/EvaluacionesPostgres";
-import { ConsultasPesajes, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
+import { ConsultasPesajes, cambiosDePeso, PesajesPostgres } from "@/modules/evaluacion/infrastructure/PesajesPostgres";
 import { CambiarTarifaSistema, CerrarCuadre, GuardarPlan, RegistrarPago, RevisarPago } from "@/modules/membresias/application/Pagos";
 import { ConsultasPagos, PagosPostgres } from "@/modules/membresias/infrastructure/PagosPostgres";
 import { almacenamientoDelEntorno } from "@/shared/infrastructure/almacenamiento";
@@ -170,6 +170,7 @@ export function casosDePesajes(permisos: readonly string[], zonaHoraria: string)
   const sql = baseDeDatos();
   return {
     consultas: new ConsultasPesajes(sql),
+    cambios: (gimnasioId: string) => cambiosDePeso(sql, gimnasioId),
     registrar: new RegistrarPesaje(
       { repositorio: new PesajesPostgres(sql), autorizacion: autorizacionConPermisos(permisos), auditoria: new AuditoriaPostgres(sql), reloj: relojDelSistema, ids: idsAleatorios },
       zonaHoraria,

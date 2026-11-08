@@ -4,9 +4,10 @@ import { requerirSesion } from "../../_servidor/sesion";
 import { Formulario } from "../../_ui/Formulario";
 import { Desplegable, Campo, Estado, Titulo } from "../../_ui/piezas";
 import { cambiarAcceso, formalizarEjercicio, fusionarEjercicio, proponerEjercicio } from "./acciones";
-import { Traductor } from "./Traductor";
+import { IlustracionGolpe } from "./IlustracionGolpe";
 
-const MANO: Record<string, string> = { adelante: "Adelante", atras: "Atrás", combinacion: "Combinación" };
+const MANO: Record<string, string> = { adelante: "Mano de adelante", atras: "Mano de atrás", ambas: "Cualquier mano" };
+const COLOR_MANO: Record<string, string> = { adelante: "#ff6b76", atras: "#e8b04b", ambas: "#c9ccd3" };
 const selector = "min-h-12 rounded-xl border border-[#2a2d36] bg-[#23262e] px-3 text-base text-texto";
 
 export default async function Biblioteca() {
@@ -21,6 +22,8 @@ export default async function Biblioteca() {
   ]);
   const esAdministracion = sesion.permisos.includes("biblioteca.formalizar");
   const lector = { esAdministracion, coachId: yo?.id ?? null, accesoCompartido: yo?.accesoBiblioteca ?? false };
+  // Las combinaciones no van en el glosario: se arman en cada rutina.
+  const golpes = glosario.filter((g) => g.mano !== "combinacion");
   const visibles = ejercicios.filter((e) => puedeVer(e, lector));
   const porFormalizar = ejercicios.filter((e) => e.estado === "propuesto");
   const formalizados = ejercicios.filter((e) => e.estado === "formalizado");
@@ -29,43 +32,31 @@ export default async function Biblioteca() {
     <>
       <Titulo antetitulo="Biblioteca">Glosario y ejercicios</Titulo>
 
-      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
-        <Desplegable titulo="Golpes" abierto>
-          <p className="text-xs text-texto-suave">La numeración del gimnasio es la oficial. La letra c indica golpe al cuerpo.</p>
-          <div className="mt-2 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-sm">
-              <thead className="text-texto-suave">
-                <tr>
-                  <th className="py-1.5 font-semibold">#</th>
-                  <th className="font-semibold">Nombre oficial</th>
-                  <th className="font-semibold">También le dicen</th>
-                  <th className="font-semibold">Mano</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#2a2d36]">
-                {glosario.map((g) => (
-                  <tr key={g.codigo} title={g.descripcion}>
-                    <td className="whitespace-nowrap py-2 pr-2 font-titulos text-lg font-bold">{g.codigo}</td>
-                    <td className="font-semibold">{g.nombre}</td>
-                    <td className="text-texto-suave">{g.alias.join(", ")}</td>
-                    <td>
-                      <span
-                        className="rounded px-1.5 py-0.5 text-xs font-semibold text-[#121317]"
-                        style={{ background: g.mano === "adelante" ? "#ff6b76" : g.mano === "atras" ? "#e8b04b" : "#a3a8b3" }}
-                      >
-                        {MANO[g.mano]}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Desplegable>
-        <Desplegable titulo="Combinaciones">
-          <Traductor golpes={glosario.map((g) => ({ codigo: g.codigo, nombre: g.nombre, mano: g.mano as "adelante" | "atras" | "combinacion" }))} />
-        </Desplegable>
-      </div>
+      <Desplegable titulo="Golpes" cuenta={golpes.length} abierto>
+        <p className="mb-3 text-xs text-texto-suave">
+          Numeración oficial del gimnasio, en guardia derecha. La c es golpe al cuerpo. Rojo: mano de adelante · ámbar: mano de atrás.
+        </p>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {golpes.map((g) => (
+            <li key={g.codigo} className="flex gap-3 rounded-xl border border-borde p-3">
+              <IlustracionGolpe codigo={g.codigo} nombre={g.nombre} />
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-titulos text-2xl font-extrabold leading-none">{g.codigo}</span>
+                  <span className="font-semibold">{g.nombre}</span>
+                </p>
+                <p className="mt-0.5 text-xs">
+                  <span className="font-semibold" style={{ color: COLOR_MANO[g.mano] }}>
+                    {MANO[g.mano]}
+                  </span>
+                  {g.alias.length > 0 && <span className="text-texto-suave"> · {g.alias.join(", ")}</span>}
+                </p>
+                <p className="mt-1 text-sm leading-snug text-[#c9ccd3]">{g.descripcion}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Desplegable>
 
       <Desplegable titulo="Ejercicios">
         <p className="text-xs text-texto-suave">

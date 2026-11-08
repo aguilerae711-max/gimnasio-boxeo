@@ -49,3 +49,40 @@ export class ConsultasPesajes {
     });
   }
 }
+
+export interface CambioDePeso {
+  clienteId: string;
+  nombre: string;
+  primeroKg: number;
+  anteriorKg: number | null;
+  ultimoKg: number;
+  ultimaFecha: string;
+  pesajes: number;
+}
+
+/** Primer, penúltimo y último pesaje real de cada cliente activo: para ver quién avanzó y felicitarlo. */
+export async function cambiosDePeso(sql: postgres.Sql, gimnasioId: string): Promise<CambioDePeso[]> {
+  const filas = await enGimnasio(sql, gimnasioId, (tx) => tx<
+    { clienteId: string; nombre: string; primero: string; anterior: string | null; ultimo: string; ultimaFecha: string; pesajes: number }[]
+  >`
+    WITH m AS (
+      SELECT cliente_id, peso_kg, fecha,
+             row_number() OVER (PARTITION BY cliente_id ORDER BY fecha DESC, creado_en DESC) AS desde_fin,
+             first_value(peso_kg) OVER (PARTITION BY cliente_id ORDER BY fecha, creado_en) AS primero,
+             count(*) OVER (PARTITION BY cliente_id) AS pesajes
+      FROM medicion_corporal WHERE gimnasio_id = ${gimnasioId} AND NOT aproximado)
+    SELECT cl.id AS "clienteId", u.nombre, u1.primero, u2.peso_kg AS anterior, u1.peso_kg AS ultimo, u1.fecha::text AS "ultimaFecha", u1.pesajes::int AS pesajes
+    FROM cliente cl JOIN usuario u ON u.id = cl.usuario_id
+    JOIN m u1 ON u1.cliente_id = cl.id AND u1.desde_fin = 1
+    LEFT JOIN m u2 ON u2.cliente_id = cl.id AND u2.desde_fin = 2
+    WHERE cl.gimnasio_id = ${gimnasioId} AND cl.estado = 'activo'`);
+  return filas.map((f) => ({
+    clienteId: f.clienteId,
+    nombre: f.nombre,
+    primeroKg: Number(f.primero),
+    anteriorKg: f.anterior === null ? null : Number(f.anterior),
+    ultimoKg: Number(f.ultimo),
+    ultimaFecha: f.ultimaFecha,
+    pesajes: f.pesajes,
+  }));
+}
