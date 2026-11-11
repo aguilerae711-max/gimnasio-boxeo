@@ -7,6 +7,7 @@ import { fechaCorta, textoVencimiento } from "./formato";
 import { BOTON, Estado, Tarjeta, Titulo } from "./piezas";
 import { calificacion, colorCalificacion, promedioPilares } from "./Resultados";
 import { RutinaDeHoy } from "./RutinaDeHoy";
+import { limiteDivision } from "./PanelPeso";
 import { AnilloDias, CalendarioMes, GraficaPeso } from "./Visual";
 
 const MENSAJE: Record<string, string> = {
@@ -117,30 +118,26 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
       </Tarjeta>
 
       <Tarjeta>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">Tu peso</p>
-            <p className="cifras font-titulos text-6xl font-extrabold leading-none">
-              {corporal ? corporal.actual.pesoKg.toFixed(1) : "—"}
-              <span className="ml-1 text-2xl text-texto-suave">kg</span>
-            </p>
-          </div>
-          {corporal && (
-            <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">División</p>
-              {corporal.division ? (
-                <>
-                  <p className="font-titulos text-2xl font-extrabold text-acento">{corporal.division.nombre}</p>
-                  <p className="text-xs text-texto-suave">{peso.sexo === "F" ? "Femenil" : "Varonil"}</p>
-                </>
-              ) : (
-                <Link href="/perfil" className="text-sm">
-                  Indica tu rama
-                </Link>
-              )}
-            </div>
-          )}
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">Tu peso</p>
+        <p className="cifras font-titulos text-6xl font-extrabold leading-none">
+          {corporal ? corporal.actual.pesoKg.toFixed(1) : "—"}
+          <span className="ml-1 text-2xl text-texto-suave">kg</span>
+        </p>
+        {corporal && (
+          <p className="mt-2 flex flex-wrap items-baseline gap-x-2 text-sm text-texto-suave">
+            División
+            {corporal.division ? (
+              <>
+                <span className="font-titulos text-2xl font-extrabold uppercase text-acento">{corporal.division.nombre}</span>
+                <span className="text-xs">
+                  {peso.sexo === "F" ? "Femenil" : "Varonil"} · {limiteDivision(corporal.division)}
+                </span>
+              </>
+            ) : (
+              <Link href="/perfil">indica tu rama en Mi cuenta</Link>
+            )}
+          </p>
+        )}
         {corporal ? (
           <>
             {(corporal.cambioTotal !== null || corporal.cambioAnterior !== null) && (

@@ -94,14 +94,14 @@ describe("evaluación por pilares en Postgres", () => {
     expect(continuada).toBe(false);
     await expect(new GuardarCaptura(d(["evaluacion.realizar"])).ejecutar(admin, sesionId, "salto_horizontal", [{ cm: 180 }])).rejects.toThrow(/check-in/);
     const chequeo = await new RegistrarChequeo(d(["evaluacion.realizar"])).ejecutar(admin, sesionId, { lesionODolor: false, durmioBien: true, comio3h: true, pesoKg: 56.4, estaturaCm: 163 });
-    expect(chequeo).toEqual({ apto: true, division: "57 kg" });
+    expect(chequeo).toEqual({ apto: true, division: "Pluma" });
     await capturaCompleta(sesionId);
     await new GuardarRubrica(d(["evaluacion.realizar"])).ejecutar(admin, sesionId, new Map(["c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10"].map((c) => [c, 1])), { nombre: "Beto", habitual: true });
     const r = await new CerrarEvaluacion(d(["evaluacion.realizar"])).ejecutar(admin, sesionId);
     expect(r.estado).toBe("completa");
     expect(Object.fromEntries(r.pilares.map((p) => [p.pilar, p.indice]))).toEqual({ fuerza: 100, velocidad: 100, resistencia: 100, estrategia: 100 });
     const [s] = await enGimnasio(sql, GIMNASIO, (tx) => tx`SELECT tipo, division FROM sesion_evaluacion WHERE id = ${sesionId}`);
-    expect(s).toEqual({ tipo: "inicial", division: "57 kg" });
+    expect(s).toEqual({ tipo: "inicial", division: "Pluma" });
     await expect(new IniciarEvaluacion(d(["evaluacion.realizar"])).ejecutar(admin, ana, "4826")).rejects.toThrow(/ya tiene su evaluación/);
   });
 
@@ -132,8 +132,8 @@ describe("evaluación por pilares en Postgres", () => {
     // Calificación 1–10 desde los valores reales (rama femenil): salto 185 cm = 8.1 y flexiones 18 = 8.7 → fuerza 8.4;
     // en diciembre salto 204 = 9.6 y flexiones 20 = 9.1 → 9.4. Estrategia sale de la rúbrica (0–10).
     expect(historial.map((h) => [h.tipo, h.periodo, h.division, h.pilares.fuerza])).toEqual([
-      ["inicial", "2026-11", "57 kg", 8.4],
-      ["mensual", "2026-12", "57 kg", 9.4],
+      ["inicial", "2026-11", "Pluma", 8.4],
+      ["mensual", "2026-12", "Supergallo", 9.4],
     ]);
     const mike = (await consultas.resultadoCoaches(GIMNASIO, "2026-12")).find((c) => c.coachId === coachMike)!;
     expect(mike).toMatchObject({ activos: 1, evaluados: 1, fuerza: 9.4, estrategia: 10 });

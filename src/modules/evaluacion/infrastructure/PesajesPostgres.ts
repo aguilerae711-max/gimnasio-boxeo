@@ -34,7 +34,7 @@ export class ConsultasPesajes {
       const divisiones = await tx<{ nombre: string; sexo: Sexo; limite: string | null }[]>`
         SELECT d.nombre, d.sexo, d.limite_kg AS limite
         FROM division_peso d JOIN gimnasio g ON g.disciplina_id = d.disciplina_id
-        WHERE g.id = ${gimnasioId} AND d.estandar = 'world_boxing_elite' ORDER BY d.sexo, d.orden`;
+        WHERE g.id = ${gimnasioId} AND d.estandar = 'profesional' ORDER BY d.sexo, d.orden`;
       return {
         mediciones: mediciones.map((m) => ({
           fecha: m.fecha,

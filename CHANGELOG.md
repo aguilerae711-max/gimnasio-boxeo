@@ -7,7 +7,7 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
-## [0.19.0] - 2026-11-10 · Tu mejora
+## [0.19.0] - 2026-11-10 · Tu mejora y divisiones con nombre
 
 ### Agregado
 
@@ -17,7 +17,8 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 ### Cambiado
 
 - El cliente ya no ve su IMC ni palabras como «sobrepeso»: en su lugar ve cuánto ha cambiado su peso desde su inicio. El coach y la administración siguen viendo el IMC.
-- La división se muestra siempre en Hoy, con su rama (Femenil o Varonil); si falta la rama, le pide indicarla en Mi cuenta.
+- Las divisiones de peso ahora son las 17 del boxeo profesional con su nombre (Paja, Minimosca, Mosca, Supermosca, Gallo, Supergallo, Pluma, Superpluma, Ligero, Superligero, Welter, Superwelter, Mediano, Supermediano, Semipesado, Crucero y Pesado), con su límite en kg, igual en ambas ramas. Las evaluaciones anteriores toman el nombre nuevo según su peso.
+- La división se muestra siempre en Hoy, bajo el peso, con su rama y su límite («Ligero · Femenil · hasta 61.2 kg»); si falta la rama, le pide indicarla en Mi cuenta.
 - El botón de Hoy ahora dice «Ver mi mejora».
 
 ## [0.18.1] - 2026-11-08 · Panel del sistema en el celular

@@ -118,7 +118,7 @@ export class EvaluacionesPostgres implements RepositorioEvaluaciones {
   async divisiones(gimnasioId: string): Promise<DivisionPeso[]> {
     const filas = await this.sql<{ nombre: string; sexo: Sexo; limite: string | null }[]>`
       SELECT d.nombre, d.sexo, d.limite_kg AS limite FROM division_peso d JOIN gimnasio g ON g.disciplina_id = d.disciplina_id
-      WHERE g.id = ${gimnasioId} AND d.estandar = 'world_boxing_elite' ORDER BY d.sexo, d.orden`;
+      WHERE g.id = ${gimnasioId} AND d.estandar = 'profesional' ORDER BY d.sexo, d.orden`;
     return filas.map((d) => ({ nombre: d.nombre, sexo: d.sexo, limiteKg: d.limite === null ? null : Number(d.limite) }));
   }
 

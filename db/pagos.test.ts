@@ -144,7 +144,7 @@ describe("pagos, cuadre y pesajes en Postgres", () => {
     const { mediciones, sexo, divisiones } = await new ConsultasPesajes(sql).delCliente(GIMNASIO, ana);
     expect(mediciones.map((m) => [m.origen, m.aproximado])).toEqual([["registro", true], ["evaluacion", false], ["imprevista", false]]);
     const e = estadoCorporal(mediciones, sexo, divisiones)!;
-    expect(e.division?.nombre).toBe("57 kg");
+    expect(e.division?.nombre).toBe("Supergallo");
     expect([e.cambioAnterior, e.cambioTotal, e.estaturaCm]).toEqual([-2.2, -2.2, 163]);
     await expect(new RegistrarPesaje({ repositorio: new PesajesPostgres(sql), autorizacion: autorizacionConPermisos([]), auditoria: new AuditoriaPostgres(sql), reloj: { ahora: () => ahora }, ids: idsAleatorios }, "America/Mexico_City").ejecutar(mike, { clienteId: ana, fecha: "2026-12-01", pesoKg: 50, estaturaCm: null, origen: "imprevista" })).rejects.toThrow(/permiso/);
   });

@@ -3,7 +3,10 @@ import { fechaCorta } from "./formato";
 import { GraficaPeso } from "./Visual";
 import { Tarjeta } from "./piezas";
 
-const conSigno = (kg: number) => `${kg > 0 ? "+" : ""}${kg.toFixed(1)} kg`;
+/** "hasta 57.2 kg", o "sin límite" para Pesado. */
+export const limiteDivision = (d: DivisionPeso) => (d.limiteKg !== null ? `hasta ${d.limiteKg} kg` : "sin límite");
+
+const conSigno =(kg: number) => `${kg > 0 ? "+" : ""}${kg.toFixed(1)} kg`;
 
 /** Peso actual, IMC, división (se mantiene hasta el siguiente pesaje), cambio y historial. */
 export function PanelPeso({
@@ -37,7 +40,7 @@ export function PanelPeso({
             <div>
               <p className="text-xs text-texto-suave">División</p>
               <p className="font-titulos text-3xl font-extrabold text-acento">{estado.division?.nombre ?? "—"}</p>
-              <p className="text-xs text-texto-suave">{sexo === "F" ? "Femenil" : sexo === "M" ? "Varonil" : paraCliente ? <a href="/perfil">Indica tu rama en Mi cuenta</a> : "Falta su rama"}</p>
+              <p className="text-xs text-texto-suave">{sexo ? `${sexo === "F" ? "Femenil" : "Varonil"}${estado.division ? ` · ${limiteDivision(estado.division)}` : ""}` : paraCliente ? <a href="/perfil">Indica tu rama en Mi cuenta</a> : "Falta su rama"}</p>
             </div>
             {paraCliente ? (
               <div>
