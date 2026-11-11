@@ -125,10 +125,19 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
               <span className="ml-1 text-2xl text-texto-suave">kg</span>
             </p>
           </div>
-          {corporal?.division && (
+          {corporal && (
             <div className="text-right">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-texto-suave">División</p>
-              <p className="font-titulos text-2xl font-extrabold text-acento">{corporal.division.nombre}</p>
+              {corporal.division ? (
+                <>
+                  <p className="font-titulos text-2xl font-extrabold text-acento">{corporal.division.nombre}</p>
+                  <p className="text-xs text-texto-suave">{peso.sexo === "F" ? "Femenil" : "Varonil"}</p>
+                </>
+              ) : (
+                <Link href="/perfil" className="text-sm">
+                  Indica tu rama
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -189,7 +198,7 @@ export async function PantallaMiEstado({ sesion, usuarioId, vista = false }: { s
         </div>
         {!vista && (
           <Link href="/cliente/resultados" className={BOTON.secundario}>
-            Mi progreso
+            Ver mi mejora
           </Link>
         )}
       </Tarjeta>

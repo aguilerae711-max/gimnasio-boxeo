@@ -172,3 +172,62 @@ export function ResultadosPorPilar({
     </Tarjeta>
   );
 }
+
+/**
+ * Tu mejora: de tu primera evaluación a la última, promedio y cada pilar (1 al 10).
+ * El peso va aparte: no cuenta en la calificación.
+ */
+export function TuMejora({ historial, children }: { historial: ResumenPilares[]; children?: React.ReactNode }) {
+  const encabezado = <h2 className="font-titulos text-2xl font-bold uppercase">Tu mejora</h2>;
+  if (historial.length === 0) {
+    return (
+      <Tarjeta>
+        {encabezado}
+        <p className="mt-1 text-sm text-texto-suave">Después de tu primera evaluación verás aquí cuánto vas mejorando, mes a mes.</p>
+      </Tarjeta>
+    );
+  }
+  const inicio = historial[0];
+  const ultima = historial.at(-1)!;
+  const una = historial.length === 1;
+  const filas = [
+    { clave: "promedio", nombre: "Promedio", color: "#e6e7ea", de: promedioPilares(inicio.pilares), a: promedioPilares(ultima.pilares) },
+    ...PILARES.map((p) => ({ clave: p, nombre: NOMBRE_PILAR[p], color: COLOR_PILAR[p], de: inicio.pilares[p] ?? null, a: ultima.pilares[p] ?? null })),
+  ];
+  return (
+    <Tarjeta>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        {encabezado}
+        <span className="text-xs text-texto-suave">{una ? nombreMes(inicio.periodo) : `${nombreMes(inicio.periodo)} → ${nombreMes(ultima.periodo)}`}</span>
+      </div>
+      <ul className="mt-2 divide-y divide-borde">
+        {filas.map((f) => {
+          const d = f.de !== null && f.a !== null ? Math.round((f.a - f.de) * 10) / 10 : null;
+          return (
+            <li key={f.clave} className="flex items-center justify-between gap-3 py-2">
+              <span style={{ color: f.color }} className={`text-sm ${f.clave === "promedio" ? "font-bold" : "font-semibold"}`}>
+                {f.nombre}
+              </span>
+              <span className="cifras flex items-baseline gap-2 text-sm">
+                {!una && <span className="text-texto-suave">{calificacion(f.de)} →</span>}
+                <span className="font-titulos text-xl font-extrabold" style={{ color: colorCalificacion(f.a) }}>
+                  {calificacion(f.a)}
+                </span>
+                {!una && d !== null && (
+                  <span className={`w-12 text-right text-xs font-semibold ${d > 0 ? "text-[#6fe0a2]" : d < 0 ? "text-[#ff8f97]" : "text-texto-suave"}`}>
+                    {d > 0 ? `▲ ${d.toFixed(1)}` : d < 0 ? `▼ ${Math.abs(d).toFixed(1)}` : "="}
+                  </span>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-2 text-xs text-texto-suave">
+        {una ? "Este es tu punto de partida; en tu próxima evaluación verás cuánto subiste." : "De tu primera evaluación a la última."} Del 1 al 10, donde 10
+        es nivel élite. Tu peso va aparte y no cuenta en esta calificación.
+      </p>
+      {children}
+    </Tarjeta>
+  );
+}

@@ -7,6 +7,19 @@ Cada versión publicada queda aquí, con su etiqueta en Git (`vX.Y.Z`) y su revi
 - **Y** (función): algo nuevo que se puede usar, o una fase del plan.
 - **X** (mayor): cambios que obligan a todos a cambiar su forma de usar la app. `1.0.0` será el piloto en uso real.
 
+## [0.19.0] - 2026-11-10 · Tu mejora
+
+### Agregado
+
+- En Mi progreso del cliente, «Tu mejora» va primero: compara su primera evaluación con la última (promedio y cada pilar, del 1 al 10) con la gráfica mes a mes. Si apenas tiene una, la marca como su punto de partida.
+- Se aclara que el peso va aparte y no cuenta en la calificación.
+
+### Cambiado
+
+- El cliente ya no ve su IMC ni palabras como «sobrepeso»: en su lugar ve cuánto ha cambiado su peso desde su inicio. El coach y la administración siguen viendo el IMC.
+- La división se muestra siempre en Hoy, con su rama (Femenil o Varonil); si falta la rama, le pide indicarla en Mi cuenta.
+- El botón de Hoy ahora dice «Ver mi mejora».
+
 ## [0.18.1] - 2026-11-08 · Panel del sistema en el celular
 
 ### Corregido

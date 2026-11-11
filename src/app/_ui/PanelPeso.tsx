@@ -11,11 +11,14 @@ export function PanelPeso({
   sexo,
   divisiones,
   children,
+  paraCliente = false,
 }: {
   mediciones: Medicion[];
   sexo: Sexo | null;
   divisiones: DivisionPeso[];
   children?: React.ReactNode;
+  /** Al cliente no se le etiqueta su cuerpo (sin IMC ni «sobrepeso»): ve su cambio de peso. */
+  paraCliente?: boolean;
 }) {
   const estado = estadoCorporal(mediciones, sexo, divisiones);
   return (
@@ -34,18 +37,26 @@ export function PanelPeso({
             <div>
               <p className="text-xs text-texto-suave">División</p>
               <p className="font-titulos text-3xl font-extrabold text-acento">{estado.division?.nombre ?? "—"}</p>
-              <p className="text-xs text-texto-suave">{sexo === "F" ? "Femenil" : sexo === "M" ? "Varonil" : "Indica tu rama en Mi cuenta"}</p>
+              <p className="text-xs text-texto-suave">{sexo === "F" ? "Femenil" : sexo === "M" ? "Varonil" : paraCliente ? <a href="/perfil">Indica tu rama en Mi cuenta</a> : "Falta su rama"}</p>
             </div>
-            <div>
-              <p className="text-xs text-texto-suave">IMC</p>
-              <p className="font-titulos text-3xl font-extrabold">{estado.imc?.valor ?? "—"}</p>
-              <p className="text-xs text-texto-suave">{estado.imc ? estado.imc.lectura : "Falta estatura"}</p>
-            </div>
+            {paraCliente ? (
+              <div>
+                <p className="text-xs text-texto-suave">Desde tu inicio</p>
+                <p className="cifras font-titulos text-3xl font-extrabold">{estado.cambioTotal !== null ? conSigno(estado.cambioTotal) : "—"}</p>
+                <p className="text-xs text-texto-suave">{estado.cambioTotal !== null ? "cambio de peso" : "tu primer pesaje"}</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-texto-suave">IMC</p>
+                <p className="font-titulos text-3xl font-extrabold">{estado.imc?.valor ?? "—"}</p>
+                <p className="text-xs text-texto-suave">{estado.imc ? estado.imc.lectura : "Falta estatura"}</p>
+              </div>
+            )}
           </div>
-          {(estado.cambioAnterior !== null || estado.cambioTotal !== null) && (
+          {(estado.cambioAnterior !== null || (!paraCliente && estado.cambioTotal !== null)) && (
             <p className="mt-3 text-sm text-[#c9ccd3]">
               {estado.cambioAnterior !== null && <>Desde el pesaje anterior: <b>{conSigno(estado.cambioAnterior)}</b></>}
-              {estado.cambioTotal !== null && <> · Desde el primero: <b>{conSigno(estado.cambioTotal)}</b></>}
+              {!paraCliente && estado.cambioTotal !== null && <> · Desde el primero: <b>{conSigno(estado.cambioTotal)}</b></>}
             </p>
           )}
           <div className="mt-3">
@@ -65,7 +76,9 @@ export function PanelPeso({
           </ul>
           </details>
           <p className="mt-2 text-xs text-texto-suave">
-            El IMC es solo una referencia: con mucho músculo sale alto. Tu división se mantiene hasta el siguiente pesaje.
+            {paraCliente
+              ? "Tu división se mantiene hasta el siguiente pesaje."
+              : "El IMC es solo una referencia: con mucho músculo sale alto. La división se mantiene hasta el siguiente pesaje."}
           </p>
         </>
       )}

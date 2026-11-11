@@ -42,8 +42,9 @@ export const AYUDA: SeccionDeAyuda[] = [
         titulo: "Tus días y tu peso",
         pasos: [
           "En Hoy, el anillo te dice cuántos días te quedan pagados; el calendario marca tus días pagados y cuándo vence.",
-          "En Peso y división ves tu peso, tu división (según tu rama), tu IMC y cuánto has subido o bajado.",
-          "Tu división se mantiene hasta el siguiente pesaje. El IMC es solo una referencia.",
+          "En Mi progreso, Peso y división te muestra tu peso, tu división (según tu rama) y cuánto ha cambiado desde tu inicio.",
+          "Tu división se mantiene hasta el siguiente pesaje. Tu peso no cuenta en tu calificación.",
+          "En Mi progreso, Tu mejora compara tu primera evaluación con la última, pilar por pilar, y la gráfica muestra cada mes.",
         ],
       },
       {
